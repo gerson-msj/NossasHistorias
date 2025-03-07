@@ -1,0 +1,53 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "tsc",
+			"type": "typescript",
+			"tsconfig": "web/tsconfig.json",
+			"group": "build",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+		},
+		{
+			"label": "deno",
+			"type": "deno",
+			"command": "run",
+			"args": [
+				"-A",
+				"--watch",
+				"--unstable-kv",
+				"main.ts"
+			],
+			"problemMatcher": [
+				"$deno"
+			],
+		},
+		{
+			"label": "chrome",
+			"type": "shell",
+			"command": "start",
+			"args": ["chrome", "http://localhost:8000"],
+			"windows": {
+				"command": "cmd",
+				"args": ["/c", "start chrome http://localhost:8000"]
+			}
+		},
+		{
+			"label": "Run",
+			"type": "process",
+			"command": "",
+			"dependsOn": [
+				"tsc",
+				"deno",
+				"chrome"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

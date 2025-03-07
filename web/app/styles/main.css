@@ -1,0 +1,131 @@
+@import "./dark.css";
+@import "./layout.css";
+@import "./form.css";
+@import "./fonts.css";
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --color-btn: rgb(50, 50, 100);
+    --base-font-image-size: 28px;
+    --input-invalid-border-color: #ce6262;
+    --menu-width: 225px;
+}
+
+.oculto {
+    display: none !important;
+}
+
+.pointer {
+    cursor: pointer !important;
+}
+
+h1 {
+    font-size: 18pt;
+}
+
+
+
+/* cards... */
+
+#cards {
+    width: 100%;
+    max-width: 600px;
+    background-color: #444;
+    padding: 5px 10px;
+}
+
+#cards table {
+    border: 1px solid #fff;
+    width: 100%;
+}
+
+#cards caption div {
+    display: grid;
+    grid-template-columns: auto 75px;
+    gap: 0;
+    align-items: center;
+    background-color: #555;
+    padding: 5px;
+}
+
+#cards caption div span:first-child {
+    justify-self: start;
+}
+
+#cards caption div span:last-child {
+    justify-self: end;
+}
+
+#cards th {
+    width: 33%;
+}
+
+#cards tbody tr {
+    text-align: center;
+}
+
+
+/* ...cards */
+
+/* menu... */
+
+.menu-container {
+    display: flex;
+}
+
+.menu-container .menu {
+    position: fixed;
+    height: 300px;
+    top: 55px;
+    width: var(--menu-width);
+    left: calc(50vw + (300px - var(--menu-width)));
+    z-index: 11;
+    background-color: #222222f9;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+@media screen and (max-width: 600px) {
+    .menu-container .menu {
+        left: calc(50vw + (50vw - var(--menu-width)));
+    }
+}
+
+.menu-container .backdrop {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    width: 100vw;
+    left: 0;
+    z-index: 10;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.menu-container button[type=menu] {
+    width: 100%;
+    max-width: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+}
+
+.menu-container button[type=menu] span {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.menu-container button[type=menu] label {
+    padding-left: 5px;
+    padding-bottom: 0;
+    cursor: pointer;
+}
+
+/* ...menu */

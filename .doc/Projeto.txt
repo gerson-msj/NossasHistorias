@@ -1,0 +1,110 @@
+Funcionalidades por Pessoa
+
+	Sistema
+		- Cria um Identificador quando o Usuário não tiver um.
+		- Permite que um Usuário visualize e copie seu Identificador.
+		- Permite que um Usuário informe um identificador copiado previamente.
+		- Permite que um Usuário se torne um Moderador, por meio de uma Chave de Acesso de Moderador.
+		- Expurga mensagens excluídas.
+		- Expurga Editores ou Leitores inativos.
+		- Controla Visualizações e curtidas dos Usuários.
+		- Disponibiliza um Painel de Controle para o Administrador, acessado por usuário e senha.
+		- A API só pode ser acessada via Localhost ou pela própria URL da aplicação (CORS)
+		
+	Administrador
+		- Visualiza usuários.
+		- Ativa ou inativa o perfil de Moderador em um usuário.
+		- Visualiza o Identificador de um Usuário.
+
+	Identificador
+		- Identifica exclusivamente um Usuário.
+		- Registra as visualizações de um Usuário.
+		- Registra as curtidas de um Usuário.
+		- É um token que contém o Id de Usuário.
+
+	Postagem
+		- É criada por um Editor.
+		- É visualizada por um Leitor quando Aprovada.
+		- É visualizada por um Editor.
+		- É curtida por um Usuário.
+		- É excluída por um Editor ou um Moderador.
+		- É aprovada por um Moderador.
+		- É reprovada por um Moderador.
+		- É composta por:
+			Editor, Moderador, Data de Criação, Data de Aprovação, Data de Reprovação, Motivo de Reprovação, Motivo de Exclusão, Título, Conteúdo.
+		
+	Usuário
+		- Um Usuário é um Editor e um Leitor.
+		- Um Usuário pode ser um Moderador.
+		- Visualiza, copia ou Informa seu Identificador.
+		Editor
+			- Criar Postagens.
+			- Filtra suas Postagens (Aprovadas, Pendentes de Aprovação, Reprovadas, Excluídas).
+			- Excluir suas Postagens ainda não excluídas.
+		Leitor
+			- Visualiza Postagens.
+			- Curte Postagens.
+			- Filtra novas Postagens.
+			- Filtra postagens curtidas.
+			- Filtra postagens já visualizadas.
+		Moderador
+			- Aprova ou reprova Postagens dos Editores.
+			- Filtra Postagens pendentes de Aprovação.
+			- Filtra Postagens aprovadas.
+			- Filtra Postagens reprovadas.
+			
+Telas
+	
+	Painel de Controle
+		- Solicita um token.
+			- Informa quando inválido.
+		- Apresenta lista de usuários.
+			- Ordena por Id.
+			- Permite ativar ou inativar o perfil Moderador.
+			- Permite visualizar o Identificador.
+			
+	Header
+		- Apresenta o logo
+		- Apresenta o nome do sistema
+		- apresenta um menu, de acordo com o perfil do Usuário
+			- Criar Postagem
+			- Minhas Postagens
+			- Novas Postagens
+			- Postagens Visualizadas
+			- Postagens Curtidas
+			- Pendentes de Aprovação (Moderador)
+			- Postagens Aprovadas (Moderador)
+			- Dados de Acesso
+			
+	Home
+		- Apresenta as Postagens aprovadas e não visualizadas (Novas Postagens).
+			- Permite alterar curtida.
+		- Apresenta Postagens Visualizadas (POstagens Visualizadas).
+			- Permite alterar curtida.
+		- Apresenta Postagens Curtidas (Postagens Curtidas).
+			- Permite alterar curtida.
+		- Apresenta Postagens Pendentes de Aprovação (Pendentes de Aprovação).
+			- Permite Aprovar ou Reprovar, para reprovar precisa de uma jutificativa.
+		- Apresenta Postagens Aprovadas (Postagens Aprovadas). 
+			- Permite Reprovar, para reprovar precisa de uma jutificativa.
+		OBS.: Com exceção das postagens pendentes de aprovação, todas as demais apresentam a quantidade de curtidas.
+		
+	
+	Minhas Postagens
+		- Apresenta uma lista de Postagens do Usuário com sua situação atual.
+		- Permite Editar a Postagem.
+		
+	Editar Postagem
+		- Visualiza a postagem.
+			- Não permite edição do conteúdo.
+			- Permite exclusão.
+			- Visualiza a quantidade de curtidas.
+		
+	Criar Postagem
+		- Permite editar o título e o conteúdo da postagem.
+		- Permite visualizar a postagem antes de confirmar.
+		- Permite confirmar após visualizar.
+		
+	Dados de Acesso
+		- Permite visualizar e copiar o Identificador
+		- Permite informar um Identificador

@@ -1,0 +1,12 @@
+{
+    "css.styleSheets": [
+        "web/app/styles/**/*.css"
+    ],
+    "deno.enable": true,
+    "deno.disablePaths": [
+        "./web"
+    ],
+    "files.exclude": {
+        "**/.doc": true
+    }
+}
