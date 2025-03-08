@@ -5,6 +5,7 @@ import { headerMenuClick, headerVoltarClick } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
 import VisualizarHistoriaComponent from "./components/visualizar-historia.component";
+import MinhasHistoriasComponent from "./components/minhas-historias.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -57,6 +58,9 @@ class App {
             case "visualizar-historia-component":
                 this.visualizarHistoria();
                 break;
+            case "minhas-historias-component":
+                this.minhasHistorias();
+                break;
             default:
                 this.intro();
                 break;
@@ -71,7 +75,6 @@ class App {
         exibirMenu: boolean = false): HTMLElement {
 
         localStorage.setItem("currentComponentName", name);
-        //history.pushState({ currentComponentName: name }, name, path);
         const headerConfig: HeaderConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
         this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
 
@@ -105,8 +108,8 @@ class App {
 
     private index() {
         const component = this.loadComponent("index-component", IndexComponent, null, false, true);
-        component.addEventListener("novaHistoria", () =>
-            this.novaHistoria());
+        component.addEventListener("novaHistoria", () => this.novaHistoria());
+        component.addEventListener("minhasHistorias", () => this.minhasHistorias());
     }
 
     private novaHistoria() {
@@ -116,9 +119,14 @@ class App {
     }
 
     private visualizarHistoria() {
-        const component = this.loadComponent("visualizar-historia-component", VisualizarHistoriaComponent, "Compartilhar uma História", true);
+        const component = this.loadComponent("visualizar-historia-component", VisualizarHistoriaComponent, "Visualizar História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.novaHistoria());
         component.addEventListener("salvar", () => this.index());
+    }
+
+    private minhasHistorias() {
+        const component = this.loadComponent("minhas-historias-component", MinhasHistoriasComponent, "Minhas Histórias", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
     }
 }
 
