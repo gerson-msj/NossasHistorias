@@ -154,19 +154,30 @@ define("components/header.component", ["require", "exports", "models/const.model
     }
     exports.default = HeaderComponent;
 });
-define("components/index.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
+define("components/index.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_2, service_2, viewmodel_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_2 = __importDefault(component_2);
     service_2 = __importDefault(service_2);
     viewmodel_2 = __importDefault(viewmodel_2);
     class IndexViewModel extends viewmodel_2.default {
-        about;
-        onAbout = () => { };
+        menuContainer;
+        menuBackdrop;
+        novaHistoria;
+        onNovaHistoria = () => { };
         constructor() {
             super();
-            this.about = this.getElement("about");
-            this.about.addEventListener("click", () => this.onAbout());
+            this.menuContainer = this.getElement("menuContainer");
+            this.menuBackdrop = this.getElement("menuBackdrop");
+            this.novaHistoria = this.getElement("novaHistoria");
+            this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
+            this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
+        }
+        exibirMenu() {
+            this.menuContainer.classList.remove("oculto");
+        }
+        ocultarMenu() {
+            this.menuContainer.classList.add("oculto");
         }
     }
     class IndexService extends service_2.default {
@@ -177,12 +188,13 @@ define("components/index.component", ["require", "exports", "components/base/com
         }
         async initialize() {
             await this.initializeResources(IndexViewModel, IndexService);
-            this.viewModel.onAbout = () => this.dispatchEvent(new Event("about"));
+            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
+            this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
         }
     }
     exports.default = IndexComponent;
 });
-define("components/about.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_3, service_3, viewmodel_3) {
+define("components/about.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_3, service_3, viewmodel_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_3 = __importDefault(component_3);
@@ -198,7 +210,7 @@ define("components/about.component", ["require", "exports", "models/const.model"
         }
         async initialize() {
             await this.initializeResources(AboutViewModel, AboutService);
-            this.addEventListener(const_model_2.headerVoltarClick, () => this.dispatchEvent(new Event("voltar")));
+            this.addEventListener(const_model_3.headerVoltarClick, () => this.dispatchEvent(new Event("voltar")));
         }
     }
     exports.default = AboutComponent;
@@ -227,18 +239,41 @@ define("components/intro.component", ["require", "exports", "components/base/com
         async initialize() {
             await this.initializeResources(IntroViewModel, IntroService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-            //localStorage.setItem("intro", "true");
+            localStorage.setItem("intro", "true");
         }
     }
     exports.default = IntroComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/about.component", "models/const.model", "components/intro.component"], function (require, exports, header_component_1, index_component_1, about_component_1, const_model_3, intro_component_1) {
+define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_5, service_5, viewmodel_5) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_5 = __importDefault(component_5);
+    service_5 = __importDefault(service_5);
+    viewmodel_5 = __importDefault(viewmodel_5);
+    class NovaHistoriaViewModel extends viewmodel_5.default {
+        constructor() {
+            super();
+        }
+    }
+    class NovaHistoriaService extends service_5.default {
+    }
+    class NovaHistoriaComponent extends component_5.default {
+        constructor() {
+            super("nova-historia");
+        }
+        async initialize() {
+            await this.initializeResources(NovaHistoriaViewModel, NovaHistoriaService);
+        }
+    }
+    exports.default = NovaHistoriaComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component"], function (require, exports, header_component_1, index_component_1, const_model_4, intro_component_1, nova_historia_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
     index_component_1 = __importDefault(index_component_1);
-    about_component_1 = __importDefault(about_component_1);
     intro_component_1 = __importDefault(intro_component_1);
+    nova_historia_component_1 = __importDefault(nova_historia_component_1);
     class App {
         mainElement;
         loadedComponents = [];
@@ -259,8 +294,8 @@ define("app", ["require", "exports", "components/header.component", "components/
             const headerComponent = document.createElement("header-component");
             const headerElement = document.querySelector("header");
             headerElement.appendChild(headerComponent);
-            headerComponent.addEventListener(const_model_3.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerMenuClick)));
-            headerComponent.addEventListener(const_model_3.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerVoltarClick)));
+            headerComponent.addEventListener(const_model_4.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_4.headerMenuClick)));
+            headerComponent.addEventListener(const_model_4.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_4.headerVoltarClick)));
             headerComponent.addEventListener("initialized", () => {
                 this.load();
                 this.currentComponent?.addEventListener("initialized", () => {
@@ -270,19 +305,10 @@ define("app", ["require", "exports", "components/header.component", "components/
             return headerComponent;
         }
         load() {
-            //const path = location.pathname;
             const currentComponentName = localStorage.getItem("currentComponentName");
-            // switch (location.pathname) {
-            //     case "/about":
-            //         this.about();
-            //         break;
-            //     default:
-            //         this.index();
-            //         break;
-            // }
             switch (currentComponentName) {
-                case "about-component":
-                    this.about();
+                case "nova-historia-component":
+                    this.novaHistoria();
                     break;
                 default:
                     this.intro();
@@ -318,12 +344,12 @@ define("app", ["require", "exports", "components/header.component", "components/
             }
         }
         index() {
-            const component = this.loadComponent("index-component", index_component_1.default);
-            component.addEventListener("about", () => this.about());
+            const component = this.loadComponent("index-component", index_component_1.default, null, false, true);
+            component.addEventListener("novaHistoria", () => this.novaHistoria());
         }
-        about() {
-            const component = this.loadComponent("about-component", about_component_1.default, null, true);
-            component.addEventListener("voltar", () => this.index());
+        novaHistoria() {
+            const component = this.loadComponent("nova-historia-component", nova_historia_component_1.default, "Compartilhar uma História", true);
+            this.headerComponent.addEventListener(const_model_4.headerVoltarClick, () => this.index());
         }
     }
     const main = () => new App();

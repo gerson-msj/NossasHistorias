@@ -27,7 +27,7 @@ class IntroComponent extends Component<IntroViewModel, IntroService> {
         await this.initializeResources(IntroViewModel, IntroService);
         this.viewModel.onEntrar = () => 
             this.dispatchEvent(new Event("entrar"));
-        //localStorage.setItem("intro", "true");
+        localStorage.setItem("intro", "true");
     }
 
 }

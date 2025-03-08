@@ -3,6 +3,7 @@ import IndexComponent from "./components/index.component";
 import AboutComponent from "./components/about.component";
 import { headerMenuClick, headerVoltarClick } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
+import NovaHistoriaComponent from "./components/nova-historia.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -47,21 +48,10 @@ class App {
     }
 
     private load() {
-        //const path = location.pathname;
         const currentComponentName = localStorage.getItem("currentComponentName");
-
-        // switch (location.pathname) {
-        //     case "/about":
-        //         this.about();
-        //         break;
-        //     default:
-        //         this.index();
-        //         break;
-        // }
-
         switch (currentComponentName) {
-            case "about-component":
-                this.about();
+            case "nova-historia-component":
+                this.novaHistoria();
                 break;
             default:
                 this.intro();
@@ -110,13 +100,14 @@ class App {
     }
 
     private index() {
-        const component = this.loadComponent("index-component", IndexComponent);
-        component.addEventListener("about", () => this.about());
+        const component = this.loadComponent("index-component", IndexComponent, null, false, true);
+        component.addEventListener("novaHistoria", () => 
+            this.novaHistoria());
     }
 
-    private about() {
-        const component = this.loadComponent("about-component", AboutComponent, null, true);
-        component.addEventListener("voltar", () =>
+    private novaHistoria() {
+        const component = this.loadComponent("nova-historia-component", NovaHistoriaComponent, "Compartilhar uma História", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => 
             this.index());
     }
 }

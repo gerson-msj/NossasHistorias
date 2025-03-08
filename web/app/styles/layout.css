@@ -45,7 +45,8 @@ body {
     overflow-y: auto;
 }
 
-.layout-container.triplo {
+.layout-container.triplo,
+form.triplo {
     display: grid;
     grid-template-rows: 50px auto 75px;
     gap: 0;

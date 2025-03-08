@@ -10,7 +10,10 @@ class PageService {
         let fileDir = "app";
 
         //Para Debug
-        if(pathName.includes(".js") || pathName.includes(".ts"))
+        // if(pathName.includes(".js") || pathName.includes(".ts"))
+        //     fileDir = "";
+
+        if(pathName.endsWith(".ts"))
             fileDir = "";
 
         const pageDir = join(Deno.cwd(), basePath ?? "web", fileDir);
