@@ -1,3 +1,44 @@
+form {
+    display: grid;
+    gap: 5px;
+    height: 100%;
+}
+
+form.triplo {
+    grid-template-rows: 60px auto 60px;
+    border: 1px solid red;
+}
+
+
+form.triplo div:first-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+form.triplo div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+form.triplo div:last-child {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+form.duplo {
+    grid-template-rows: auto 75px;
+}
+
+form div {
+    border: 1px solid darkblue;
+}
+
+
+
+/*
 
 form div {
     display: flex;
@@ -28,9 +69,19 @@ div.checkboxlist {
     margin-left: 10px;
 }
 
+*/
+
 label {
     padding-left: 5px;
     padding-bottom: 2px;
+}
+
+textarea {
+    height: 100%;
+    resize: none;
+    border-radius: 5px;
+    padding: 5px;
+    line-height: 1.4;
 }
 
 input,
