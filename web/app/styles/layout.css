@@ -78,24 +78,3 @@ body {
     padding-right: 5px;
     cursor: pointer;
 }
-
-/* História */
-
-.historia_conteudo {
-    overflow-y: auto;
-    border: 1px solid #999;
-    border-radius: 4px;
-    padding: 10px 0 0 5px;
-    margin: 10px 0 10px 0;
-    min-height: 100px;
-}
-
-.historia_conteudo p {
-    text-indent: 15px;
-    margin: 0 5px 10px 0;
-    text-align: justify;
-}
-
-.historia_conteudo.intro p {
-    text-indent: 0;
-}

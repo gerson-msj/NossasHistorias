@@ -4,6 +4,7 @@ import AboutComponent from "./components/about.component";
 import { headerMenuClick, headerVoltarClick } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
+import VisualizarHistoriaComponent from "./components/visualizar-historia.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -53,6 +54,9 @@ class App {
             case "nova-historia-component":
                 this.novaHistoria();
                 break;
+            case "visualizar-historia-component":
+                this.visualizarHistoria();
+                break;
             default:
                 this.intro();
                 break;
@@ -101,14 +105,20 @@ class App {
 
     private index() {
         const component = this.loadComponent("index-component", IndexComponent, null, false, true);
-        component.addEventListener("novaHistoria", () => 
+        component.addEventListener("novaHistoria", () =>
             this.novaHistoria());
     }
 
     private novaHistoria() {
         const component = this.loadComponent("nova-historia-component", NovaHistoriaComponent, "Compartilhar uma História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => 
-            this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        component.addEventListener("visualizar", () => this.visualizarHistoria());
+    }
+
+    private visualizarHistoria() {
+        const component = this.loadComponent("visualizar-historia-component", VisualizarHistoriaComponent, "Compartilhar uma História", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.novaHistoria());
+        component.addEventListener("salvar", () => this.index());
     }
 }
 

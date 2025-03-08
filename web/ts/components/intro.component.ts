@@ -4,8 +4,8 @@ import ViewModel from "./base/viewmodel";
 
 class IntroViewModel extends ViewModel {
     private entrar: HTMLButtonElement;
-    public onEntrar = () => {};
-    
+    public onEntrar = () => { };
+
     constructor() {
         super();
         this.entrar = this.getElement("entrar");
@@ -14,7 +14,7 @@ class IntroViewModel extends ViewModel {
 }
 
 class IntroService extends Service {
-    
+
 }
 
 class IntroComponent extends Component<IntroViewModel, IntroService> {
@@ -25,7 +25,7 @@ class IntroComponent extends Component<IntroViewModel, IntroService> {
 
     async initialize(): Promise<void> {
         await this.initializeResources(IntroViewModel, IntroService);
-        this.viewModel.onEntrar = () => 
+        this.viewModel.onEntrar = () =>
             this.dispatchEvent(new Event("entrar"));
         localStorage.setItem("intro", "true");
     }
