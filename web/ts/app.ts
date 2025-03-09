@@ -25,6 +25,12 @@ class App {
         if (location.pathname !== "/")
             history.pushState({}, "", "/");
 
+        window.onload = function () {
+            setTimeout(() => {
+                window.scrollTo(0, 50);
+            }, 100);
+        };
+
     }
 
     private header(): HTMLElement {
@@ -86,7 +92,12 @@ class App {
         this.currentComponent?.remove();
         this.currentComponent = document.createElement(name);
         this.mainElement.appendChild(this.currentComponent);
+
+        
+
         return this.currentComponent;
+
+        
 
     }
 

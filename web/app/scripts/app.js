@@ -352,6 +352,11 @@ define("app", ["require", "exports", "components/header.component", "components/
             // });
             if (location.pathname !== "/")
                 history.pushState({}, "", "/");
+            window.onload = function () {
+                setTimeout(() => {
+                    window.scrollTo(0, 50);
+                }, 100);
+            };
         }
         header() {
             customElements.define("header-component", header_component_1.default);

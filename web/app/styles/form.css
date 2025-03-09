@@ -1,40 +1,58 @@
 form {
     display: grid;
-    gap: 5px;
+    gap: 0px;
     height: 100%;
 }
 
+/* form */
+
 form.edit,
-form.view { 
+form.view,
+form.list { 
     grid-template-rows: 60px auto 60px;
 }
 
-form.edit div:first-child,
-form.view div:first-child {
+/* primeiro bloco */
+
+form.edit .row1,
+form.view .row1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-form.edit div:nth-child(2) {
+form.list .row1 {
+    padding-right: 10px;
+}
+
+form.list.col3 .row1 {
+    display: grid;
+    grid-template-columns: auto 20% 20%;
+
+    border-bottom: 1px solid darkgray;
+}
+
+form.list .row1 div {
+    margin: 0 0 10px 0;
+    padding: 0;
+    align-self: self-end;
+    text-align: center;
+    
+}
+
+form.list .row1 :first-child {
+    text-align: left;
+}
+
+/* segundo bloco */
+
+form.edit .row2 {
     display: flex;
     flex-direction: column;
     justify-content: start;
 }
 
-form.edit div:last-child,
-form.view div:last-child {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-form.view div:first-child {
-    text-align: center;
-}
-
-form.view div:nth-child(2) {
+form.view .row2 {
     overflow-y: auto;
     border: 1px solid #999;
     border-radius: 4px;
@@ -43,11 +61,56 @@ form.view div:nth-child(2) {
     min-height: 100px;
 }
 
-form.view div:nth-child(2) p {
+form.view .row2 p {
     text-indent: 15px;
     margin: 0 5px 10px 0;
     text-align: justify;
 }
+
+form.list .row2 {
+    overflow-y: auto;
+    min-height: 100px;
+}
+
+form.list.col3 .row2 .row {
+    display: grid;
+    grid-template-columns: auto 20% 20%;
+    padding: 10px 0 10px 0;
+    border-bottom: 1px solid darkgray;
+    cursor: pointer;
+}
+
+form.list.col3 .row2 .row:hover {
+    background-color: #444;
+}
+
+form.list .row2 .row {
+    text-align: center;
+}
+
+form.list .row2 .row :first-child {
+    text-align: left;
+}
+
+/* terceiro bloco */
+
+
+form.edit .row3,
+form.view .row3,
+form.list .row3 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+form.view .row1 {
+    text-align: center;
+}
+
+
+
+
 
 /*
 
