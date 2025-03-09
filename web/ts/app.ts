@@ -56,10 +56,8 @@ class App {
                 this.visualizarHistoria();
                 break;
             case "minhas-historias-component":
-                this.minhasHistorias();
-                break;
             case "minha-historia-component":
-                this.minhaHistoria();
+                this.minhasHistorias();
                 break;
             default:
                 this.intro();
@@ -128,12 +126,19 @@ class App {
     private minhasHistorias() {
         const component = this.loadComponent("minhas-historias-component", MinhasHistoriasComponent, "Minhas Histórias", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        component.addEventListener("apresentarHistoria", (ev) => {
+            const titulo = (ev as CustomEvent).detail;
+            this.minhaHistoria(titulo);
+        });
     }
 
-    private minhaHistoria() {
+    private minhaHistoria(titulo: string) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.minhasHistorias());
         component.addEventListener("excluir", () => this.minhasHistorias());
+        component.addEventListener("initialized", () =>
+            component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo }))
+        );
     }
 }
 
