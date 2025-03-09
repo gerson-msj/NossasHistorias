@@ -2,7 +2,6 @@
 @import "./layout.css";
 @import "./form.css";
 @import "./fonts.css";
-@import "./list.css";
 
 * {
     box-sizing: border-box;

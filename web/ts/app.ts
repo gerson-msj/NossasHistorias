@@ -6,6 +6,7 @@ import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
 import VisualizarHistoriaComponent from "./components/visualizar-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
+import MinhaHistoriaComponent from "./components/minha-historia.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -18,19 +19,9 @@ class App {
         document.addEventListener("unauthorized", () =>
             this.index());
         this.headerComponent = this.header();
-        // window.addEventListener("popstate", (ev: PopStateEvent) => {
-        //     this.load();
-        // });
 
         if (location.pathname !== "/")
             history.pushState({}, "", "/");
-
-        window.onload = function () {
-            setTimeout(() => {
-                window.scrollTo(0, 50);
-            }, 100);
-        };
-
     }
 
     private header(): HTMLElement {
@@ -67,6 +58,9 @@ class App {
             case "minhas-historias-component":
                 this.minhasHistorias();
                 break;
+            case "minha-historia-component":
+                this.minhaHistoria();
+                break;
             default:
                 this.intro();
                 break;
@@ -93,11 +87,7 @@ class App {
         this.currentComponent = document.createElement(name);
         this.mainElement.appendChild(this.currentComponent);
 
-        
-
         return this.currentComponent;
-
-        
 
     }
 
@@ -138,6 +128,12 @@ class App {
     private minhasHistorias() {
         const component = this.loadComponent("minhas-historias-component", MinhasHistoriasComponent, "Minhas Histórias", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+    }
+
+    private minhaHistoria() {
+        const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.minhasHistorias());
+        component.addEventListener("excluir", () => this.minhasHistorias());
     }
 }
 
