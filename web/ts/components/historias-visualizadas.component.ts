@@ -74,6 +74,7 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
 
     }
 
+    
 }
 
 export default HistoriasVisualizadasComponent;
