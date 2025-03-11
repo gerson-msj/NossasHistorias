@@ -168,17 +168,21 @@ define("components/index.component", ["require", "exports", "models/const.model"
         menuBackdrop;
         novaHistoria;
         minhasHistorias;
+        historiasVisualizadas;
         onNovaHistoria = () => { };
         onMinhasHistorias = () => { };
+        onHistoriasVisualizadas = () => { };
         constructor() {
             super();
             this.menuContainer = this.getElement("menuContainer");
             this.menuBackdrop = this.getElement("menuBackdrop");
             this.novaHistoria = this.getElement("novaHistoria");
             this.minhasHistorias = this.getElement("minhasHistorias");
+            this.historiasVisualizadas = this.getElement("historiasVisualizadas");
             this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
             this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
             this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
+            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
         }
         exibirMenu() {
             this.menuContainer.classList.remove("oculto");
@@ -198,6 +202,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
             this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
             this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
+            this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
         }
     }
     exports.default = IndexComponent;
@@ -524,6 +529,71 @@ define("app", ["require", "exports", "components/header.component", "components/
     }
     const main = () => new App();
     exports.default = main;
+});
+define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_6, component_9, service_9, viewmodel_9) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_9 = __importDefault(component_9);
+    service_9 = __importDefault(service_9);
+    viewmodel_9 = __importDefault(viewmodel_9);
+    class HistoriasVisualizadasViewModel extends viewmodel_9.default {
+        historias;
+        onApresentarHistoria = (titulo) => { };
+        constructor() {
+            super();
+            this.historias = this.getElement("historias");
+        }
+        apresentarHistorias(historias) {
+            this.historias.innerHTML = "";
+            historias.forEach(historia => {
+                const titulo = document.createElement("span");
+                const situacao = document.createElement("span");
+                const curtidas = document.createElement("span");
+                titulo.innerText = historia.titulo;
+                situacao.innerText = historia.situacao;
+                curtidas.innerHTML = historia.curtidas.toString();
+                const row = document.createElement("div");
+                row.append(titulo, situacao, curtidas);
+                row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+                this.historias.appendChild(row);
+            });
+        }
+    }
+    class HistoriasVisualizadasService extends service_9.default {
+        obterHistoriasVisualizadas() {
+            const historias = [
+                {
+                    titulo: "Primeira História",
+                    conteudo: "Primeira\nHistória.",
+                    situacao: const_model_6.HistoriaSituacaoAnalise,
+                    visualizacoes: 0,
+                    curtidas: 0,
+                    motivoSituacao: null
+                },
+                {
+                    titulo: "Segunda História",
+                    conteudo: "Segunda\nHistória.",
+                    situacao: const_model_6.HistoriaSituacaoAprovada,
+                    visualizacoes: 37,
+                    curtidas: 14,
+                    motivoSituacao: null
+                }
+            ];
+            return Promise.resolve(historias);
+        }
+    }
+    class HistoriasVisualizadasComponent extends component_9.default {
+        constructor() {
+            super("historias-visualizadas");
+        }
+        async initialize() {
+            await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
+            const historias = await this.service.obterHistoriasVisualizadas();
+            this.viewModel.apresentarHistorias(historias);
+            this.viewModel.onApresentarHistoria = (titulo) => this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+        }
+    }
+    exports.default = HistoriasVisualizadasComponent;
 });
 define("models/extensions", ["require", "exports"], function (require, exports) {
     "use strict";

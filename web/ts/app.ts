@@ -7,6 +7,8 @@ import NovaHistoriaComponent from "./components/nova-historia.component";
 import VisualizarHistoriaComponent from "./components/visualizar-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
 import MinhaHistoriaComponent from "./components/minha-historia.component";
+import HistoriasVisualizadasComponent from "./components/historias-visualizadas.component";
+import { HistoriaModel } from "./models/model";
 
 class App {
     private mainElement: HTMLElement;
@@ -109,6 +111,7 @@ class App {
         const component = this.loadComponent("index-component", IndexComponent, null, false, true);
         component.addEventListener("novaHistoria", () => this.novaHistoria());
         component.addEventListener("minhasHistorias", () => this.minhasHistorias());
+        component.addEventListener("historiasVisualizadas", () => this.minhasHistorias());
     }
 
     private novaHistoria() {
@@ -139,6 +142,19 @@ class App {
         component.addEventListener("initialized", () =>
             component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo }))
         );
+    }
+
+    private historiasVisualizadas() {
+        const component = this.loadComponent("historias-visualizadas-component", HistoriasVisualizadasComponent, "Histórias Visualizadas", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        component.addEventListener("apresentarHistoriaVisualizada", (ev) => {
+            const historia = (ev as CustomEvent).detail as HistoriaModel;
+            this.minhasHistorias()
+        });
+    }
+
+    private historiaVisualizada(historia: HistoriaModel) {
+        
     }
 }
 
