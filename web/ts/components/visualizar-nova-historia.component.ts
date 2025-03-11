@@ -2,7 +2,7 @@ import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-class VisualizarHistoriaViewModel extends ViewModel {
+class VisualizarNovaHistoriaViewModel extends ViewModel {
 
     private salvar: HTMLButtonElement;
 
@@ -15,21 +15,21 @@ class VisualizarHistoriaViewModel extends ViewModel {
     }
 }
 
-class VisualizarHistoriaService extends Service {
+class VisualizarNovaHistoriaService extends Service {
 
 }
 
-class VisualizarHistoriaComponent extends Component<VisualizarHistoriaViewModel, VisualizarHistoriaService> {
+class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService> {
 
     constructor() {
-        super("visualizar-historia");
+        super("visualizar-nova-historia");
     }
 
     async initialize(): Promise<void> {
-        await this.initializeResources(VisualizarHistoriaViewModel, VisualizarHistoriaService);
+        await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
         this.viewModel.onSalvar = () => this.dispatchEvent(new Event("salvar"));
     }
 
 }
 
-export default VisualizarHistoriaComponent;
+export default VisualizarNovaHistoriaComponent;

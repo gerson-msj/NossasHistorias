@@ -10,9 +10,11 @@ class IndexViewModel extends ViewModel {
 
     private novaHistoria: HTMLButtonElement;
     private minhasHistorias: HTMLButtonElement;
+    private historiasVisualizadas: HTMLButtonElement;
 
     public onNovaHistoria = () => { };
     public onMinhasHistorias = () => { };
+    public onHistoriasVisualizadas = () => { };
 
     constructor() {
         super();
@@ -21,6 +23,7 @@ class IndexViewModel extends ViewModel {
         this.menuBackdrop = this.getElement("menuBackdrop");
         this.novaHistoria = this.getElement("novaHistoria");
         this.minhasHistorias = this.getElement("minhasHistorias");
+        this.historiasVisualizadas = this.getElement("historiasVisualizadas");
 
         this.menuBackdrop.addEventListener("click", () => 
             this.ocultarMenu());
@@ -30,6 +33,9 @@ class IndexViewModel extends ViewModel {
 
         this.minhasHistorias.addEventListener("click", () =>
             this.onMinhasHistorias());
+
+        this.historiasVisualizadas.addEventListener("click", () =>
+            this.onHistoriasVisualizadas());
     }
 
     exibirMenu() {
@@ -59,6 +65,7 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
 
         this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
         this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
+        this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
     }
 
 }

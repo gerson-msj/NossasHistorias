@@ -12,6 +12,10 @@ form.list {
     grid-template-rows: 60px auto 60px;
 }
 
+form.find {
+    grid-template-rows: 110px auto 60px;
+}
+
 /* Primeira Seção */
 
 form.edit section:first-child,
@@ -29,7 +33,7 @@ form.list section:first-child {
     padding-right: 10px;
 }
 
-form.list.col3 section:first-child {
+form.list section:first-child {
     display: grid;
     grid-template-columns: auto 20% 20%;
 
@@ -47,6 +51,70 @@ form.list section:first-child div {
 form.list section:first-child :first-child {
     text-align: left;
 }
+
+/* Primeira seção - Find */
+
+form.find section:first-child {
+    display: grid;
+    grid-template-rows: 25% 25% auto;
+    
+    div {
+        display: flex;
+        flex-direction: row;
+        
+        input[type=text] {
+            width: 80%;
+            margin-right: 10px;
+        }
+    }   
+
+    div:first-child {
+        span {
+            display: flex;
+            align-items: baseline;
+            width: 50%;
+        }
+
+        span:last-child {
+            justify-content: end;
+            margin-right: 10px;
+        }
+    }
+    
+    div:last-child {
+        
+        display: grid;
+        grid-template-columns: auto 20%;
+        align-items: center;
+
+        margin: 10px 0 0 0;
+        
+        border-top: 1px solid darkgray;
+        border-bottom: 1px solid darkgray;
+        
+        label {
+            padding: 0;
+            margin: 5px 0 0 0;
+        }
+    }
+
+    div:last-child :first-child {
+        display: flex;
+        justify-content: start;
+        margin-left: 5px;
+    }
+
+    div:last-child :last-child {
+        display: flex;
+        justify-content: center;
+        margin-right: 10px;
+    }
+}
+
+
+
+
+
 
 
 /* segunda seção */
@@ -72,12 +140,13 @@ form.view section:nth-child(2) p {
     text-align: justify;
 }
 
-form.list section:nth-child(2) {
+form.list section:nth-child(2),
+form.find section:nth-child(2) {
     overflow-y: auto;
     min-height: 100px;
 }
 
-form.list.col3 section:nth-child(2) div {
+form.list section:nth-child(2) div {
     display: grid;
     grid-template-columns: auto 20% 20%;
     padding: 10px 0 10px 0;
@@ -85,7 +154,7 @@ form.list.col3 section:nth-child(2) div {
     cursor: pointer;
 }
 
-form.list.col3 section:nth-child(2) div:hover {
+form.list section:nth-child(2) div:hover {
     background-color: #444;
 }
 
@@ -107,7 +176,29 @@ form.list section:last-child {
     align-items: center;
 }
 
+/* Filtro
 
+section.filtro {
+    background-color: #888;
+    display: flex;
+    flex-direction: row;
+}
+
+section.filtro div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 1px solid white;
+}
+
+section.filtro div span {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+} */
 
 
 

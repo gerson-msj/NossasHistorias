@@ -168,17 +168,21 @@ define("components/index.component", ["require", "exports", "models/const.model"
         menuBackdrop;
         novaHistoria;
         minhasHistorias;
+        historiasVisualizadas;
         onNovaHistoria = () => { };
         onMinhasHistorias = () => { };
+        onHistoriasVisualizadas = () => { };
         constructor() {
             super();
             this.menuContainer = this.getElement("menuContainer");
             this.menuBackdrop = this.getElement("menuBackdrop");
             this.novaHistoria = this.getElement("novaHistoria");
             this.minhasHistorias = this.getElement("minhasHistorias");
+            this.historiasVisualizadas = this.getElement("historiasVisualizadas");
             this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
             this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
             this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
+            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
         }
         exibirMenu() {
             this.menuContainer.classList.remove("oculto");
@@ -198,6 +202,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
             this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
             this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
+            this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
         }
     }
     exports.default = IndexComponent;
@@ -281,13 +286,13 @@ define("components/nova-historia.component", ["require", "exports", "components/
     }
     exports.default = NovaHistoriaComponent;
 });
-define("components/visualizar-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_6, service_6, viewmodel_6) {
+define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_6, service_6, viewmodel_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_6 = __importDefault(component_6);
     service_6 = __importDefault(service_6);
     viewmodel_6 = __importDefault(viewmodel_6);
-    class VisualizarHistoriaViewModel extends viewmodel_6.default {
+    class VisualizarNovaHistoriaViewModel extends viewmodel_6.default {
         salvar;
         onSalvar = () => { };
         constructor() {
@@ -296,18 +301,18 @@ define("components/visualizar-historia.component", ["require", "exports", "compo
             this.salvar.addEventListener("click", () => this.onSalvar());
         }
     }
-    class VisualizarHistoriaService extends service_6.default {
+    class VisualizarNovaHistoriaService extends service_6.default {
     }
-    class VisualizarHistoriaComponent extends component_6.default {
+    class VisualizarNovaHistoriaComponent extends component_6.default {
         constructor() {
-            super("visualizar-historia");
+            super("visualizar-nova-historia");
         }
         async initialize() {
-            await this.initializeResources(VisualizarHistoriaViewModel, VisualizarHistoriaService);
+            await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
             this.viewModel.onSalvar = () => this.dispatchEvent(new Event("salvar"));
         }
     }
-    exports.default = VisualizarHistoriaComponent;
+    exports.default = VisualizarNovaHistoriaComponent;
 });
 define("components/minhas-historias.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_4, component_7, service_7, viewmodel_7) {
     "use strict";
@@ -410,16 +415,119 @@ define("components/minha-historia.component", ["require", "exports", "components
     }
     exports.default = MinhaHistoriaComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/visualizar-historia.component", "components/minhas-historias.component", "components/minha-historia.component"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, visualizar_historia_component_1, minhas_historias_component_1, minha_historia_component_1) {
+define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_5, component_9, service_9, viewmodel_9) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_9 = __importDefault(component_9);
+    service_9 = __importDefault(service_9);
+    viewmodel_9 = __importDefault(viewmodel_9);
+    class HistoriasVisualizadasViewModel extends viewmodel_9.default {
+        historias;
+        onApresentarHistoria = (titulo) => { };
+        constructor() {
+            super();
+            this.historias = this.getElement("historias");
+        }
+        apresentarHistorias(historias) {
+            this.historias.innerHTML = "";
+            historias.forEach(historia => {
+                const titulo = document.createElement("span");
+                const situacao = document.createElement("span");
+                const curtidas = document.createElement("span");
+                titulo.innerText = historia.titulo;
+                situacao.innerText = historia.situacao;
+                curtidas.innerHTML = historia.curtidas.toString();
+                const row = document.createElement("div");
+                row.append(titulo, situacao, curtidas);
+                row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+                this.historias.appendChild(row);
+            });
+        }
+    }
+    class HistoriasVisualizadasService extends service_9.default {
+        obterHistoriasVisualizadas() {
+            const historias = [
+                {
+                    titulo: "Primeira História",
+                    conteudo: "Primeira\nHistória.",
+                    situacao: const_model_5.HistoriaSituacaoAprovada,
+                    visualizacoes: 30,
+                    curtidas: 15,
+                    motivoSituacao: null
+                },
+                {
+                    titulo: "Segunda História",
+                    conteudo: "Segunda\nHistória.",
+                    situacao: const_model_5.HistoriaSituacaoAprovada,
+                    visualizacoes: 37,
+                    curtidas: 14,
+                    motivoSituacao: null
+                }
+            ];
+            return Promise.resolve(historias);
+        }
+    }
+    class HistoriasVisualizadasComponent extends component_9.default {
+        constructor() {
+            super("historias-visualizadas");
+        }
+        async initialize() {
+            await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
+            const historias = await this.service.obterHistoriasVisualizadas();
+            this.viewModel.apresentarHistorias(historias);
+            this.viewModel.onApresentarHistoria = (titulo) => this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+        }
+    }
+    exports.default = HistoriasVisualizadasComponent;
+});
+define("components/historia-visualizada.component copy", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_10 = __importDefault(component_10);
+    service_10 = __importDefault(service_10);
+    viewmodel_10 = __importDefault(viewmodel_10);
+    class HistoriaVisualizadaViewModel extends viewmodel_10.default {
+        curtir;
+        _titulo;
+        get titulo() { return this._titulo.innerText; }
+        set titulo(value) { this._titulo.innerText = value; }
+        onCurtir = () => { };
+        constructor() {
+            super();
+            this._titulo = this.getElement("tituloHistoria");
+            this.curtir = this.getElement("curtir");
+            this.curtir.addEventListener("click", () => this.onCurtir());
+        }
+    }
+    class HistoriaVisualizadaService extends service_10.default {
+    }
+    class HistoriaVisualizadaComponent extends component_10.default {
+        constructor() {
+            super("historia-visualizada");
+        }
+        async initialize() {
+            await this.initializeResources(HistoriaVisualizadaViewModel, HistoriaVisualizadaService);
+            this.viewModel.onCurtir = () => this.dispatchEvent(new Event("curtir"));
+            this.addEventListener("initializeData", (ev) => {
+                const historia = ev.detail;
+                this.viewModel.titulo = historia.titulo;
+            });
+        }
+    }
+    exports.default = HistoriaVisualizadaComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy"], function (require, exports, header_component_1, index_component_1, const_model_6, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
     index_component_1 = __importDefault(index_component_1);
     intro_component_1 = __importDefault(intro_component_1);
     nova_historia_component_1 = __importDefault(nova_historia_component_1);
-    visualizar_historia_component_1 = __importDefault(visualizar_historia_component_1);
     minhas_historias_component_1 = __importDefault(minhas_historias_component_1);
     minha_historia_component_1 = __importDefault(minha_historia_component_1);
+    visualizar_nova_historia_component_1 = __importDefault(visualizar_nova_historia_component_1);
+    historias_visualizadas_component_1 = __importDefault(historias_visualizadas_component_1);
+    historia_visualizada_component_copy_1 = __importDefault(historia_visualizada_component_copy_1);
     class App {
         mainElement;
         loadedComponents = [];
@@ -437,8 +545,8 @@ define("app", ["require", "exports", "components/header.component", "components/
             const headerComponent = document.createElement("header-component");
             const headerElement = document.querySelector("header");
             headerElement.appendChild(headerComponent);
-            headerComponent.addEventListener(const_model_5.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_5.headerMenuClick)));
-            headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_5.headerVoltarClick)));
+            headerComponent.addEventListener(const_model_6.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_6.headerMenuClick)));
+            headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_6.headerVoltarClick)));
             headerComponent.addEventListener("initialized", () => {
                 this.load();
                 this.currentComponent?.addEventListener("initialized", () => {
@@ -454,11 +562,15 @@ define("app", ["require", "exports", "components/header.component", "components/
                     this.novaHistoria();
                     break;
                 case "visualizar-historia-component":
-                    this.visualizarHistoria();
+                    this.visualizarNovaHistoria();
                     break;
                 case "minhas-historias-component":
                 case "minha-historia-component":
                     this.minhasHistorias();
+                    break;
+                case "historias-visualizadas-component":
+                case "historia-visualizada-component":
+                    this.historiasVisualizadas();
                     break;
                 default:
                     this.intro();
@@ -496,20 +608,21 @@ define("app", ["require", "exports", "components/header.component", "components/
             const component = this.loadComponent("index-component", index_component_1.default, null, false, true);
             component.addEventListener("novaHistoria", () => this.novaHistoria());
             component.addEventListener("minhasHistorias", () => this.minhasHistorias());
+            component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
         }
         novaHistoria() {
             const component = this.loadComponent("nova-historia-component", nova_historia_component_1.default, "Compartilhar uma História", true);
-            this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.index());
-            component.addEventListener("visualizar", () => this.visualizarHistoria());
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.index());
+            component.addEventListener("visualizar", () => this.visualizarNovaHistoria());
         }
-        visualizarHistoria() {
-            const component = this.loadComponent("visualizar-historia-component", visualizar_historia_component_1.default, "Visualizar História", true);
-            this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.novaHistoria());
+        visualizarNovaHistoria() {
+            const component = this.loadComponent("visualizar-nova-historia-component", visualizar_nova_historia_component_1.default, "Visualizar História", true);
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.novaHistoria());
             component.addEventListener("salvar", () => this.index());
         }
         minhasHistorias() {
             const component = this.loadComponent("minhas-historias-component", minhas_historias_component_1.default, "Minhas Histórias", true);
-            this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.index());
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.index());
             component.addEventListener("apresentarHistoria", (ev) => {
                 const titulo = ev.detail;
                 this.minhaHistoria(titulo);
@@ -517,9 +630,23 @@ define("app", ["require", "exports", "components/header.component", "components/
         }
         minhaHistoria(titulo) {
             const component = this.loadComponent("minha-historia-component", minha_historia_component_1.default, "Minha História", true);
-            this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.minhasHistorias());
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.minhasHistorias());
             component.addEventListener("excluir", () => this.minhasHistorias());
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo })));
+        }
+        historiasVisualizadas() {
+            const component = this.loadComponent("historias-visualizadas-component", historias_visualizadas_component_1.default, "Histórias Visualizadas", true);
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.index());
+            component.addEventListener("apresentarHistoriaVisualizada", (ev) => {
+                const historia = ev.detail;
+                this.historiaVisualizada(historia);
+            });
+        }
+        historiaVisualizada(historia) {
+            const component = this.loadComponent("historia-visualizada-component", historia_visualizada_component_copy_1.default, "História Visualizada", true);
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.historiasVisualizadas());
+            component.addEventListener("curtir", () => this.historiasVisualizadas());
+            component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: historia })));
         }
     }
     const main = () => new App();

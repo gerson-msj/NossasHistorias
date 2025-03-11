@@ -4,9 +4,13 @@ import AboutComponent from "./components/about.component";
 import { headerMenuClick, headerVoltarClick } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
-import VisualizarHistoriaComponent from "./components/visualizar-historia.component";
+import VisualizarHistoriaComponent from "./components/visualizar-nova-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
 import MinhaHistoriaComponent from "./components/minha-historia.component";
+import VisualizarNovaHistoriaComponent from "./components/visualizar-nova-historia.component";
+import HistoriasVisualizadasComponent from "./components/historias-visualizadas.component";
+import { HistoriaModel } from "./models/model";
+import HistoriaVisualizadaComponent from "./components/historia-visualizada.component copy";
 
 class App {
     private mainElement: HTMLElement;
@@ -53,11 +57,15 @@ class App {
                 this.novaHistoria();
                 break;
             case "visualizar-historia-component":
-                this.visualizarHistoria();
+                this.visualizarNovaHistoria();
                 break;
             case "minhas-historias-component":
             case "minha-historia-component":
                 this.minhasHistorias();
+                break;
+            case "historias-visualizadas-component":
+            case "historia-visualizada-component":
+                this.historiasVisualizadas();
                 break;
             default:
                 this.intro();
@@ -109,16 +117,17 @@ class App {
         const component = this.loadComponent("index-component", IndexComponent, null, false, true);
         component.addEventListener("novaHistoria", () => this.novaHistoria());
         component.addEventListener("minhasHistorias", () => this.minhasHistorias());
+        component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
     }
 
     private novaHistoria() {
         const component = this.loadComponent("nova-historia-component", NovaHistoriaComponent, "Compartilhar uma História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
-        component.addEventListener("visualizar", () => this.visualizarHistoria());
+        component.addEventListener("visualizar", () => this.visualizarNovaHistoria());
     }
 
-    private visualizarHistoria() {
-        const component = this.loadComponent("visualizar-historia-component", VisualizarHistoriaComponent, "Visualizar História", true);
+    private visualizarNovaHistoria() {
+        const component = this.loadComponent("visualizar-nova-historia-component", VisualizarNovaHistoriaComponent, "Visualizar História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.novaHistoria());
         component.addEventListener("salvar", () => this.index());
     }
@@ -140,6 +149,26 @@ class App {
             component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo }))
         );
     }
+
+    private historiasVisualizadas() {
+        const component = this.loadComponent("historias-visualizadas-component", HistoriasVisualizadasComponent, "Histórias Visualizadas", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        component.addEventListener("apresentarHistoriaVisualizada", (ev) => {
+            const historia = (ev as CustomEvent).detail as HistoriaModel;
+            this.historiaVisualizada(historia);
+        });
+    }
+
+    private historiaVisualizada(historia: HistoriaModel) {
+        const component = this.loadComponent("historia-visualizada-component", HistoriaVisualizadaComponent, "História Visualizada", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.historiasVisualizadas());
+        component.addEventListener("curtir", () => this.historiasVisualizadas());
+        component.addEventListener("initialized", () =>
+            component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
+        );
+    }
+
+
 }
 
 const main = () => new App();

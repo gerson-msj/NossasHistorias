@@ -39,9 +39,9 @@ class HistoriasVisualizadasService extends Service {
             {
                 titulo: "Primeira História",
                 conteudo: "Primeira\nHistória.",
-                situacao: HistoriaSituacaoAnalise,
-                visualizacoes: 0,
-                curtidas: 0,
+                situacao: HistoriaSituacaoAprovada,
+                visualizacoes: 30,
+                curtidas: 15,
                 motivoSituacao: null
             },
             {
