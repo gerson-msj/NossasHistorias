@@ -169,7 +169,6 @@ define("components/index.component", ["require", "exports", "models/const.model"
         novaHistoria;
         minhasHistorias;
         historiasVisualizadas;
-        historiasVisualizadas;
         onNovaHistoria = () => { };
         onMinhasHistorias = () => { };
         onHistoriasVisualizadas = () => { };

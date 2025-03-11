@@ -11,8 +11,7 @@ class IndexViewModel extends ViewModel {
     private novaHistoria: HTMLButtonElement;
     private minhasHistorias: HTMLButtonElement;
     private historiasVisualizadas: HTMLButtonElement;
-    private historiasVisualizadas: HTMLButtonElement;
-
+    
     public onNovaHistoria = () => { };
     public onMinhasHistorias = () => { };
     public onHistoriasVisualizadas = () => { };
