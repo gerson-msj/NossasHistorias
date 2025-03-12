@@ -11,6 +11,7 @@ import VisualizarNovaHistoriaComponent from "./components/visualizar-nova-histor
 import HistoriasVisualizadasComponent from "./components/historias-visualizadas.component";
 import { HistoriaModel } from "./models/model";
 import HistoriaVisualizadaComponent from "./components/historia-visualizada.component copy";
+import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -67,6 +68,9 @@ class App {
             case "historia-visualizada-component":
                 this.historiasVisualizadas();
                 break;
+            case "pendentes-aprovacao-component":
+                    this.pendentesAprovacao();
+                    break;
             default:
                 this.intro();
                 break;
@@ -118,6 +122,7 @@ class App {
         component.addEventListener("novaHistoria", () => this.novaHistoria());
         component.addEventListener("minhasHistorias", () => this.minhasHistorias());
         component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
+        component.addEventListener("pendentesAprovacao", () => this.pendentesAprovacao());
     }
 
     private novaHistoria() {
@@ -166,6 +171,13 @@ class App {
         component.addEventListener("initialized", () =>
             component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
         );
+    }
+
+    private pendentesAprovacao() {
+        const component = this.loadComponent("pendentes-aprovacao-component", PendentesAprovacaoComponent, "Pendentes de Aprovação", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        component.addEventListener("aprovar", () => this.index());
+        component.addEventListener("reprovar", () => this.index());
     }
 
 
