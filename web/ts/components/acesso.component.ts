@@ -2,34 +2,27 @@ import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-class IntroViewModel extends ViewModel {
-    private entrar: HTMLButtonElement;
-    public onEntrar = () => { };
-
+class AcessoViewModel extends ViewModel {
+    
     constructor() {
         super();
-        this.entrar = this.getElement("entrar");
-        this.entrar.addEventListener("click", () => this.onEntrar());
     }
 }
 
-class IntroService extends Service {
+class AcessoService extends Service {
 
 }
 
-class IntroComponent extends Component<IntroViewModel, IntroService> {
+class AcessoComponent extends Component<AcessoViewModel, AcessoService> {
 
     constructor() {
-        super("intro");
+        super("Acesso");
     }
 
     async initialize(): Promise<void> {
-        await this.initializeResources(IntroViewModel, IntroService);
-        this.viewModel.onEntrar = () =>
-            this.dispatchEvent(new Event("entrar"));
-        localStorage.setItem("intro", "true");
+        await this.initializeResources(AcessoViewModel, AcessoService);
     }
 
 }
 
-export default IntroComponent;
+export default AcessoComponent;

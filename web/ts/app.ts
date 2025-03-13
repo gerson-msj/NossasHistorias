@@ -10,6 +10,7 @@ import HistoriasVisualizadasComponent from "./components/historias-visualizadas.
 import { HistoriaModel } from "./models/model";
 import HistoriaVisualizadaComponent from "./components/historia-visualizada.component copy";
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
+import AcessoComponent from "./components/acesso.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -67,8 +68,11 @@ class App {
                 this.historiasVisualizadas();
                 break;
             case "pendentes-aprovacao-component":
-                    this.pendentesAprovacao();
-                    break;
+                this.pendentesAprovacao();
+                break;
+            case "acesso-component":
+                this.acesso();
+                break;
             default:
                 this.intro();
                 break;
@@ -121,6 +125,7 @@ class App {
         component.addEventListener("minhasHistorias", () => this.minhasHistorias());
         component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
         component.addEventListener("pendentesAprovacao", () => this.pendentesAprovacao());
+        component.addEventListener("acesso", () => this.acesso());
     }
 
     private novaHistoria() {
@@ -176,6 +181,11 @@ class App {
         this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
         component.addEventListener("aprovar", () => this.index());
         component.addEventListener("reprovar", () => this.index());
+    }
+
+    private acesso() {
+        const component = this.loadComponent("acesso-component", AcessoComponent, "Dados de Acesso", true);
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
     }
 
 
