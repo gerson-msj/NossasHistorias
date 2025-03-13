@@ -1,4 +1,4 @@
-import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada } from "../models/const.model";
+import { HistoriaSituacaoAprovada } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -8,7 +8,7 @@ class HistoriasVisualizadasViewModel extends ViewModel {
 
     private historias: HTMLElement;
 
-    public onApresentarHistoria = (titulo: string) => { };
+    public onApresentarHistoria = (historia: HistoriaModel) => { };
 
     constructor() {
         super();
@@ -20,14 +20,12 @@ class HistoriasVisualizadasViewModel extends ViewModel {
         this.historias.innerHTML = "";
         historias.forEach(historia => {
             const titulo = document.createElement("span");
-            const situacao = document.createElement("span");
             const curtidas = document.createElement("span");
             titulo.innerText = historia.titulo;
-            situacao.innerText = historia.situacao;
             curtidas.innerHTML = historia.curtidas.toString();
             const row = document.createElement("div");
-            row.append(titulo, situacao, curtidas);
-            row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+            row.append(titulo, curtidas);
+            row.addEventListener("click", () => this.onApresentarHistoria(historia));
             this.historias.appendChild(row);
         });
     }
@@ -69,8 +67,8 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
         const historias = await this.service.obterHistoriasVisualizadas();
         this.viewModel.apresentarHistorias(historias);
 
-        this.viewModel.onApresentarHistoria = (titulo: string) =>
-            this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+        this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
+            this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
 
     }
 

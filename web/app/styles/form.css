@@ -13,7 +13,7 @@ form.list {
 }
 
 form.find {
-    grid-template-rows: 110px auto 60px;
+    grid-template-rows: 100px auto 60px;
 }
 
 /* Primeira Seção */
@@ -65,6 +65,10 @@ form.find section:first-child {
         input[type=text] {
             width: 80%;
             margin-right: 10px;
+        }
+
+        button {
+            margin-right: 0;
         }
     }   
 
@@ -146,32 +150,41 @@ form.find section:nth-child(2) {
     min-height: 100px;
 }
 
-form.list section:nth-child(2) div {
+form.list section:nth-child(2) div,
+form.find section:nth-child(2) div {
     display: grid;
     grid-template-columns: auto 20% 20%;
     padding: 10px 0 10px 0;
     border-bottom: 1px solid darkgray;
     cursor: pointer;
-}
-
-form.list section:nth-child(2) div:hover {
-    background-color: #444;
-}
-
-form.list section:nth-child(2) div {
     text-align: center;
 }
 
-form.list section:nth-child(2) div :first-child {
+form.list section:nth-child(2) div {
+    grid-template-columns: auto 20% 20%;
+}
+
+form.find section:nth-child(2) div {
+    grid-template-columns: auto 20%;
+}
+
+form.list section:nth-child(2) div:hover,
+form.find section:nth-child(2) div:hover {
+    background-color: #444;
+}
+
+form.list section:nth-child(2) div :first-child,
+form.find section:nth-child(2) div :first-child {
     text-align: left;
 }
 
 /* terceira seção */
 form.edit section:last-child,
 form.view section:last-child,
-form.list section:last-child {
+form.list section:last-child,
+form.find section:last-child {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
 }

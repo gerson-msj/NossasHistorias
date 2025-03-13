@@ -169,9 +169,11 @@ define("components/index.component", ["require", "exports", "models/const.model"
         novaHistoria;
         minhasHistorias;
         historiasVisualizadas;
+        pendentesAprovacao;
         onNovaHistoria = () => { };
         onMinhasHistorias = () => { };
         onHistoriasVisualizadas = () => { };
+        onPendentesAprovacao = () => { };
         constructor() {
             super();
             this.menuContainer = this.getElement("menuContainer");
@@ -179,11 +181,12 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.novaHistoria = this.getElement("novaHistoria");
             this.minhasHistorias = this.getElement("minhasHistorias");
             this.historiasVisualizadas = this.getElement("historiasVisualizadas");
-            this.historiasVisualizadas = this.getElement("historiasVisualizadas");
+            this.pendentesAprovacao = this.getElement("pendentesAprovacao");
             this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
             this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
             this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
             this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
+            this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
         }
         exibirMenu() {
             this.menuContainer.classList.remove("oculto");
@@ -204,7 +207,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
             this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
             this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
-            this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
+            this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
         }
     }
     exports.default = IndexComponent;
@@ -404,7 +407,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
     viewmodel_8 = __importDefault(viewmodel_8);
     class HistoriasVisualizadasViewModel extends viewmodel_8.default {
         historias;
-        onApresentarHistoria = (titulo) => { };
+        onApresentarHistoria = (historia) => { };
         constructor() {
             super();
             this.historias = this.getElement("historias");
@@ -413,14 +416,12 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
             this.historias.innerHTML = "";
             historias.forEach(historia => {
                 const titulo = document.createElement("span");
-                const situacao = document.createElement("span");
                 const curtidas = document.createElement("span");
                 titulo.innerText = historia.titulo;
-                situacao.innerText = historia.situacao;
                 curtidas.innerHTML = historia.curtidas.toString();
                 const row = document.createElement("div");
-                row.append(titulo, situacao, curtidas);
-                row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+                row.append(titulo, curtidas);
+                row.addEventListener("click", () => this.onApresentarHistoria(historia));
                 this.historias.appendChild(row);
             });
         }
@@ -456,7 +457,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
             await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
             const historias = await this.service.obterHistoriasVisualizadas();
             this.viewModel.apresentarHistorias(historias);
-            this.viewModel.onApresentarHistoria = (titulo) => this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+            this.viewModel.onApresentarHistoria = (historia) => this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
         }
     }
     exports.default = HistoriasVisualizadasComponent;
@@ -497,7 +498,42 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_11, service_11, viewmodel_11) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_11 = __importDefault(component_11);
+    service_11 = __importDefault(service_11);
+    viewmodel_11 = __importDefault(viewmodel_11);
+    class PendentesAprovacaoViewModel extends viewmodel_11.default {
+        aprovar;
+        reprovar;
+        motivoReprovacao;
+        onAprovar = () => { };
+        onReprovar = (motivoReprovacao) => { };
+        constructor() {
+            super();
+            this.aprovar = this.getElement("aprovar");
+            this.reprovar = this.getElement("reprovar");
+            this.motivoReprovacao = this.getElement("motivoReprovacao");
+            this.aprovar.addEventListener("click", () => this.onAprovar());
+            this.reprovar.addEventListener("click", () => this.onReprovar(this.motivoReprovacao.value));
+        }
+    }
+    class PendentesAprovacaoService extends service_11.default {
+    }
+    class PendentesAprovacaoComponent extends component_11.default {
+        constructor() {
+            super("pendentes-aprovacao");
+        }
+        async initialize() {
+            await this.initializeResources(PendentesAprovacaoViewModel, PendentesAprovacaoService);
+            this.viewModel.onAprovar = () => this.dispatchEvent(new Event("aprovar"));
+            this.viewModel.onReprovar = (motivoReprovacao) => this.dispatchEvent(new Event("reprovar"));
+        }
+    }
+    exports.default = PendentesAprovacaoComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component"], function (require, exports, header_component_1, index_component_1, const_model_6, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -509,6 +545,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     visualizar_nova_historia_component_1 = __importDefault(visualizar_nova_historia_component_1);
     historias_visualizadas_component_1 = __importDefault(historias_visualizadas_component_1);
     historia_visualizada_component_copy_1 = __importDefault(historia_visualizada_component_copy_1);
+    pendentes_aprovacao_component_1 = __importDefault(pendentes_aprovacao_component_1);
     class App {
         mainElement;
         loadedComponents = [];
@@ -553,6 +590,9 @@ define("app", ["require", "exports", "components/header.component", "components/
                 case "historia-visualizada-component":
                     this.historiasVisualizadas();
                     break;
+                case "pendentes-aprovacao-component":
+                    this.pendentesAprovacao();
+                    break;
                 default:
                     this.intro();
                     break;
@@ -590,6 +630,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             component.addEventListener("novaHistoria", () => this.novaHistoria());
             component.addEventListener("minhasHistorias", () => this.minhasHistorias());
             component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
+            component.addEventListener("pendentesAprovacao", () => this.pendentesAprovacao());
         }
         novaHistoria() {
             const component = this.loadComponent("nova-historia-component", nova_historia_component_1.default, "Compartilhar uma História", true);
@@ -629,38 +670,15 @@ define("app", ["require", "exports", "components/header.component", "components/
             component.addEventListener("curtir", () => this.historiasVisualizadas());
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: historia })));
         }
+        pendentesAprovacao() {
+            const component = this.loadComponent("pendentes-aprovacao-component", pendentes_aprovacao_component_1.default, "Pendentes de Aprovação", true);
+            this.headerComponent.addEventListener(const_model_6.headerVoltarClick, () => this.index());
+            component.addEventListener("aprovar", () => this.index());
+            component.addEventListener("reprovar", () => this.index());
+        }
     }
     const main = () => new App();
     exports.default = main;
-});
-define("components/acesso.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    component_10 = __importDefault(component_10);
-    service_10 = __importDefault(service_10);
-    viewmodel_10 = __importDefault(viewmodel_10);
-    class IntroViewModel extends viewmodel_10.default {
-        entrar;
-        onEntrar = () => { };
-        constructor() {
-            super();
-            this.entrar = this.getElement("entrar");
-            this.entrar.addEventListener("click", () => this.onEntrar());
-        }
-    }
-    class IntroService extends service_10.default {
-    }
-    class IntroComponent extends component_10.default {
-        constructor() {
-            super("intro");
-        }
-        async initialize() {
-            await this.initializeResources(IntroViewModel, IntroService);
-            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-            localStorage.setItem("intro", "true");
-        }
-    }
-    exports.default = IntroComponent;
 });
 define("models/extensions", ["require", "exports"], function (require, exports) {
     "use strict";

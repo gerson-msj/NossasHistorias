@@ -11,10 +11,12 @@ class IndexViewModel extends ViewModel {
     private novaHistoria: HTMLButtonElement;
     private minhasHistorias: HTMLButtonElement;
     private historiasVisualizadas: HTMLButtonElement;
+    private pendentesAprovacao: HTMLButtonElement;
     
-    public onNovaHistoria = () => { };
-    public onMinhasHistorias = () => { };
-    public onHistoriasVisualizadas = () => { };
+    public onNovaHistoria = () => { }
+    public onMinhasHistorias = () => { }
+    public onHistoriasVisualizadas = () => { }
+    public onPendentesAprovacao = () => { }
 
     constructor() {
         super();
@@ -24,7 +26,7 @@ class IndexViewModel extends ViewModel {
         this.novaHistoria = this.getElement("novaHistoria");
         this.minhasHistorias = this.getElement("minhasHistorias");
         this.historiasVisualizadas = this.getElement("historiasVisualizadas");
-        this.historiasVisualizadas = this.getElement("historiasVisualizadas");
+        this.pendentesAprovacao = this.getElement("pendentesAprovacao");
 
         this.menuBackdrop.addEventListener("click", () => 
             this.ocultarMenu());
@@ -37,6 +39,9 @@ class IndexViewModel extends ViewModel {
 
         this.historiasVisualizadas.addEventListener("click", () =>
             this.onHistoriasVisualizadas());
+        
+        this.pendentesAprovacao.addEventListener("click", () =>
+            this.onPendentesAprovacao());
     }
 
     exibirMenu() {
@@ -67,7 +72,7 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
         this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
         this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
-        this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
+        this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
     }
 
 }
