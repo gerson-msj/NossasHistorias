@@ -1,10 +1,8 @@
 import HeaderComponent, { HeaderConfig } from "./components/header.component";
 import IndexComponent from "./components/index.component";
-import AboutComponent from "./components/about.component";
 import { headerMenuClick, headerVoltarClick } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
-import VisualizarHistoriaComponent from "./components/visualizar-nova-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
 import MinhaHistoriaComponent from "./components/minha-historia.component";
 import VisualizarNovaHistoriaComponent from "./components/visualizar-nova-historia.component";
