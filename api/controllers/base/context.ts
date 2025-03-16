@@ -70,5 +70,4 @@ export default class Context {
     public notAllowed(): Response {
         return new Response(JSON.stringify({ message: "método não permitido" }), { status: 405, headers: { "content-type": "application/json; charset=utf-8" } });
     }
-    
 }
