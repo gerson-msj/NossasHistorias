@@ -12,12 +12,14 @@ class IndexViewModel extends ViewModel {
     private minhasHistorias: HTMLButtonElement;
     private historiasVisualizadas: HTMLButtonElement;
     private pendentesAprovacao: HTMLButtonElement;
+    private acesso: HTMLButtonElement;
     
     public onNovaHistoria = () => { }
     public onMinhasHistorias = () => { }
     public onHistoriasVisualizadas = () => { }
     public onPendentesAprovacao = () => { }
-
+    public onAcesso = () => { }
+    
     constructor() {
         super();
 
@@ -27,6 +29,7 @@ class IndexViewModel extends ViewModel {
         this.minhasHistorias = this.getElement("minhasHistorias");
         this.historiasVisualizadas = this.getElement("historiasVisualizadas");
         this.pendentesAprovacao = this.getElement("pendentesAprovacao");
+        this.acesso = this.getElement("acesso");
 
         this.menuBackdrop.addEventListener("click", () => 
             this.ocultarMenu());
@@ -42,6 +45,9 @@ class IndexViewModel extends ViewModel {
         
         this.pendentesAprovacao.addEventListener("click", () =>
             this.onPendentesAprovacao());
+
+        this.acesso.addEventListener("click", () => 
+            this.onAcesso());
     }
 
     exibirMenu() {
@@ -73,6 +79,7 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
         this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
         this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
+        this.viewModel.onAcesso = () => this.dispatchEvent(new Event("acesso"));
     }
 
 }
