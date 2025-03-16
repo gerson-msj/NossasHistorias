@@ -1,25 +1,26 @@
 :root {
-    --body-background-color: #333;
-    --body-color: #fff;
-    --link-color: #fff;
-    --link-hover-color: #ccc;
-    --heading-color: #eee;
-    --paragraph-color: #eee;
-    --input-background-color: #444;
-    --input-color: #ddd;
-    --input-border-color: #666;
-    --input-focus-border-color: #999;
-    --button-background-color: #555;
-    --button-color: #fff;
-    --button-disabled-background-color: #444;
-    --button-disabled-color: #bbb;
-    --button-hover-background-color: #777;
-    --footer-color: #888;
-    --mark-error-border-color: #ffaaaa;
-    --mark-error-color: #ee7b7b;
-    --scrollbar-thumb-background-color: #555;
-    --scrollbar-thumb-hover-background-color: #777;
-    --scrollbar-thumb-border-color: #333;
+/* Tema Escuro – Noite de Céu Limpo com Lua Cheia sobre Mar Profundo */
+--body-background-color: #0D1B2A;          /* Fundo: azul profundo que remete à imensidão do céu noturno e do mar */
+--body-color: #F0F0F0;                     /* Texto claro para excelente contraste e leitura prolongada */
+--link-color: #A9D0F5;                     /* Links em azul suave, evocando a luz tênue da lua */
+--link-hover-color: #B0E6FF;               /* Efeito hover com brilho acentuado, sugerindo o cintilar do luar */
+--heading-color: #FFFFFF;                  /* Títulos em branco puro para destaque e hierarquia visual */
+--paragraph-color: #D1D9E6;                /* Texto de parágrafos em tom levemente suavizado para conforto visual */
+--input-background-color: #162A3A;         /* Fundo dos inputs em azul-acinzentado, mantendo a harmonia do tema */
+--input-color: #F0F0F0;                    /* Texto dos inputs claro, facilitando a escrita e leitura */
+--input-border-color: #2A3B4C;             /* Bordas discretas em azul escuro para não interferir na imersão */
+--input-focus-border-color: #4A90E2;         /* Realce em azul vibrante ao focar, incentivando a interação */
+--button-background-color: #1F3A5E;          /* Botões com um azul médio, lembrando o brilho refletido na água */
+--button-color: #FFFFFF;                   /* Texto dos botões em branco para máxima visibilidade */
+--button-disabled-background-color: #2D3E4F;  /* Botões desabilitados em tom mais contido, mantendo a estética */
+--button-disabled-color: #888888;         /* Texto dos botões desativados em cinza, sutil e legível */
+--button-hover-background-color: #265B8B;   /* Efeito hover para os botões com um azul levemente mais claro */
+--footer-color: #7B8A97;                   /* Rodapé em tom neutro para não competir com o conteúdo principal */
+--mark-error-border-color: #FFAAAA;        /* Bordas para marcação de erro em rosa suave */
+--mark-error-color: #EE7B7B;               /* Indicador de erro em vermelho suave, porém visível */
+--scrollbar-thumb-background-color: #2B3A4C;  /* Barra de rolagem em azul acinzentado que integra o tema */
+--scrollbar-thumb-hover-background-color: #3A4B5D;
+--scrollbar-thumb-border-color: #0D1B2A;    /* Borda da scrollbar, em sinergia com o fundo */
 }
 
 /* Estilo para o body, definindo um fundo escuro e texto claro */

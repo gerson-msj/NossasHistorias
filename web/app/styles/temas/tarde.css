@@ -1,25 +1,26 @@
 :root {
-    --body-background-color: #333;
-    --body-color: #fff;
-    --link-color: #fff;
-    --link-hover-color: #ccc;
-    --heading-color: #eee;
-    --paragraph-color: #eee;
-    --input-background-color: #444;
-    --input-color: #ddd;
-    --input-border-color: #666;
-    --input-focus-border-color: #999;
-    --button-background-color: #555;
-    --button-color: #fff;
-    --button-disabled-background-color: #444;
-    --button-disabled-color: #bbb;
-    --button-hover-background-color: #777;
-    --footer-color: #888;
-    --mark-error-border-color: #ffaaaa;
-    --mark-error-color: #ee7b7b;
-    --scrollbar-thumb-background-color: #555;
-    --scrollbar-thumb-hover-background-color: #777;
-    --scrollbar-thumb-border-color: #333;
+/* Tema Tarde – Crepúsculo Alaranjado de Inverno */
+--body-background-color: #FFF4E6;          /* Fundo em tom claro e quente, remetendo ao brilho suave do crepúsculo */
+--body-color: #333333;                     /* Texto em cinza escuro para garantir uma leitura confortável mesmo em longas sessões */
+--link-color: #FF8C00;                     /* Links em laranja vibrante, evocando as cores intensas do pôr do sol */
+--link-hover-color: #E07C00;               /* Efeito hover com laranja um pouco mais profundo */
+--heading-color: #4B3621;                  /* Títulos em marrom escuro, que trazem a sensação acolhedora do entardecer */
+--paragraph-color: #5D4037;                /* Texto dos parágrafos com uma nuance terrosa, ideal para leitura de histórias */
+--input-background-color: #FFF8E1;         /* Fundo dos inputs em creme suave, em harmonia com o restante da paleta */
+--input-color: #333333;                    /* Texto dos inputs em cinza escuro para manter a consistência e legibilidade */
+--input-border-color: #CCCCCC;             /* Bordas discretas e neutras em cinza claro */
+--input-focus-border-color: #FF8C00;         /* Realce dos inputs em foco com o mesmo laranja vibrante dos links */
+--button-background-color: #FF8C00;         /* Botões em laranja marcante, incentivando a interação */
+--button-color: #FFFFFF;                   /* Texto dos botões em branco para contraste ideal */
+--button-disabled-background-color: #FFD8A6;  /* Botões desabilitados com tonalidade suavizada, integrando o tema */
+--button-disabled-color: #AAAAAA;          /* Texto dos botões desativados em cinza médio */
+--button-hover-background-color: #E07C00;   /* Efeito hover para os botões com um laranja mais intenso */
+--footer-color: #666666;                   /* Rodapé em cinza médio, discreto e elegante */
+--mark-error-border-color: #FFCCCC;        /* Borda de erro em rosa claro */
+--mark-error-color: #FF4444;               /* Indicador de erro em vermelho vivo, garantindo aviso claro */
+--scrollbar-thumb-background-color: #E0E0E0;  /* Barra de rolagem em cinza claro, com design sutil */
+--scrollbar-thumb-hover-background-color: #D0D0D0;
+--scrollbar-thumb-border-color: #FFFFFF;    /* Borda da scrollbar em branco */
 }
 
 /* Estilo para o body, definindo um fundo escuro e texto claro */
