@@ -108,3 +108,56 @@ Telas
 	Dados de Acesso
 		- Permite visualizar e copiar o Identificador
 		- Permite informar um Identificador
+		
+		
+API
+
+	Usuário
+		post (criar usuário)
+			Cria um novo usuário
+			Cria um novo token
+			retorna o token
+		get (validar usuário)
+			valida um token existente
+			retorna o id do usuário
+					
+	Nossas Histórias
+		get (obter história)
+			Valida o token do usuário
+			Obtém uma história não visualizada pelo usuário
+			Registra a história como visualizada pelo usuário
+			Retorna a história
+		post (adicionar ou remover custida)
+			Registra ou remove uma curtida
+		
+	Nova História
+		post (criar história)
+			Valida o token do usuário
+			Cria uma nova história na situação em análise
+			
+	Minhas Histórias
+		get (obter minhas histórias)
+			Obtém uma lista paginada de histórias do usuário
+				As primeiras não as em análise, seguidas pelas recusadas e 
+				depois pelas aprovadas, ordenadas por curtidas / data de criação.
+		delete (excluir minha história)
+			Exclui uma história
+			
+	Histórias Visualizadas
+		get (obter histórias visualizadas)
+			Obtém uma lista paginada de histórias visualizadas pelo usuário
+				Permite filtro por título e curtidas pelo usuário / todas
+				
+	Pendentes de Aprovação
+		get (obter história pendente aprovação)
+			obtém uma história pendente de aprovação
+		post (aprovar historia)
+			Aprova ou reprova uma história
+			
+	Administrador
+		post (atribuir perfil)
+			Adiciona ou remove o perfil de moderador de um dado usuário.
+			Retorna a indicação de ação realizada ou não.
+				Positivo quando houve atribuição ou retirada de perfil.
+				Negativo quando o usuário já possuia ou não a atribuição.
+				Falso quando o usuário não existe.
