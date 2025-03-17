@@ -6,7 +6,10 @@
     "compounds": [
         {
             "name": "Compound",
-            "configurations": ["Chrome", "Api"],
+            "configurations": [
+                "Chrome",
+                "Api"
+            ],
             "stopAll": true
         }
     ],
@@ -49,6 +52,22 @@
             "sourceMapPathOverrides": {
                 "webpack:///./*": "${webRoot}/ts/*"
             }
+        },
+        {
+            "name": "Debug Deno Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/test.ts",
+            "runtimeExecutable": "deno",
+            "runtimeArgs": [
+                "test",
+                "--inspect-brk",
+                "--no-check",
+                "-A"
+            ],
+            "attachSimplePort": 9229,
+            "cwd": "${workspaceFolder}",
+            "outputCapture": "std",
         }
     ]
 }
