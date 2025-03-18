@@ -18,15 +18,20 @@ const handler = async (request: Request): Promise<Response> => {
 
         if(!await context.auth())
             return context.unauthorized();
-
-
         
         const usuario = new UsuarioController();
         const controllers = Controller.enlistHandlers(
             usuario
         );
 
-        return controllers.handle(context);
+        try {
+            return controllers.handle(context);    
+        } catch (error) {
+            console.error(error);
+            return context.serverError();
+        } finally {
+            context.closeDb();
+        }
         
     } else {
         return page.handle(context);

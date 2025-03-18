@@ -7,6 +7,7 @@ export default class Context {
     public request: Request;
     public url: URL;
     private crypt: ServerCrypt;
+    private headers = { "content-type": "application/json; charset=utf-8" };
 
     private _db: sqlite.DatabaseSync | null = null;
     public get db() { return this._db; }
@@ -27,12 +28,16 @@ export default class Context {
     }
 
 
-    public getDb(): sqlite.DatabaseSync {
+    public openDb(): sqlite.DatabaseSync {
         if (this._db === null) {
-            this._db = new sqlite.DatabaseSync("api/data/nossas_historias_2.db", { readOnly: false, open: false });
+            this._db = new sqlite.DatabaseSync("api/data/nossas_historias.db", { readOnly: false, open: true });
         }
-
         return this._db;
+    }
+
+    public closeDb(): void {
+        if (this._db !== null)
+            this._db.close();
     }
 
 
@@ -61,18 +66,22 @@ export default class Context {
     }
 
     public ok<T>(obj: T): Response {
-        return new Response(obj ? JSON.stringify(obj) : null, { status: 200, headers: { "content-type": "application/json; charset=utf-8" } });
+        return new Response(obj ? JSON.stringify(obj) : null, { status: 200, headers: this.headers });
     }
 
     public badRequest(message: string): Response {
-        return new Response(JSON.stringify({ message: message }), { status: 400, headers: { "content-type": "application/json; charset=utf-8" } });
+        return new Response(JSON.stringify({ message: message }), { status: 400, headers: this.headers });
+    }
+
+    public serverError(): Response {
+        return new Response(null, { status: 500, headers: this.headers });
     }
 
     public unauthorized(): Response {
-        return new Response(JSON.stringify({ message: "não autorizado" }), { status: 401, headers: { "content-type": "application/json; charset=utf-8" } });
+        return new Response(JSON.stringify({ message: "não autorizado" }), { status: 401, headers: this.headers });
     }
 
     public notAllowed(): Response {
-        return new Response(JSON.stringify({ message: "método não permitido" }), { status: 405, headers: { "content-type": "application/json; charset=utf-8" } });
+        return new Response(JSON.stringify({ message: "método não permitido" }), { status: 405, headers: this.headers });
     }
 }

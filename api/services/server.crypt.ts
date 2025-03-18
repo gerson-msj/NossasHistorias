@@ -27,11 +27,12 @@ export default class ServerCrypt {
         
         const header = this.stringToBase64(JSON.stringify({ "alg": "HS256", "typ": "JWT" }));
 
-        const expTime = new Date();
+        //const expTime = new Date();
         //expTime.setHours(expTime.getHours() + 1);
-        expTime.setHours(expTime.getHours() + 10000);
-        const exp = Math.floor(expTime.getTime() / 1000);
-        const payload = this.stringToBase64(JSON.stringify({ "sub": sub, "exp": exp }));
+        //expTime.setHours(expTime.getHours() + 10000);
+        //const exp = Math.floor(expTime.getTime() / 1000);
+        //const payload = this.stringToBase64(JSON.stringify({ "sub": sub, "exp": exp }));
+        const payload = this.stringToBase64(JSON.stringify({ "sub": sub }));
         
         const data = this.encoder.encode(`${header}.${payload}`);
 
@@ -83,12 +84,12 @@ export default class ServerCrypt {
 
     private base64ToBuffer(base64: string): ArrayBuffer {
         const base64Unsafe = base64.replaceAll('-', '+').replaceAll('_', '/');
-        return new Uint8Array(atob(base64Unsafe).split("").map(c => c.charCodeAt(0)));
+        return new Uint8Array(atob(base64Unsafe).split("").map(c => c.charCodeAt(0))).buffer;
     }
 
     private createArrayBuffer(size: number): ArrayBuffer {
         const array = new Uint8Array(size);
         crypto.getRandomValues(array);
-        return array;
+        return array.buffer;
     }
 }
