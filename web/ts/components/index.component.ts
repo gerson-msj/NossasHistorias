@@ -31,22 +31,22 @@ class IndexViewModel extends ViewModel {
         this.pendentesAprovacao = this.getElement("pendentesAprovacao");
         this.acesso = this.getElement("acesso");
 
-        this.menuBackdrop.addEventListener("click", () => 
+        this.menuBackdrop?.addEventListener("click", () => 
             this.ocultarMenu());
 
-        this.novaHistoria.addEventListener("click", () => 
+        this.novaHistoria?.addEventListener("click", () => 
             this.onNovaHistoria());
 
-        this.minhasHistorias.addEventListener("click", () =>
+        this.minhasHistorias?.addEventListener("click", () =>
             this.onMinhasHistorias());
 
-        this.historiasVisualizadas.addEventListener("click", () =>
+        this.historiasVisualizadas?.addEventListener("click", () =>
             this.onHistoriasVisualizadas());
         
-        this.pendentesAprovacao.addEventListener("click", () =>
+        this.pendentesAprovacao?.addEventListener("click", () =>
             this.onPendentesAprovacao());
 
-        this.acesso.addEventListener("click", () => 
+        this.acesso?.addEventListener("click", () => 
             this.onAcesso());
     }
 

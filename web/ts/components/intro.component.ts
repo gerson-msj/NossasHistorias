@@ -1,3 +1,5 @@
+import ApiService from "../services/api.service";
+import TokenService from "../services/token.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -14,7 +16,17 @@ class IntroViewModel extends ViewModel {
 }
 
 class IntroService extends Service {
+    private apiUsuario: ApiService;
 
+    constructor() {
+        super();
+        this.apiUsuario = new ApiService("usuario");
+    }
+
+    public async obterToken(): Promise<string> {
+        const result = await this.apiUsuario.doPost<{ token: string }>({});
+        return result.token;
+    }
 }
 
 class IntroComponent extends Component<IntroViewModel, IntroService> {
@@ -25,9 +37,14 @@ class IntroComponent extends Component<IntroViewModel, IntroService> {
 
     async initialize(): Promise<void> {
         await this.initializeResources(IntroViewModel, IntroService);
+
         this.viewModel.onEntrar = () =>
             this.dispatchEvent(new Event("entrar"));
-        localStorage.setItem("intro", "true");
+        
+        if (!this.validarTokenSubject()) {
+            const token = await this.service.obterToken();
+            localStorage.setItem("token", token);
+        }
     }
 
 }

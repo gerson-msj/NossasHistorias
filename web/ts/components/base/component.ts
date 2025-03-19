@@ -1,4 +1,3 @@
-import { TokenSubjectModel } from "../../models/model";
 import Service from "./service";
 import ViewModel from "./viewmodel";
 
@@ -10,7 +9,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
     private _viewModel: TViewModel | null = null;
     protected get viewModel() { return this._viewModel!; }
 
-    private _tokenSubject: TokenSubjectModel | null = null;
+    private _tokenSubject: number | null = null;
     protected get tokenSubject() { return this._tokenSubject; }
 
     private modelPath: string;
@@ -28,6 +27,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
 
     private async initializeElement() {
         await this.initializeModel();
+        // Avaliar inclusão de try catch, apresentando erro genérico em popup e retornando a intro.
         await this.initialize();
         this.dispatchEvent(new Event("initialized"));
     }
@@ -44,11 +44,13 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
     protected validarTokenSubject(): boolean {
         try {
             const token = localStorage.getItem("token");
-            const payload: { sub: TokenSubjectModel, exp: number } = JSON.parse(atob(token!.split(".")[1]));
+            const payload: { sub: number } = JSON.parse(atob(token!.split(".")[1]));
             this._tokenSubject = payload.sub;
             return true;
         } catch (error) {
+            this._tokenSubject = null;
             return false;
+
         }
     }
 

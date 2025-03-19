@@ -1,9 +1,4 @@
-import { HistoriaSituacao, Perfil } from "./const.model";
-
-export interface TokenSubjectModel {
-    email: string;
-    perfil: Perfil;
-}
+import { HistoriaSituacao } from "./const.model";
 
 export interface HistoriaModel {
     titulo: string;

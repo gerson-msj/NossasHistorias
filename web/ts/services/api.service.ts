@@ -1,3 +1,5 @@
+import TokenService from "./token.service";
+
 export default class ApiService {
     private baseUrl: string;
 
@@ -40,14 +42,14 @@ export default class ApiService {
         return this.getResult(response);
     }
 
-    private async getResult<TResult>(response: Response) : Promise<TResult> {
-        if(response.ok){
+    private async getResult<TResult>(response: Response): Promise<TResult> {
+        if (response.ok) {
             const data: TResult = await response.json();
             return data;
         } else {
-            if(response.status == 401)
+            if (response.status == 401)
                 document.dispatchEvent(new Event("unauthorized"));
-            
+
             const error = await response.json();
             console.log("Erro:", error);
             throw new Error(error?.message ?? response.statusText);
@@ -55,8 +57,12 @@ export default class ApiService {
     }
 
     private getHeaders(): Record<string, string> {
-        const token = localStorage.getItem("token");
+
         const headers: Record<string, string> = { "content-type": "application/json; charset=utf-8" };
+
+        let token: string | null = null;
+        if (TokenService.verificarToken())
+            token = localStorage.getItem("token");
 
         if (token !== null)
             headers["authorization"] = `Bearer ${token}`;

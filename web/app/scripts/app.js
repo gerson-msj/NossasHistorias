@@ -16,10 +16,6 @@ define("models/const.model", ["require", "exports"], function (require, exports)
     exports.headerMenuVisible = "headermenuVisible";
     exports.tokenLSKey = "token";
 });
-define("models/model", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-});
 define("components/base/service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -59,6 +55,7 @@ define("components/base/component", ["require", "exports"], function (require, e
         }
         async initializeElement() {
             await this.initializeModel();
+            // Avaliar inclusão de try catch, apresentando erro genérico em popup e retornando a intro.
             await this.initialize();
             this.dispatchEvent(new Event("initialized"));
         }
@@ -78,6 +75,7 @@ define("components/base/component", ["require", "exports"], function (require, e
                 return true;
             }
             catch (error) {
+                this._tokenSubject = null;
                 return false;
             }
         }
@@ -185,12 +183,12 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.historiasVisualizadas = this.getElement("historiasVisualizadas");
             this.pendentesAprovacao = this.getElement("pendentesAprovacao");
             this.acesso = this.getElement("acesso");
-            this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
-            this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
-            this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
-            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
-            this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
-            this.acesso.addEventListener("click", () => this.onAcesso());
+            this.menuBackdrop?.addEventListener("click", () => this.ocultarMenu());
+            this.novaHistoria?.addEventListener("click", () => this.onNovaHistoria());
+            this.minhasHistorias?.addEventListener("click", () => this.onMinhasHistorias());
+            this.historiasVisualizadas?.addEventListener("click", () => this.onHistoriasVisualizadas());
+            this.pendentesAprovacao?.addEventListener("click", () => this.onPendentesAprovacao());
+            this.acesso?.addEventListener("click", () => this.onAcesso());
         }
         exibirMenu() {
             this.menuContainer.classList.remove("oculto");
@@ -217,9 +215,98 @@ define("components/index.component", ["require", "exports", "models/const.model"
     }
     exports.default = IndexComponent;
 });
-define("components/intro.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_3, service_3, viewmodel_3) {
+define("services/token.service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    class TokenService {
+        static possuiToken() {
+            const tokenSub = this.obterTokenSubject();
+            return tokenSub !== null;
+        }
+        static verificarToken() {
+            const tokenSub = this.obterTokenSubject();
+            if (tokenSub == null) {
+                document.dispatchEvent(new Event("unauthorized"));
+                return false;
+            }
+            return true;
+        }
+        static obterTokenSubject() {
+            try {
+                const token = localStorage.getItem("token");
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                return payload.sub;
+            }
+            catch (error) {
+                return null;
+            }
+        }
+    }
+    exports.default = TokenService;
+});
+define("services/api.service", ["require", "exports", "services/token.service"], function (require, exports, token_service_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    token_service_1 = __importDefault(token_service_1);
+    class ApiService {
+        baseUrl;
+        constructor(baseUrl) {
+            this.baseUrl = `/api/${baseUrl}`;
+        }
+        async doGet(searchParams = null) {
+            const url = searchParams ? `${this.baseUrl}?${searchParams}` : this.baseUrl;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: this.getHeaders()
+            });
+            return this.getResult(response);
+        }
+        async doPost(obj, bearer = null) {
+            const response = await fetch(this.baseUrl, {
+                method: "POST",
+                headers: this.getHeaders(),
+                body: JSON.stringify(obj)
+            });
+            const data = await response.json();
+            return data;
+        }
+        async doPut(request) {
+            const response = await fetch(this.baseUrl, {
+                method: "PUT",
+                headers: this.getHeaders(),
+                body: JSON.stringify(request)
+            });
+            return this.getResult(response);
+        }
+        async getResult(response) {
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            }
+            else {
+                if (response.status == 401)
+                    document.dispatchEvent(new Event("unauthorized"));
+                const error = await response.json();
+                console.log("Erro:", error);
+                throw new Error(error?.message ?? response.statusText);
+            }
+        }
+        getHeaders() {
+            const headers = { "content-type": "application/json; charset=utf-8" };
+            let token = null;
+            if (token_service_1.default.verificarToken())
+                token = localStorage.getItem("token");
+            if (token !== null)
+                headers["authorization"] = `Bearer ${token}`;
+            return headers;
+        }
+    }
+    exports.default = ApiService;
+});
+define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_1, component_3, service_3, viewmodel_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_1 = __importDefault(api_service_1);
     component_3 = __importDefault(component_3);
     service_3 = __importDefault(service_3);
     viewmodel_3 = __importDefault(viewmodel_3);
@@ -233,6 +320,15 @@ define("components/intro.component", ["require", "exports", "components/base/com
         }
     }
     class IntroService extends service_3.default {
+        apiUsuario;
+        constructor() {
+            super();
+            this.apiUsuario = new api_service_1.default("usuario");
+        }
+        async obterToken() {
+            const result = await this.apiUsuario.doPost({});
+            return result.token;
+        }
     }
     class IntroComponent extends component_3.default {
         constructor() {
@@ -241,7 +337,10 @@ define("components/intro.component", ["require", "exports", "components/base/com
         async initialize() {
             await this.initializeResources(IntroViewModel, IntroService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-            localStorage.setItem("intro", "true");
+            if (!this.validarTokenSubject()) {
+                const token = await this.service.obterToken();
+                localStorage.setItem("token", token);
+            }
         }
     }
     exports.default = IntroComponent;
@@ -274,6 +373,10 @@ define("components/nova-historia.component", ["require", "exports", "components/
         }
     }
     exports.default = NovaHistoriaComponent;
+});
+define("models/model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
 });
 define("components/minhas-historias.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_5, service_5, viewmodel_5) {
     "use strict";
@@ -561,7 +664,7 @@ define("components/acesso.component", ["require", "exports", "components/base/co
     }
     exports.default = AcessoComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component", "components/acesso.component"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1, acesso_component_1) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -575,6 +678,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     historia_visualizada_component_copy_1 = __importDefault(historia_visualizada_component_copy_1);
     pendentes_aprovacao_component_1 = __importDefault(pendentes_aprovacao_component_1);
     acesso_component_1 = __importDefault(acesso_component_1);
+    token_service_2 = __importDefault(token_service_2);
     class App {
         mainElement;
         loadedComponents = [];
@@ -582,7 +686,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         currentComponent = null;
         constructor() {
             this.mainElement = document.querySelector("main");
-            document.addEventListener("unauthorized", () => this.index());
+            document.addEventListener("unauthorized", () => this.intro());
             this.headerComponent = this.header();
             if (location.pathname !== "/")
                 history.pushState({}, "", "/");
@@ -648,8 +752,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             div?.classList.remove("oculto");
         }
         intro() {
-            const introVisualizada = localStorage.getItem("intro");
-            if (introVisualizada) {
+            if (token_service_2.default.possuiToken()) {
                 this.index();
             }
             else {
@@ -727,86 +830,5 @@ define("models/extensions", ["require", "exports"], function (require, exports) 
         enumerable: false,
         configurable: true
     });
-});
-define("services/api.service", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class ApiService {
-        baseUrl;
-        constructor(baseUrl) {
-            this.baseUrl = `/api/${baseUrl}`;
-        }
-        async doGet(searchParams = null) {
-            const url = searchParams ? `${this.baseUrl}?${searchParams}` : this.baseUrl;
-            const response = await fetch(url, {
-                method: "GET",
-                headers: this.getHeaders()
-            });
-            return this.getResult(response);
-        }
-        async doPost(obj, bearer = null) {
-            const response = await fetch(this.baseUrl, {
-                method: "POST",
-                headers: this.getHeaders(),
-                body: JSON.stringify(obj)
-            });
-            const data = await response.json();
-            return data;
-        }
-        async doPut(request) {
-            const response = await fetch(this.baseUrl, {
-                method: "PUT",
-                headers: this.getHeaders(),
-                body: JSON.stringify(request)
-            });
-            return this.getResult(response);
-        }
-        async getResult(response) {
-            if (response.ok) {
-                const data = await response.json();
-                return data;
-            }
-            else {
-                if (response.status == 401)
-                    document.dispatchEvent(new Event("unauthorized"));
-                const error = await response.json();
-                console.log("Erro:", error);
-                throw new Error(error?.message ?? response.statusText);
-            }
-        }
-        getHeaders() {
-            const token = localStorage.getItem("token");
-            const headers = { "content-type": "application/json; charset=utf-8" };
-            if (token !== null)
-                headers["authorization"] = `Bearer ${token}`;
-            return headers;
-        }
-    }
-    exports.default = ApiService;
-});
-define("services/token.service", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class TokenService {
-        static VerificarToken(perfil) {
-            const tokenSub = this.obterTokenSubject();
-            if (tokenSub == null || tokenSub.perfil != perfil) {
-                document.dispatchEvent(new Event("unauthorized"));
-                return false;
-            }
-            return true;
-        }
-        static obterTokenSubject() {
-            try {
-                const token = localStorage.getItem("token");
-                const payload = JSON.parse(atob(token.split(".")[1]));
-                return payload.sub;
-            }
-            catch (error) {
-                return null;
-            }
-        }
-    }
-    exports.default = TokenService;
 });
 //# sourceMappingURL=app.js.map

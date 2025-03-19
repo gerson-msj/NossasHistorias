@@ -1,11 +1,14 @@
-import { Perfil } from "../models/const.model";
-import { TokenSubjectModel } from "../models/model";
 
 export default class TokenService {
 
-    static VerificarToken(perfil: Perfil): boolean {
+    static possuiToken(): boolean {
         const tokenSub = this.obterTokenSubject();
-        if (tokenSub == null || tokenSub.perfil != perfil) {
+        return tokenSub !== null;
+    }
+    
+    static verificarToken(): boolean {
+        const tokenSub = this.obterTokenSubject();
+        if (tokenSub == null) {
             document.dispatchEvent(new Event("unauthorized"));
             return false;
         }
@@ -13,14 +16,15 @@ export default class TokenService {
         return true;
     }
 
-    static obterTokenSubject(): TokenSubjectModel | null {
+    static obterTokenSubject(): number | null {
         try {
             const token = localStorage.getItem("token");
-            const payload: { sub: TokenSubjectModel, exp: number } = JSON.parse(atob(token!.split(".")[1]));
+            const payload: { sub: number } = JSON.parse(atob(token!.split(".")[1]));
             return payload.sub;
         } catch (error) {
             return null;
         }
     }
 
+    
 }

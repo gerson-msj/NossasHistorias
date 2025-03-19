@@ -11,6 +11,7 @@ import { HistoriaModel } from "./models/model";
 import HistoriaVisualizadaComponent from "./components/historia-visualizada.component copy";
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
+import TokenService from "./services/token.service";
 
 class App {
     private mainElement: HTMLElement;
@@ -21,7 +22,7 @@ class App {
     constructor() {
         this.mainElement = document.querySelector("main") as HTMLElement;
         document.addEventListener("unauthorized", () =>
-            this.index());
+            this.intro());
         this.headerComponent = this.header();
 
         if (location.pathname !== "/")
@@ -109,11 +110,9 @@ class App {
     }
 
     private intro() {
-        const introVisualizada = localStorage.getItem("intro");
-        if (introVisualizada) {
+        if (TokenService.possuiToken()) {
             this.index();
-        }
-        else {
+        } else {
             const component = this.loadComponent("intro-component", IntroComponent);
             component.addEventListener("entrar", () => this.index());
         }
