@@ -1,4 +1,6 @@
 import { headerMenuClick } from "../models/const.model";
+import { UsuarioResponseModel } from "../models/response.model";
+import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -64,7 +66,16 @@ class IndexViewModel extends ViewModel {
 }
 
 class IndexService extends Service {
+    private apiUsuario: ApiService;
 
+    constructor() {
+        super();
+        this.apiUsuario = new ApiService("usuario");
+    }
+
+    public obterUsuario(): Promise<UsuarioResponseModel> {
+        return this.apiUsuario.doGet<UsuarioResponseModel>();
+    }
 }
 
 class IndexComponent extends Component<IndexViewModel, IndexService> {
@@ -84,6 +95,13 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
         this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
         this.viewModel.onAcesso = () => this.dispatchEvent(new Event("acesso"));
+
+        const usuario = await this.service.obterUsuario();
+        if(!usuario.usuarioExistente)
+            document.dispatchEvent(new Event("unauthorized"));
+
+        if(usuario.moderador)
+            this.viewModel.exibirPendentesAprovacao();
     }
 
 }

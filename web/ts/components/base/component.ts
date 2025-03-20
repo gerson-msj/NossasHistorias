@@ -60,7 +60,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
         return Promise.resolve();
     }
 
-    protected dispatch(event: () => void, eventName: string) {
-        event = () => this.dispatchEvent(new Event(eventName));
+    protected dispatch(eventName: string) {
+        this.dispatchEvent(new Event(eventName));
     }
 }

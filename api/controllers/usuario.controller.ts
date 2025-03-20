@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import ServerCrypt from "../services/server.crypt.ts";
 import { Usuario } from "../models/db.model.ts";
 import { UsuarioResponseModel } from "../models/response.model.ts";
+import DateService from "../services/date.service.ts";
 
 export class UsuarioService {
 
@@ -18,12 +19,9 @@ export class UsuarioService {
     public novo(): Promise<number> {
         return new Promise<number>((resolve, reject) => {
             const sql = "Insert Into Usuarios (DataCriacao, Moderador) Values (?, ?)";
-            const dt = new Date();
-            const dataCriacao = dt.toJSON().split('T')[0];
-            const moderador = 0;
             try {
                 const query = this.db.prepare(sql);
-                const queryResult = query.run(dataCriacao, moderador);
+                const queryResult = query.run(DateService.DiaAtual(), 0);
                 const id = queryResult.lastInsertRowid as number;                
                 resolve(id);
             } catch (error) {
@@ -53,7 +51,7 @@ export class UsuarioService {
         return {
             usuarioExistente: usuario !== undefined,
             id: usuario?.Id,
-            moderador: usuario?.Moderador,
+            moderador: usuario?.Moderador == 1,
         };
     }
 

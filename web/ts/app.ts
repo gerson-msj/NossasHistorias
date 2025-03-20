@@ -21,8 +21,11 @@ class App {
 
     constructor() {
         this.mainElement = document.querySelector("main") as HTMLElement;
-        document.addEventListener("unauthorized", () =>
-            this.intro());
+        document.addEventListener("unauthorized", () => {
+            localStorage.clear();
+            this.intro();
+        });
+            
         this.headerComponent = this.header();
 
         if (location.pathname !== "/")
@@ -125,6 +128,9 @@ class App {
         component.addEventListener("historiasVisualizadas", () => this.historiasVisualizadas());
         component.addEventListener("pendentesAprovacao", () => this.pendentesAprovacao());
         component.addEventListener("acesso", () => this.acesso());
+        component.addEventListener("voltar", () => {
+
+        });
     }
 
     private novaHistoria() {
