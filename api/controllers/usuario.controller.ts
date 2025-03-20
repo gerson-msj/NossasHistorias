@@ -2,6 +2,8 @@ import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
 import { DatabaseSync } from "node:sqlite";
 import ServerCrypt from "../services/server.crypt.ts";
+import { Usuario } from "../models/db.model.ts";
+import { UsuarioResponseModel } from "../models/response.model.ts";
 
 export class UsuarioService {
 
@@ -33,6 +35,28 @@ export class UsuarioService {
     public criarToken(id: number): Promise<string> {
         return this.crypt.criarToken(id);
     }
+
+    public obterUsuario(id: number): Promise<Usuario | undefined> {
+        return new Promise<Usuario | undefined>((resolve, reject) => {
+            const sql = "Select * From Usuarios Where Id = ?";
+            try {
+                const query = this.db.prepare(sql);
+                const row = query.get(id);
+                resolve(row as Usuario);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    public obterUsuarioResponseModel(usuario: Usuario | undefined): UsuarioResponseModel {
+        return {
+            usuarioExistente: usuario !== undefined,
+            id: usuario?.Id,
+            moderador: usuario?.Moderador,
+        };
+    }
+
 }
 
 export default class UsuarioController extends Controller<UsuarioService> {
@@ -49,9 +73,13 @@ export default class UsuarioController extends Controller<UsuarioService> {
 
         switch (context.request.method) {
             case "GET": {
-                // const request = context.url.searchParams.get("email");
+                if(context.tokenSub === null)
+                    return context.unauthorized();
+
+                const usuario = await this.service.obterUsuario(context.tokenSub);
+                const response = this.service.obterUsuarioResponseModel(usuario);
                 
-                return Promise.resolve(context.ok({}));
+                return Promise.resolve(context.ok(response));
             }
 
             case "POST": {

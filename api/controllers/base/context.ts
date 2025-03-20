@@ -1,4 +1,3 @@
-import { TokenSubject } from "../../models/response.model.ts";
 import ServerCrypt from "../../services/server.crypt.ts";
 import sqlite from "node:sqlite";
 
@@ -15,7 +14,7 @@ export default class Context {
     private _kv: Deno.Kv | null = null;
     public get kv() { return this._kv!; }
 
-    public tokenSub: TokenSubject | null = null;
+    public tokenSub: number | null = null;
 
     public get isApiRequest(): boolean {
         return this.url.pathname.startsWith("/api");
@@ -51,12 +50,10 @@ export default class Context {
                 return true;
 
             const token = auth.split(" ")[1];
-            if (await this.crypt.tokenValido(token) && !this.crypt.tokenExpirado(token))
+            if (await this.crypt.tokenValido(token))
                 this.tokenSub = this.crypt.tokenSub(token);
 
-            return this.tokenSub != null
-                && this.tokenSub.email != ''
-                && (this.tokenSub.perfil == "Resp" || this.tokenSub.perfil == "Dep");
+            return this.tokenSub != null;
 
         } catch (error) {
             console.error("auth", error);

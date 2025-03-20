@@ -183,11 +183,11 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.historiasVisualizadas = this.getElement("historiasVisualizadas");
             this.pendentesAprovacao = this.getElement("pendentesAprovacao");
             this.acesso = this.getElement("acesso");
-            this.menuBackdrop?.addEventListener("click", () => this.ocultarMenu());
-            this.novaHistoria?.addEventListener("click", () => this.onNovaHistoria());
-            this.minhasHistorias?.addEventListener("click", () => this.onMinhasHistorias());
-            this.historiasVisualizadas?.addEventListener("click", () => this.onHistoriasVisualizadas());
-            this.pendentesAprovacao?.addEventListener("click", () => this.onPendentesAprovacao());
+            this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
+            this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
+            this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
+            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
+            this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
             this.acesso?.addEventListener("click", () => this.onAcesso());
         }
         exibirMenu() {
@@ -195,6 +195,9 @@ define("components/index.component", ["require", "exports", "models/const.model"
         }
         ocultarMenu() {
             this.menuContainer.classList.add("oculto");
+        }
+        exibirPendentesAprovacao() {
+            this.pendentesAprovacao.classList.remove("oculto");
         }
     }
     class IndexService extends service_2.default {

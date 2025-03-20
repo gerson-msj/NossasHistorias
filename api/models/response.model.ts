@@ -1,17 +1,13 @@
-import { Perfil } from "./db.model.ts";
-
-export interface TokenSubject {
-    email: string;
-    perfil: Perfil;
-}
 
 export interface TokenResponseModel {
     token: string | null;
     message: string | null;
 }
 
-export interface UsuarioExistenteResponseModel {
+export interface UsuarioResponseModel {
     usuarioExistente: boolean;
+    id: number | undefined;
+    moderador: boolean | undefined;
 }
 
 export interface ResumoMesadaResponseModel {
