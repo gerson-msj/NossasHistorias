@@ -4,6 +4,7 @@ import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
+import DialogComponent from "./dialog.component";
 
 class IndexViewModel extends ViewModel {
 
@@ -15,6 +16,8 @@ class IndexViewModel extends ViewModel {
     private historiasVisualizadas: HTMLButtonElement;
     private pendentesAprovacao: HTMLButtonElement;
     private acesso: HTMLButtonElement;
+
+    private dialog: DialogComponent;    
     
     public onNovaHistoria = () => { }
     public onMinhasHistorias = () => { }
@@ -24,7 +27,7 @@ class IndexViewModel extends ViewModel {
     
     constructor() {
         super();
-
+     
         this.menuContainer = this.getElement("menuContainer");
         this.menuBackdrop = this.getElement("menuBackdrop");
         this.novaHistoria = this.getElement("novaHistoria");
@@ -32,7 +35,10 @@ class IndexViewModel extends ViewModel {
         this.historiasVisualizadas = this.getElement("historiasVisualizadas");
         this.pendentesAprovacao = this.getElement("pendentesAprovacao");
         this.acesso = this.getElement("acesso");
-
+        
+        customElements.define("dialog-component", DialogComponent)
+        this.dialog = this.getElement("dialog");
+       
         this.menuBackdrop.addEventListener("click", () => 
             this.ocultarMenu());
 
@@ -50,6 +56,8 @@ class IndexViewModel extends ViewModel {
 
         this.acesso?.addEventListener("click", () => 
             this.onAcesso());
+
+
     }
 
     exibirMenu() {
@@ -62,6 +70,10 @@ class IndexViewModel extends ViewModel {
 
     exibirPendentesAprovacao() {
         this.pendentesAprovacao.classList.remove("oculto");
+    }
+
+    popup(titulo: string) {
+        this.dialog.titulo = titulo;
     }
 }
 
@@ -85,6 +97,9 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
     }
 
     async initialize(): Promise<void> {
+
+           
+
         await this.initializeResources(IndexViewModel, IndexService);
         
         this.addEventListener(headerMenuClick, () => 
@@ -102,6 +117,9 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
 
         if(usuario.moderador)
             this.viewModel.exibirPendentesAprovacao();
+
+        this.viewModel.popup("Novo Título");
+
     }
 
 }

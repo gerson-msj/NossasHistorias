@@ -247,14 +247,47 @@ define("services/api.service", ["require", "exports", "services/token.service"],
     }
     exports.default = ApiService;
 });
-define("components/index.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, api_service_1, component_2, service_2, viewmodel_2) {
+define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    api_service_1 = __importDefault(api_service_1);
     component_2 = __importDefault(component_2);
     service_2 = __importDefault(service_2);
     viewmodel_2 = __importDefault(viewmodel_2);
-    class IndexViewModel extends viewmodel_2.default {
+    class DialogViewModel extends viewmodel_2.default {
+        _dialogTitulo;
+        _dialogMensagem;
+        get dialogTitulo() { return this._dialogTitulo.innerText; }
+        set dialogTitulo(value) { this._dialogTitulo.innerText = value; }
+        get dialogMensagem() { return this._dialogMensagem.innerText; }
+        set dialogMensagem(value) { this._dialogMensagem.innerText = value; }
+        constructor() {
+            super();
+            this._dialogTitulo = this.getElement("dialogTitulo");
+            this._dialogMensagem = this.getElement("dialogMensagem");
+        }
+    }
+    class DialogService extends service_2.default {
+    }
+    class DialogComponent extends component_2.default {
+        set titulo(value) { this.viewModel.dialogTitulo = value; }
+        constructor() {
+            super("dialog");
+        }
+        async initialize() {
+            await this.initializeResources(DialogViewModel, DialogService);
+        }
+    }
+    exports.default = DialogComponent;
+});
+define("components/index.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, const_model_2, api_service_1, component_3, service_3, viewmodel_3, dialog_component_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_1 = __importDefault(api_service_1);
+    component_3 = __importDefault(component_3);
+    service_3 = __importDefault(service_3);
+    viewmodel_3 = __importDefault(viewmodel_3);
+    dialog_component_1 = __importDefault(dialog_component_1);
+    class IndexViewModel extends viewmodel_3.default {
         menuContainer;
         menuBackdrop;
         novaHistoria;
@@ -262,6 +295,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
         historiasVisualizadas;
         pendentesAprovacao;
         acesso;
+        dialog;
         onNovaHistoria = () => { };
         onMinhasHistorias = () => { };
         onHistoriasVisualizadas = () => { };
@@ -276,6 +310,8 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.historiasVisualizadas = this.getElement("historiasVisualizadas");
             this.pendentesAprovacao = this.getElement("pendentesAprovacao");
             this.acesso = this.getElement("acesso");
+            customElements.define("dialog-component", dialog_component_1.default);
+            this.dialog = this.getElement("dialog");
             this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
             this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
             this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
@@ -292,8 +328,11 @@ define("components/index.component", ["require", "exports", "models/const.model"
         exibirPendentesAprovacao() {
             this.pendentesAprovacao.classList.remove("oculto");
         }
+        popup(titulo) {
+            this.dialog.titulo = titulo;
+        }
     }
-    class IndexService extends service_2.default {
+    class IndexService extends service_3.default {
         apiUsuario;
         constructor() {
             super();
@@ -303,7 +342,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
             return this.apiUsuario.doGet();
         }
     }
-    class IndexComponent extends component_2.default {
+    class IndexComponent extends component_3.default {
         constructor() {
             super("index");
         }
@@ -320,18 +359,19 @@ define("components/index.component", ["require", "exports", "models/const.model"
                 document.dispatchEvent(new Event("unauthorized"));
             if (usuario.moderador)
                 this.viewModel.exibirPendentesAprovacao();
+            this.viewModel.popup("Novo Título");
         }
     }
     exports.default = IndexComponent;
 });
-define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_3, service_3, viewmodel_3) {
+define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_2 = __importDefault(api_service_2);
-    component_3 = __importDefault(component_3);
-    service_3 = __importDefault(service_3);
-    viewmodel_3 = __importDefault(viewmodel_3);
-    class IntroViewModel extends viewmodel_3.default {
+    component_4 = __importDefault(component_4);
+    service_4 = __importDefault(service_4);
+    viewmodel_4 = __importDefault(viewmodel_4);
+    class IntroViewModel extends viewmodel_4.default {
         entrar;
         onEntrar = () => { };
         constructor() {
@@ -340,7 +380,7 @@ define("components/intro.component", ["require", "exports", "services/api.servic
             this.entrar.addEventListener("click", () => this.onEntrar());
         }
     }
-    class IntroService extends service_3.default {
+    class IntroService extends service_4.default {
         apiUsuario;
         constructor() {
             super();
@@ -351,7 +391,7 @@ define("components/intro.component", ["require", "exports", "services/api.servic
             return result.token;
         }
     }
-    class IntroComponent extends component_3.default {
+    class IntroComponent extends component_4.default {
         constructor() {
             super("intro");
         }
@@ -366,13 +406,13 @@ define("components/intro.component", ["require", "exports", "services/api.servic
     }
     exports.default = IntroComponent;
 });
-define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
+define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_5, service_5, viewmodel_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_4 = __importDefault(component_4);
-    service_4 = __importDefault(service_4);
-    viewmodel_4 = __importDefault(viewmodel_4);
-    class NovaHistoriaViewModel extends viewmodel_4.default {
+    component_5 = __importDefault(component_5);
+    service_5 = __importDefault(service_5);
+    viewmodel_5 = __importDefault(viewmodel_5);
+    class NovaHistoriaViewModel extends viewmodel_5.default {
         visualizar;
         onVisualizar = () => { };
         constructor() {
@@ -381,9 +421,9 @@ define("components/nova-historia.component", ["require", "exports", "components/
             this.visualizar.addEventListener("click", () => this.onVisualizar());
         }
     }
-    class NovaHistoriaService extends service_4.default {
+    class NovaHistoriaService extends service_5.default {
     }
-    class NovaHistoriaComponent extends component_4.default {
+    class NovaHistoriaComponent extends component_5.default {
         constructor() {
             super("nova-historia");
         }
@@ -399,13 +439,13 @@ define("models/model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("components/minhas-historias.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_5, service_5, viewmodel_5) {
+define("components/minhas-historias.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_6, service_6, viewmodel_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_5 = __importDefault(component_5);
-    service_5 = __importDefault(service_5);
-    viewmodel_5 = __importDefault(viewmodel_5);
-    class MinhasHistoriasViewModel extends viewmodel_5.default {
+    component_6 = __importDefault(component_6);
+    service_6 = __importDefault(service_6);
+    viewmodel_6 = __importDefault(viewmodel_6);
+    class MinhasHistoriasViewModel extends viewmodel_6.default {
         historias;
         onApresentarHistoria = (titulo) => { };
         constructor() {
@@ -428,7 +468,7 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
             });
         }
     }
-    class MinhasHistoriasService extends service_5.default {
+    class MinhasHistoriasService extends service_6.default {
         obterMinhasHistorias() {
             const historias = [
                 {
@@ -451,7 +491,7 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
             return Promise.resolve(historias);
         }
     }
-    class MinhasHistoriasComponent extends component_5.default {
+    class MinhasHistoriasComponent extends component_6.default {
         constructor() {
             super("minhas-historias");
         }
@@ -464,13 +504,13 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
     }
     exports.default = MinhasHistoriasComponent;
 });
-define("components/minha-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_6, service_6, viewmodel_6) {
+define("components/minha-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_7, service_7, viewmodel_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_6 = __importDefault(component_6);
-    service_6 = __importDefault(service_6);
-    viewmodel_6 = __importDefault(viewmodel_6);
-    class MinhaHistoriaViewModel extends viewmodel_6.default {
+    component_7 = __importDefault(component_7);
+    service_7 = __importDefault(service_7);
+    viewmodel_7 = __importDefault(viewmodel_7);
+    class MinhaHistoriaViewModel extends viewmodel_7.default {
         excluir;
         _titulo;
         get titulo() { return this._titulo.innerText; }
@@ -483,9 +523,9 @@ define("components/minha-historia.component", ["require", "exports", "components
             this.excluir.addEventListener("click", () => this.onExcluir());
         }
     }
-    class MinhaHistoriaService extends service_6.default {
+    class MinhaHistoriaService extends service_7.default {
     }
-    class MinhaHistoriaComponent extends component_6.default {
+    class MinhaHistoriaComponent extends component_7.default {
         constructor() {
             super("minha-historia");
         }
@@ -500,13 +540,13 @@ define("components/minha-historia.component", ["require", "exports", "components
     }
     exports.default = MinhaHistoriaComponent;
 });
-define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_7, service_7, viewmodel_7) {
+define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_8, service_8, viewmodel_8) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_7 = __importDefault(component_7);
-    service_7 = __importDefault(service_7);
-    viewmodel_7 = __importDefault(viewmodel_7);
-    class VisualizarNovaHistoriaViewModel extends viewmodel_7.default {
+    component_8 = __importDefault(component_8);
+    service_8 = __importDefault(service_8);
+    viewmodel_8 = __importDefault(viewmodel_8);
+    class VisualizarNovaHistoriaViewModel extends viewmodel_8.default {
         salvar;
         onSalvar = () => { };
         constructor() {
@@ -515,9 +555,9 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
             this.salvar.addEventListener("click", () => this.onSalvar());
         }
     }
-    class VisualizarNovaHistoriaService extends service_7.default {
+    class VisualizarNovaHistoriaService extends service_8.default {
     }
-    class VisualizarNovaHistoriaComponent extends component_7.default {
+    class VisualizarNovaHistoriaComponent extends component_8.default {
         constructor() {
             super("visualizar-nova-historia");
         }
@@ -528,13 +568,13 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
     }
     exports.default = VisualizarNovaHistoriaComponent;
 });
-define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_4, component_8, service_8, viewmodel_8) {
+define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_4, component_9, service_9, viewmodel_9) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_8 = __importDefault(component_8);
-    service_8 = __importDefault(service_8);
-    viewmodel_8 = __importDefault(viewmodel_8);
-    class HistoriasVisualizadasViewModel extends viewmodel_8.default {
+    component_9 = __importDefault(component_9);
+    service_9 = __importDefault(service_9);
+    viewmodel_9 = __importDefault(viewmodel_9);
+    class HistoriasVisualizadasViewModel extends viewmodel_9.default {
         historias;
         onApresentarHistoria = (historia) => { };
         constructor() {
@@ -555,7 +595,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
             });
         }
     }
-    class HistoriasVisualizadasService extends service_8.default {
+    class HistoriasVisualizadasService extends service_9.default {
         obterHistoriasVisualizadas() {
             const historias = [
                 {
@@ -578,7 +618,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
             return Promise.resolve(historias);
         }
     }
-    class HistoriasVisualizadasComponent extends component_8.default {
+    class HistoriasVisualizadasComponent extends component_9.default {
         constructor() {
             super("historias-visualizadas");
         }
@@ -591,13 +631,13 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
     }
     exports.default = HistoriasVisualizadasComponent;
 });
-define("components/historia-visualizada.component copy", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_9, service_9, viewmodel_9) {
+define("components/historia-visualizada.component copy", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_9 = __importDefault(component_9);
-    service_9 = __importDefault(service_9);
-    viewmodel_9 = __importDefault(viewmodel_9);
-    class HistoriaVisualizadaViewModel extends viewmodel_9.default {
+    component_10 = __importDefault(component_10);
+    service_10 = __importDefault(service_10);
+    viewmodel_10 = __importDefault(viewmodel_10);
+    class HistoriaVisualizadaViewModel extends viewmodel_10.default {
         curtir;
         _titulo;
         get titulo() { return this._titulo.innerText; }
@@ -610,9 +650,9 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
             this.curtir.addEventListener("click", () => this.onCurtir());
         }
     }
-    class HistoriaVisualizadaService extends service_9.default {
+    class HistoriaVisualizadaService extends service_10.default {
     }
-    class HistoriaVisualizadaComponent extends component_9.default {
+    class HistoriaVisualizadaComponent extends component_10.default {
         constructor() {
             super("historia-visualizada");
         }
@@ -627,13 +667,13 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_11, service_11, viewmodel_11) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_10 = __importDefault(component_10);
-    service_10 = __importDefault(service_10);
-    viewmodel_10 = __importDefault(viewmodel_10);
-    class PendentesAprovacaoViewModel extends viewmodel_10.default {
+    component_11 = __importDefault(component_11);
+    service_11 = __importDefault(service_11);
+    viewmodel_11 = __importDefault(viewmodel_11);
+    class PendentesAprovacaoViewModel extends viewmodel_11.default {
         aprovar;
         reprovar;
         motivoReprovacao;
@@ -648,9 +688,9 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "compo
             this.reprovar.addEventListener("click", () => this.onReprovar(this.motivoReprovacao.value));
         }
     }
-    class PendentesAprovacaoService extends service_10.default {
+    class PendentesAprovacaoService extends service_11.default {
     }
-    class PendentesAprovacaoComponent extends component_10.default {
+    class PendentesAprovacaoComponent extends component_11.default {
         constructor() {
             super("pendentes-aprovacao");
         }
@@ -662,20 +702,20 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "compo
     }
     exports.default = PendentesAprovacaoComponent;
 });
-define("components/acesso.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_11, service_11, viewmodel_11) {
+define("components/acesso.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_12, service_12, viewmodel_12) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_11 = __importDefault(component_11);
-    service_11 = __importDefault(service_11);
-    viewmodel_11 = __importDefault(viewmodel_11);
-    class AcessoViewModel extends viewmodel_11.default {
+    component_12 = __importDefault(component_12);
+    service_12 = __importDefault(service_12);
+    viewmodel_12 = __importDefault(viewmodel_12);
+    class AcessoViewModel extends viewmodel_12.default {
         constructor() {
             super();
         }
     }
-    class AcessoService extends service_11.default {
+    class AcessoService extends service_12.default {
     }
-    class AcessoComponent extends component_11.default {
+    class AcessoComponent extends component_12.default {
         constructor() {
             super("Acesso");
         }
