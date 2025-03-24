@@ -17,8 +17,6 @@ class IndexViewModel extends ViewModel {
     private pendentesAprovacao: HTMLButtonElement;
     private acesso: HTMLButtonElement;
 
-    private dialog: DialogComponent;    
-    
     public onNovaHistoria = () => { }
     public onMinhasHistorias = () => { }
     public onHistoriasVisualizadas = () => { }
@@ -35,9 +33,6 @@ class IndexViewModel extends ViewModel {
         this.historiasVisualizadas = this.getElement("historiasVisualizadas");
         this.pendentesAprovacao = this.getElement("pendentesAprovacao");
         this.acesso = this.getElement("acesso");
-        
-        customElements.define("dialog-component", DialogComponent)
-        this.dialog = this.getElement("dialog");
        
         this.menuBackdrop.addEventListener("click", () => 
             this.ocultarMenu());
@@ -72,9 +67,6 @@ class IndexViewModel extends ViewModel {
         this.pendentesAprovacao.classList.remove("oculto");
     }
 
-    popup(titulo: string) {
-        this.dialog.titulo = titulo;
-    }
 }
 
 class IndexService extends Service {
@@ -117,8 +109,6 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
 
         if(usuario.moderador)
             this.viewModel.exibirPendentesAprovacao();
-
-        this.viewModel.popup("Novo Título");
 
     }
 

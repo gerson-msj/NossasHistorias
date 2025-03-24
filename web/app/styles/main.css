@@ -12,6 +12,10 @@
     --base-font-image-size: 28px;
     --input-invalid-border-color: #ce6262;
     --menu-width: 225px;
+    --max-width: 600px;
+    --header-height: 80px;
+    --dialog-width: calc(var(--max-width) * .85);
+    --dialog-top: calc(var(--header-height) + 25px);
 }
 
 .oculto {
@@ -128,4 +132,35 @@ h1 {
     cursor: pointer;
 }
 
-/* ...menu */
+/* Dialog */
+
+.dialog-container {
+    display: flex;
+}
+
+.dialog-container .dialog {
+    position: fixed;
+    height: auto;
+    top: var(--dialog-top);
+    width: var(--dialog-width);
+    left: calc((100vw / 2) - (var(--dialog-width) / 2));
+    z-index: 11;
+    background-color: #222222f9;
+    border-radius: 5px;
+    padding: 10px;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dialog-container .backdrop {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    width: 100vw;
+    left: 0;
+    z-index: 10;
+    background-color: transparent;
+    cursor: pointer;
+}

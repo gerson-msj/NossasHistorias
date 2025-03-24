@@ -12,6 +12,17 @@ const page = Controller.createInstance(PageController);
 // const handler = async (request: Request): Promise<Response> => {
 const handler = async (request: Request): Promise<Response> => {
     
+    // const headers = new Headers({
+    //     "Access-Control-Allow-Origin": "*", // Permite qualquer origem
+    //     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    //     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    // });
+
+    // // Se for uma requisição OPTIONS (pré-flight), responde diretamente
+    // if (request.method === "OPTIONS") {
+    //     return new Response(null, { status: 204, headers });
+    // }
+
     const context = new Context(request);
 
     if (context.isApiRequest) {

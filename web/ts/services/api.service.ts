@@ -5,6 +5,7 @@ export default class ApiService {
 
     constructor(baseUrl: string) {
         this.baseUrl = `/api/${baseUrl}`;
+        //this.baseUrl = `http://localhost:8000/api/${baseUrl}`;
     }
 
     public async doGet<TResult>(searchParams: URLSearchParams | null = null): Promise<TResult> {
