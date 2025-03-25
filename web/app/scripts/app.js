@@ -79,6 +79,8 @@ define("components/dialog.component", ["require", "exports", "components/base/co
     }
     class DialogComponent extends component_1.default {
         retorno = "";
+        okDialog = (retorno) => { };
+        cancelDialog = (retorno) => { };
         constructor() {
             super("dialog");
         }
@@ -86,17 +88,22 @@ define("components/dialog.component", ["require", "exports", "components/base/co
             await this.initializeResources(DialogViewModel, DialogService);
             this.addEventListener("opendialog", (ev) => {
                 const data = ev.detail;
-                this.retorno = data.retorno;
-                this.viewModel.openDialog(data);
+                this.openDialog(data);
             });
             this.viewModel.onCancel = () => {
                 this.viewModel.closeDialog();
+                this.cancelDialog(this.retorno);
                 this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
             };
             this.viewModel.onOk = () => {
                 this.viewModel.closeDialog();
+                this.okDialog(this.retorno);
                 this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
             };
+        }
+        openDialog(data) {
+            this.retorno = data.retorno;
+            this.viewModel.openDialog(data);
         }
     }
     exports.default = DialogComponent;
@@ -403,33 +410,10 @@ define("components/index.component", ["require", "exports", "models/const.model"
     }
     exports.default = IndexComponent;
 });
-define("services/component.service", ["require", "exports", "components/dialog.component"], function (require, exports, dialog_component_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    dialog_component_1 = __importDefault(dialog_component_1);
-    class ComponentService {
-        /**
-         * Adiciona um dialog-component no form existente.
-         * @returns dialog-component
-         */
-        static loadDialog(element) {
-            return new Promise((resolve) => {
-                customElements.define("dialog-component", dialog_component_1.default);
-                const dialogComponent = document.createElement("dialog-component");
-                element.appendChild(dialogComponent);
-                dialogComponent.addEventListener("initialized", () => {
-                    resolve(dialogComponent);
-                });
-            });
-        }
-    }
-    exports.default = ComponentService;
-});
-define("components/intro.component", ["require", "exports", "services/api.service", "services/component.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_service_1, component_4, service_4, viewmodel_4) {
+define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_2 = __importDefault(api_service_2);
-    component_service_1 = __importDefault(component_service_1);
     component_4 = __importDefault(component_4);
     service_4 = __importDefault(service_4);
     viewmodel_4 = __importDefault(viewmodel_4);
@@ -460,28 +444,10 @@ define("components/intro.component", ["require", "exports", "services/api.servic
         async initialize() {
             await this.initializeResources(IntroViewModel, IntroService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-            const dialog = await component_service_1.default.loadDialog(this);
-            const dialogData = {
-                titulo: "Olá!",
-                icone: "info",
-                mensagem: "Este é um teste de mensagem:<br />Você confirma a leitura?",
-                ok: "Sim",
-                cancel: "Não",
-                retorno: "msg01"
-            };
-            dialog.dispatchEvent(new CustomEvent("opendialog", { detail: dialogData }));
-            dialog.addEventListener("okdialog", (ev) => {
-                const retorno = ev.detail;
-                alert(`Ok Retorno: ${retorno}`);
-            });
-            dialog.addEventListener("canceldialog", (ev) => {
-                const retorno = ev.detail;
-                alert(`Cancel Retorno: ${retorno}`);
-            });
-            // if (!this.validarTokenSubject()) {
-            //     const token = await this.service.obterToken();
-            //     localStorage.setItem("token", token);
-            // }
+            if (!this.validarTokenSubject()) {
+                const token = await this.service.obterToken();
+                localStorage.setItem("token", token);
+            }
         }
     }
     exports.default = IntroComponent;
@@ -972,5 +938,27 @@ define("models/extensions", ["require", "exports"], function (require, exports) 
         enumerable: false,
         configurable: true
     });
+});
+define("services/component.service", ["require", "exports", "components/dialog.component"], function (require, exports, dialog_component_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    dialog_component_1 = __importDefault(dialog_component_1);
+    class ComponentService {
+        /**
+         * Adiciona um dialog-component no form existente.
+         * @returns dialog-component
+         */
+        static loadDialog(element) {
+            return new Promise((resolve) => {
+                customElements.define("dialog-component", dialog_component_1.default);
+                const dialogComponent = document.createElement("dialog-component");
+                element.appendChild(dialogComponent);
+                dialogComponent.addEventListener("initialized", () => {
+                    resolve(dialogComponent);
+                });
+            });
+        }
+    }
+    exports.default = ComponentService;
 });
 //# sourceMappingURL=app.js.map

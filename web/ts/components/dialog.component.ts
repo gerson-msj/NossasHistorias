@@ -66,6 +66,9 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
 
     private retorno: string = "";
 
+    public okDialog = (retorno: string) => { }
+    public cancelDialog = (retorno: string) => { }
+
     constructor() {
         super("dialog");
     }
@@ -75,26 +78,27 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
 
         this.addEventListener("opendialog", (ev) => {
             const data = (ev as CustomEvent).detail as DialogModel;
-            this.retorno = data.retorno;
-            this.viewModel.openDialog(data);
+            this.openDialog(data);
         });
 
         this.viewModel.onCancel = () => {
             this.viewModel.closeDialog();
+            this.cancelDialog(this.retorno);
             this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
         };
 
         this.viewModel.onOk = () => {
             this.viewModel.closeDialog();
+            this.okDialog(this.retorno);
             this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
         };
 
     }
 
-
-
-
-
+    public openDialog(data: DialogModel) {
+        this.retorno = data.retorno;
+        this.viewModel.openDialog(data);
+    }
 }
 
 export default DialogComponent;
