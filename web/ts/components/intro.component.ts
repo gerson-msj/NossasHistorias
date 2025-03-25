@@ -1,3 +1,4 @@
+import { DialogModel } from "../models/model";
 import ApiService from "../services/api.service";
 import ComponentService from "../services/component.service";
 import TokenService from "../services/token.service";
@@ -7,18 +8,15 @@ import ViewModel from "./base/viewmodel";
 import DialogComponent from "./dialog.component";
 
 class IntroViewModel extends ViewModel {
-    
+
     private entrar: HTMLButtonElement;
-    private dialog: DialogComponent;
-    
+
     public onEntrar = () => { };
 
     constructor() {
         super();
         this.entrar = this.getElement("entrar");
         this.entrar.addEventListener("click", () => this.onEntrar());
-        
-        this.dialog = ComponentService.loadDialog();
     }
 }
 
@@ -47,7 +45,30 @@ class IntroComponent extends Component<IntroViewModel, IntroService> {
 
         this.viewModel.onEntrar = () =>
             this.dispatchEvent(new Event("entrar"));
-        
+
+        const dialog = await ComponentService.loadDialog(this);
+
+        const dialogData: DialogModel = {
+            titulo: "Olá!",
+            icone: "info",
+            mensagem: "Este é um teste de mensagem:<br />Você confirma a leitura?",
+            ok: "Sim",
+            cancel: "Não",
+            retorno: "msg01"
+        };
+
+        dialog.dispatchEvent(new CustomEvent("opendialog", { detail: dialogData }));
+
+        dialog.addEventListener("okdialog", (ev) => {
+            const retorno = (ev as CustomEvent).detail as string;
+            alert(`Ok Retorno: ${retorno}`);
+        });
+
+        dialog.addEventListener("canceldialog", (ev) => {
+            const retorno = (ev as CustomEvent).detail as string;
+            alert(`Cancel Retorno: ${retorno}`);
+        });
+
         // if (!this.validarTokenSubject()) {
         //     const token = await this.service.obterToken();
         //     localStorage.setItem("token", token);

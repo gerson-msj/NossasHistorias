@@ -1,7 +1,15 @@
 <template>
-    <div id="dialogContainer" class="dialog-container">
+    <div id="dialogContainer" class="dialog-container oculto">
         <div id="dialog" class="dialog">
-            <h1>DIALOG!!!!</h1>
+            <div id="dialogHeader" class="dialog-header"></div>
+            <div class="dialog-content">
+                <span id="dialogIcon" class="material-symbols-rounded dialog-icon"></span>
+                <span id="dialogMsg" class="dialog-msg"></span>
+            </div>
+            <div class="dialog-buttons">
+                <button id="dialogCancel" type="button"></button>
+                <button id="dialogOk" type="button"></button>
+            </div>
         </div>
         <div id="dialogBackdrop" class="backdrop"></div>
     </div>

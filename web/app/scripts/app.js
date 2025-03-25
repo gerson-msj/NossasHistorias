@@ -24,6 +24,10 @@ define("components/base/service", ["require", "exports"], function (require, exp
     }
     exports.default = Service;
 });
+define("models/model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
 define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -31,27 +35,68 @@ define("components/dialog.component", ["require", "exports", "components/base/co
     service_1 = __importDefault(service_1);
     viewmodel_1 = __importDefault(viewmodel_1);
     class DialogViewModel extends viewmodel_1.default {
-        // private _dialogTitulo: HTMLElement;
-        // private _dialogMensagem: HTMLElement;
-        // public get dialogTitulo() { return this._dialogTitulo.innerText; }
-        // public set dialogTitulo(value: string) { this._dialogTitulo.innerText = value; }
-        // public get dialogMensagem() { return this._dialogMensagem.innerText; }
-        // public set dialogMensagem(value: string) { this._dialogMensagem.innerText = value; }
+        dialogContainer;
+        dialogBackdrop;
+        dialogHeader;
+        dialogIcon;
+        dialogMsg;
+        dialogCancel;
+        dialogOk;
+        onCancel = () => { };
+        onOk = () => { };
         constructor() {
             super();
-            // this._dialogTitulo = this.getElement("dialogTitulo");
-            // this._dialogMensagem = this.getElement("dialogMensagem");
+            this.dialogContainer = this.getElement("dialogContainer");
+            this.dialogBackdrop = this.getElement("dialogBackdrop");
+            this.dialogHeader = this.getElement("dialogHeader");
+            this.dialogIcon = this.getElement("dialogIcon");
+            this.dialogMsg = this.getElement("dialogMsg");
+            this.dialogCancel = this.getElement("dialogCancel");
+            this.dialogOk = this.getElement("dialogOk");
+            this.dialogCancel.addEventListener("click", () => this.onCancel());
+            this.dialogBackdrop.addEventListener("click", () => this.onCancel());
+            this.dialogOk.addEventListener("click", () => this.onOk());
+        }
+        openDialog(data) {
+            if (data.titulo === null)
+                this.dialogHeader.classList.add("oculto");
+            if (data.icone === null)
+                this.dialogIcon.classList.add("oculto");
+            if (data.cancel === null)
+                this.dialogCancel.classList.add("oculto");
+            this.dialogHeader.innerText = data.titulo ?? "";
+            this.dialogIcon.innerText = data.icone ?? "";
+            this.dialogMsg.innerHTML = data.mensagem;
+            this.dialogCancel.innerText = data.cancel ?? "";
+            this.dialogOk.innerText = data.ok;
+            this.dialogContainer.classList.remove("oculto");
+        }
+        closeDialog() {
+            this.dialogContainer.classList.add("oculto");
         }
     }
     class DialogService extends service_1.default {
     }
     class DialogComponent extends component_1.default {
-        // public set titulo(value: string) { this.viewModel.dialogTitulo = value }
+        retorno = "";
         constructor() {
             super("dialog");
         }
         async initialize() {
             await this.initializeResources(DialogViewModel, DialogService);
+            this.addEventListener("opendialog", (ev) => {
+                const data = ev.detail;
+                this.retorno = data.retorno;
+                this.viewModel.openDialog(data);
+            });
+            this.viewModel.onCancel = () => {
+                this.viewModel.closeDialog();
+                this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
+            };
+            this.viewModel.onOk = () => {
+                this.viewModel.closeDialog();
+                this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
+            };
         }
     }
     exports.default = DialogComponent;
@@ -367,12 +412,15 @@ define("services/component.service", ["require", "exports", "components/dialog.c
          * Adiciona um dialog-component no form existente.
          * @returns dialog-component
          */
-        static loadDialog() {
-            const form = document.querySelector("form");
-            customElements.define("dialog-component", dialog_component_1.default);
-            const dialogComponent = document.createElement("dialog-component");
-            form.appendChild(dialogComponent);
-            return dialogComponent;
+        static loadDialog(element) {
+            return new Promise((resolve) => {
+                customElements.define("dialog-component", dialog_component_1.default);
+                const dialogComponent = document.createElement("dialog-component");
+                element.appendChild(dialogComponent);
+                dialogComponent.addEventListener("initialized", () => {
+                    resolve(dialogComponent);
+                });
+            });
         }
     }
     exports.default = ComponentService;
@@ -387,13 +435,11 @@ define("components/intro.component", ["require", "exports", "services/api.servic
     viewmodel_4 = __importDefault(viewmodel_4);
     class IntroViewModel extends viewmodel_4.default {
         entrar;
-        dialog;
         onEntrar = () => { };
         constructor() {
             super();
             this.entrar = this.getElement("entrar");
             this.entrar.addEventListener("click", () => this.onEntrar());
-            this.dialog = component_service_1.default.loadDialog();
         }
     }
     class IntroService extends service_4.default {
@@ -414,6 +460,24 @@ define("components/intro.component", ["require", "exports", "services/api.servic
         async initialize() {
             await this.initializeResources(IntroViewModel, IntroService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
+            const dialog = await component_service_1.default.loadDialog(this);
+            const dialogData = {
+                titulo: "Olá!",
+                icone: "info",
+                mensagem: "Este é um teste de mensagem:<br />Você confirma a leitura?",
+                ok: "Sim",
+                cancel: "Não",
+                retorno: "msg01"
+            };
+            dialog.dispatchEvent(new CustomEvent("opendialog", { detail: dialogData }));
+            dialog.addEventListener("okdialog", (ev) => {
+                const retorno = ev.detail;
+                alert(`Ok Retorno: ${retorno}`);
+            });
+            dialog.addEventListener("canceldialog", (ev) => {
+                const retorno = ev.detail;
+                alert(`Cancel Retorno: ${retorno}`);
+            });
             // if (!this.validarTokenSubject()) {
             //     const token = await this.service.obterToken();
             //     localStorage.setItem("token", token);
@@ -450,10 +514,6 @@ define("components/nova-historia.component", ["require", "exports", "components/
         }
     }
     exports.default = NovaHistoriaComponent;
-});
-define("models/model", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
 });
 define("components/minhas-historias.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_6, service_6, viewmodel_6) {
     "use strict";

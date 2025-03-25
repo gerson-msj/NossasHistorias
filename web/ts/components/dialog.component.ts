@@ -1,23 +1,59 @@
+import { DialogModel } from "../models/model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
 class DialogViewModel extends ViewModel {
 
-    // private _dialogTitulo: HTMLElement;
-    // private _dialogMensagem: HTMLElement;
+    private dialogContainer: HTMLDivElement;
+    private dialogBackdrop: HTMLDialogElement;
+    private dialogHeader: HTMLDivElement;
+    private dialogIcon: HTMLSpanElement;
+    private dialogMsg: HTMLSpanElement;
+    private dialogCancel: HTMLButtonElement;
+    private dialogOk: HTMLButtonElement;
 
-    // public get dialogTitulo() { return this._dialogTitulo.innerText; }
-    // public set dialogTitulo(value: string) { this._dialogTitulo.innerText = value; }
 
-    // public get dialogMensagem() { return this._dialogMensagem.innerText; }
-    // public set dialogMensagem(value: string) { this._dialogMensagem.innerText = value; }
+    public onCancel = () => { };
+    public onOk = () => { };
 
     constructor() {
         super();
 
-        // this._dialogTitulo = this.getElement("dialogTitulo");
-        // this._dialogMensagem = this.getElement("dialogMensagem");
+        this.dialogContainer = this.getElement("dialogContainer");
+        this.dialogBackdrop = this.getElement("dialogBackdrop")
+        this.dialogHeader = this.getElement("dialogHeader");
+        this.dialogIcon = this.getElement("dialogIcon");
+        this.dialogMsg = this.getElement("dialogMsg");
+        this.dialogCancel = this.getElement("dialogCancel");
+        this.dialogOk = this.getElement("dialogOk");
+
+        this.dialogCancel.addEventListener("click", () => this.onCancel());
+        this.dialogBackdrop.addEventListener("click", () => this.onCancel());
+        this.dialogOk.addEventListener("click", () => this.onOk());
+    }
+
+    public openDialog(data: DialogModel) {
+        if (data.titulo === null)
+            this.dialogHeader.classList.add("oculto");
+
+        if (data.icone === null)
+            this.dialogIcon.classList.add("oculto");
+
+        if (data.cancel === null)
+            this.dialogCancel.classList.add("oculto");
+
+        this.dialogHeader.innerText = data.titulo ?? "";
+        this.dialogIcon.innerText = data.icone ?? "";
+        this.dialogMsg.innerHTML = data.mensagem;
+        this.dialogCancel.innerText = data.cancel ?? "";
+        this.dialogOk.innerText = data.ok;
+
+        this.dialogContainer.classList.remove("oculto");
+    }
+
+    public closeDialog() {
+        this.dialogContainer.classList.add("oculto");
     }
 
 }
@@ -28,7 +64,7 @@ class DialogService extends Service {
 
 class DialogComponent extends Component<DialogViewModel, DialogService> {
 
-    // public set titulo(value: string) { this.viewModel.dialogTitulo = value }
+    private retorno: string = "";
 
     constructor() {
         super("dialog");
@@ -37,7 +73,25 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
     async initialize(): Promise<void> {
         await this.initializeResources(DialogViewModel, DialogService);
 
+        this.addEventListener("opendialog", (ev) => {
+            const data = (ev as CustomEvent).detail as DialogModel;
+            this.retorno = data.retorno;
+            this.viewModel.openDialog(data);
+        });
+
+        this.viewModel.onCancel = () => {
+            this.viewModel.closeDialog();
+            this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
+        };
+
+        this.viewModel.onOk = () => {
+            this.viewModel.closeDialog();
+            this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
+        };
+
     }
+
+
 
 
 

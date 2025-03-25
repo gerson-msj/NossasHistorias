@@ -8,3 +8,12 @@ export interface HistoriaModel {
     visualizacoes: number;
     curtidas: number;
 }
+
+export interface DialogModel {
+    titulo: string | null;
+    icone: string | null;
+    mensagem: string;
+    cancel: string | null;
+    ok: string;
+    retorno: string;
+}
