@@ -99,6 +99,17 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
         this.retorno = data.retorno;
         this.viewModel.openDialog(data);
     }
+
+    public static load(element: HTMLElement): Promise<DialogComponent> {
+        return new Promise((resolve) => {
+            customElements.define("dialog-component", DialogComponent);
+            const dialogComponent = document.createElement("dialog-component") as DialogComponent;
+            element.appendChild(dialogComponent);
+            dialogComponent.addEventListener("initialized", () => {
+                resolve(dialogComponent);
+            });
+        });
+    }
 }
 
 export default DialogComponent;

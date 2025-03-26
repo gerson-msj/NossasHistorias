@@ -105,6 +105,16 @@ define("components/dialog.component", ["require", "exports", "components/base/co
             this.retorno = data.retorno;
             this.viewModel.openDialog(data);
         }
+        static load(element) {
+            return new Promise((resolve) => {
+                customElements.define("dialog-component", DialogComponent);
+                const dialogComponent = document.createElement("dialog-component");
+                element.appendChild(dialogComponent);
+                dialogComponent.addEventListener("initialized", () => {
+                    resolve(dialogComponent);
+                });
+            });
+        }
     }
     exports.default = DialogComponent;
 });
@@ -112,10 +122,25 @@ define("components/base/viewmodel", ["require", "exports"], function (require, e
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class ViewModel {
+        timeoutId = null;
         constructor() {
         }
         getElement(name) {
             return document.querySelector(`#${name}`);
+        }
+        saveData(ev) {
+            if (this.timeoutId !== null)
+                clearTimeout(this.timeoutId);
+            this.timeoutId = setTimeout(() => {
+                const target = ev.target;
+                localStorage.setItem(target.id, target.value);
+            }, 500);
+        }
+        restoreData(...target) {
+            target.forEach(t => {
+                const e = t;
+                e.value = localStorage.getItem(t.id) ?? "";
+            });
         }
     }
     exports.default = ViewModel;
@@ -459,12 +484,20 @@ define("components/nova-historia.component", ["require", "exports", "components/
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
     class NovaHistoriaViewModel extends viewmodel_5.default {
+        tituloNovaHistoria;
+        novaHistoria;
         visualizar;
         onVisualizar = () => { };
         constructor() {
             super();
+            this.tituloNovaHistoria = this.getElement("tituloNovaHistoria");
+            this.novaHistoria = this.getElement("novaHistoria");
             this.visualizar = this.getElement("visualizar");
             this.visualizar.addEventListener("click", () => this.onVisualizar());
+            this.tituloNovaHistoria.focus();
+            this.restoreData(this.tituloNovaHistoria, this.novaHistoria);
+            this.tituloNovaHistoria.addEventListener("keyup", this.saveData);
+            this.novaHistoria.addEventListener("keyup", this.saveData);
         }
     }
     class NovaHistoriaService extends service_5.default {
@@ -582,12 +615,13 @@ define("components/minha-historia.component", ["require", "exports", "components
     }
     exports.default = MinhaHistoriaComponent;
 });
-define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_8, service_8, viewmodel_8) {
+define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_8, service_8, viewmodel_8, dialog_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_8 = __importDefault(component_8);
     service_8 = __importDefault(service_8);
     viewmodel_8 = __importDefault(viewmodel_8);
+    dialog_component_1 = __importDefault(dialog_component_1);
     class VisualizarNovaHistoriaViewModel extends viewmodel_8.default {
         salvar;
         onSalvar = () => { };
@@ -605,6 +639,7 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
         }
         async initialize() {
             await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
+            const dialog = await dialog_component_1.default.load(this);
             this.viewModel.onSalvar = () => this.dispatchEvent(new Event("salvar"));
         }
     }
@@ -938,27 +973,5 @@ define("models/extensions", ["require", "exports"], function (require, exports) 
         enumerable: false,
         configurable: true
     });
-});
-define("services/component.service", ["require", "exports", "components/dialog.component"], function (require, exports, dialog_component_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    dialog_component_1 = __importDefault(dialog_component_1);
-    class ComponentService {
-        /**
-         * Adiciona um dialog-component no form existente.
-         * @returns dialog-component
-         */
-        static loadDialog(element) {
-            return new Promise((resolve) => {
-                customElements.define("dialog-component", dialog_component_1.default);
-                const dialogComponent = document.createElement("dialog-component");
-                element.appendChild(dialogComponent);
-                dialogComponent.addEventListener("initialized", () => {
-                    resolve(dialogComponent);
-                });
-            });
-        }
-    }
-    exports.default = ComponentService;
 });
 //# sourceMappingURL=app.js.map

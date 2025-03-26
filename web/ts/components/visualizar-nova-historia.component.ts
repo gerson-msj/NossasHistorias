@@ -1,6 +1,7 @@
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
+import DialogComponent from "./dialog.component";
 
 class VisualizarNovaHistoriaViewModel extends ViewModel {
 
@@ -27,6 +28,9 @@ class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaVi
 
     async initialize(): Promise<void> {
         await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
+        
+        const dialog = await DialogComponent.load(this);
+                
         this.viewModel.onSalvar = () => this.dispatchEvent(new Event("salvar"));
     }
 
