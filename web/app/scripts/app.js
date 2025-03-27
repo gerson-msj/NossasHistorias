@@ -24,139 +24,14 @@ define("components/base/service", ["require", "exports"], function (require, exp
     }
     exports.default = Service;
 });
-define("models/model", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-});
-define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    component_1 = __importDefault(component_1);
-    service_1 = __importDefault(service_1);
-    viewmodel_1 = __importDefault(viewmodel_1);
-    class DialogViewModel extends viewmodel_1.default {
-        dialogContainer;
-        dialogBackdrop;
-        dialogHeader;
-        dialogIcon;
-        dialogMsg;
-        dialogCancel;
-        dialogOk;
-        onCancel = () => { };
-        onOk = () => { };
-        constructor() {
-            super();
-            this.dialogContainer = this.getElement("dialogContainer");
-            this.dialogBackdrop = this.getElement("dialogBackdrop");
-            this.dialogHeader = this.getElement("dialogHeader");
-            this.dialogIcon = this.getElement("dialogIcon");
-            this.dialogMsg = this.getElement("dialogMsg");
-            this.dialogCancel = this.getElement("dialogCancel");
-            this.dialogOk = this.getElement("dialogOk");
-            this.dialogCancel.addEventListener("click", () => this.onCancel());
-            this.dialogBackdrop.addEventListener("click", () => this.onCancel());
-            this.dialogOk.addEventListener("click", () => this.onOk());
-        }
-        openDialog(data) {
-            if (data.titulo === null)
-                this.dialogHeader.classList.add("oculto");
-            if (data.icone === null)
-                this.dialogIcon.classList.add("oculto");
-            if (data.cancel === null)
-                this.dialogCancel.classList.add("oculto");
-            this.dialogHeader.innerText = data.titulo ?? "";
-            this.dialogIcon.innerText = data.icone ?? "";
-            this.dialogMsg.innerHTML = data.mensagem;
-            this.dialogCancel.innerText = data.cancel ?? "";
-            this.dialogOk.innerText = data.ok;
-            this.dialogContainer.classList.remove("oculto");
-        }
-        closeDialog() {
-            this.dialogContainer.classList.add("oculto");
-        }
-    }
-    class DialogService extends service_1.default {
-    }
-    class DialogComponent extends component_1.default {
-        retorno = "";
-        okDialog = (retorno) => { };
-        cancelDialog = (retorno) => { };
-        constructor() {
-            super("dialog");
-        }
-        async initialize() {
-            await this.initializeResources(DialogViewModel, DialogService);
-            this.addEventListener("opendialog", (ev) => {
-                const data = ev.detail;
-                this.openDialog(data);
-            });
-            this.viewModel.onCancel = () => {
-                this.viewModel.closeDialog();
-                this.cancelDialog(this.retorno);
-                this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
-            };
-            this.viewModel.onOk = () => {
-                this.viewModel.closeDialog();
-                this.okDialog(this.retorno);
-                this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
-            };
-        }
-        openDialog(data) {
-            this.retorno = data.retorno;
-            this.viewModel.openDialog(data);
-        }
-        static load(element) {
-            return new Promise((resolve) => {
-                const dialogComponent = document.createElement("dialog-component");
-                element.appendChild(dialogComponent);
-                dialogComponent.addEventListener("initialized", () => {
-                    resolve(dialogComponent);
-                });
-            });
-        }
-    }
-    exports.default = DialogComponent;
-});
 define("components/base/viewmodel", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class ViewModel {
-        timeoutId = null;
         constructor() {
         }
         getElement(name) {
             return document.querySelector(`#${name}`);
-        }
-        saveData(ev) {
-            if (this.timeoutId !== null)
-                clearTimeout(this.timeoutId);
-            this.timeoutId = setTimeout(() => {
-                const target = ev.target;
-                localStorage.setItem(target.id, target.value);
-            }, 500);
-        }
-        restoreData(...target) {
-            target.forEach(t => {
-                const value = localStorage.getItem(t.id) ?? "";
-                if (t instanceof HTMLTextAreaElement || t instanceof HTMLInputElement) {
-                    const e = t;
-                    e.value = value;
-                }
-                else if (t instanceof HTMLHeadingElement) {
-                    const e = t;
-                    e.innerText = value;
-                }
-                else if (t instanceof HTMLElement) {
-                    const e = t;
-                    e.innerHTML = "";
-                    const values = value.split(/\r?\n/);
-                    values.forEach(v => {
-                        const p = document.createElement("p");
-                        p.innerText = v;
-                        e.appendChild(p);
-                    });
-                }
-            });
         }
     }
     exports.default = ViewModel;
@@ -216,13 +91,13 @@ define("components/base/component", ["require", "exports"], function (require, e
     }
     exports.default = Component;
 });
-define("components/header.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_1, component_2, service_2, viewmodel_2) {
+define("components/header.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_1, component_1, service_1, viewmodel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_2 = __importDefault(component_2);
-    service_2 = __importDefault(service_2);
-    viewmodel_2 = __importDefault(viewmodel_2);
-    class HeaderViewModel extends viewmodel_2.default {
+    component_1 = __importDefault(component_1);
+    service_1 = __importDefault(service_1);
+    viewmodel_1 = __importDefault(viewmodel_1);
+    class HeaderViewModel extends viewmodel_1.default {
         icone;
         titulo;
         menu;
@@ -260,12 +135,12 @@ define("components/header.component", ["require", "exports", "models/const.model
                 this.menu.classList.add(this.cssOculto);
         }
     }
-    class HeaderService extends service_2.default {
+    class HeaderService extends service_1.default {
         constructor() {
             super();
         }
     }
-    class HeaderComponent extends component_2.default {
+    class HeaderComponent extends component_1.default {
         constructor() {
             super("header");
         }
@@ -373,6 +248,101 @@ define("services/api.service", ["require", "exports", "services/token.service"],
         }
     }
     exports.default = ApiService;
+});
+define("models/model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_2 = __importDefault(component_2);
+    service_2 = __importDefault(service_2);
+    viewmodel_2 = __importDefault(viewmodel_2);
+    class DialogViewModel extends viewmodel_2.default {
+        dialogContainer;
+        dialogBackdrop;
+        dialogHeader;
+        dialogIcon;
+        dialogMsg;
+        dialogCancel;
+        dialogOk;
+        onCancel = () => { };
+        onOk = () => { };
+        constructor() {
+            super();
+            this.dialogContainer = this.getElement("dialogContainer");
+            this.dialogBackdrop = this.getElement("dialogBackdrop");
+            this.dialogHeader = this.getElement("dialogHeader");
+            this.dialogIcon = this.getElement("dialogIcon");
+            this.dialogMsg = this.getElement("dialogMsg");
+            this.dialogCancel = this.getElement("dialogCancel");
+            this.dialogOk = this.getElement("dialogOk");
+            this.dialogCancel.addEventListener("click", () => this.onCancel());
+            this.dialogBackdrop.addEventListener("click", () => this.onCancel());
+            this.dialogOk.addEventListener("click", () => this.onOk());
+        }
+        openDialog(data) {
+            if (data.titulo === null)
+                this.dialogHeader.classList.add("oculto");
+            if (data.icone === null)
+                this.dialogIcon.classList.add("oculto");
+            if (data.cancel === null)
+                this.dialogCancel.classList.add("oculto");
+            this.dialogHeader.innerText = data.titulo ?? "";
+            this.dialogIcon.innerText = data.icone ?? "";
+            this.dialogMsg.innerHTML = data.mensagem;
+            this.dialogCancel.innerText = data.cancel ?? "";
+            this.dialogOk.innerText = data.ok;
+            this.dialogContainer.classList.remove("oculto");
+        }
+        closeDialog() {
+            this.dialogContainer.classList.add("oculto");
+        }
+    }
+    class DialogService extends service_2.default {
+    }
+    class DialogComponent extends component_2.default {
+        retorno = "";
+        okDialog = (retorno) => { };
+        cancelDialog = (retorno) => { };
+        constructor() {
+            super("dialog");
+        }
+        async initialize() {
+            await this.initializeResources(DialogViewModel, DialogService);
+            this.addEventListener("opendialog", (ev) => {
+                const data = ev.detail;
+                this.openDialog(data);
+            });
+            this.viewModel.onCancel = () => {
+                this.viewModel.closeDialog();
+                this.cancelDialog(this.retorno);
+                this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
+            };
+            this.viewModel.onOk = () => {
+                this.viewModel.closeDialog();
+                this.okDialog(this.retorno);
+                this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
+            };
+        }
+        openDialog(data) {
+            this.retorno = data.retorno;
+            this.viewModel.openDialog(data);
+        }
+        static load(element) {
+            return new Promise((resolve) => {
+                if (!customElements.get("dialog-component"))
+                    customElements.define("dialog-component", DialogComponent);
+                const dialogComponent = document.createElement("dialog-component");
+                element.appendChild(dialogComponent);
+                dialogComponent.addEventListener("initialized", () => {
+                    resolve(dialogComponent);
+                });
+            });
+        }
+    }
+    exports.default = DialogComponent;
 });
 define("components/index.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, api_service_1, component_3, service_3, viewmodel_3) {
     "use strict";
@@ -493,16 +463,21 @@ define("components/intro.component", ["require", "exports", "services/api.servic
     }
     exports.default = IntroComponent;
 });
-define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_5, service_5, viewmodel_5) {
+define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_5, service_5, viewmodel_5, dialog_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_5 = __importDefault(component_5);
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
+    dialog_component_1 = __importDefault(dialog_component_1);
     class NovaHistoriaViewModel extends viewmodel_5.default {
         tituloNovaHistoria;
         novaHistoria;
         visualizar;
+        _dialog = null;
+        get dialog() { return this._dialog; }
+        set dialog(v) { this._dialog = v; }
+        timeoutId = null;
         onVisualizar = () => { };
         constructor() {
             super();
@@ -510,14 +485,46 @@ define("components/nova-historia.component", ["require", "exports", "components/
             this.novaHistoria = this.getElement("novaHistoria");
             this.visualizar = this.getElement("visualizar");
             this.visualizar.addEventListener("click", () => {
-                localStorage.setItem(this.tituloNovaHistoria.id, this.tituloNovaHistoria.value);
-                localStorage.setItem(this.novaHistoria.id, this.novaHistoria.value);
-                this.onVisualizar();
+                if (this.podeVisualizar()) {
+                    localStorage.setItem(this.tituloNovaHistoria.id, this.tituloNovaHistoria.value);
+                    localStorage.setItem(this.novaHistoria.id, this.novaHistoria.value);
+                    this.onVisualizar();
+                }
             });
             this.tituloNovaHistoria.focus();
             this.restoreData(this.tituloNovaHistoria, this.novaHistoria);
             this.tituloNovaHistoria.addEventListener("keyup", this.saveData);
             this.novaHistoria.addEventListener("keyup", this.saveData);
+        }
+        saveData(ev) {
+            if (this.timeoutId !== null)
+                clearTimeout(this.timeoutId);
+            this.timeoutId = setTimeout(() => {
+                const target = ev.target;
+                localStorage.setItem(target.id, target.value);
+            }, 500);
+        }
+        restoreData(...target) {
+            target.forEach(t => {
+                const value = localStorage.getItem(t.id) ?? "";
+                const e = t;
+                e.value = value;
+            });
+        }
+        podeVisualizar() {
+            if (this.tituloNovaHistoria.value.trim() !== "" && this.novaHistoria.value.trim() !== "") {
+                return true;
+            }
+            const dialogModel = {
+                titulo: "Visualizar História",
+                mensagem: "Dê um título e conte sua história, não deixe nada vazio!",
+                icone: "emergency_home",
+                cancel: null,
+                ok: "Ok",
+                retorno: "podeVisualizar"
+            };
+            this.dialog.openDialog(dialogModel);
+            return false;
         }
     }
     class NovaHistoriaService extends service_5.default {
@@ -529,6 +536,7 @@ define("components/nova-historia.component", ["require", "exports", "components/
         async initialize() {
             await this.initializeResources(NovaHistoriaViewModel, NovaHistoriaService);
             this.viewModel.onVisualizar = () => this.dispatchEvent(new Event("visualizar"));
+            this.viewModel.dialog = await dialog_component_1.default.load(this);
         }
     }
     exports.default = NovaHistoriaComponent;
@@ -634,25 +642,60 @@ define("components/minha-historia.component", ["require", "exports", "components
     }
     exports.default = MinhaHistoriaComponent;
 });
-define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_8, service_8, viewmodel_8, dialog_component_1) {
+define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_8, service_8, viewmodel_8, dialog_component_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_8 = __importDefault(component_8);
     service_8 = __importDefault(service_8);
     viewmodel_8 = __importDefault(viewmodel_8);
-    dialog_component_1 = __importDefault(dialog_component_1);
+    dialog_component_2 = __importDefault(dialog_component_2);
     class VisualizarNovaHistoriaViewModel extends viewmodel_8.default {
         tituloNovaHistoria;
         novaHistoria;
+        _dialog = null;
+        get dialog() { return this._dialog; }
+        set dialog(v) { this._dialog = v; }
         salvar;
-        onSalvar = () => { };
+        onSalvar = (titulo, historia) => { };
         constructor() {
             super();
             this.tituloNovaHistoria = this.getElement("tituloNovaHistoria");
             this.novaHistoria = this.getElement("novaHistoria");
             this.restoreData(this.tituloNovaHistoria, this.novaHistoria);
             this.salvar = this.getElement("salvar");
-            this.salvar.addEventListener("click", () => this.onSalvar());
+            this.salvar.addEventListener("click", () => this.doSalvar());
+        }
+        restoreData(...target) {
+            target.forEach(t => {
+                const value = localStorage.getItem(t.id) ?? "";
+                const e = t;
+                e.innerHTML = "";
+                const values = value.split(/\r?\n/);
+                values.forEach(v => {
+                    const p = document.createElement("p");
+                    p.innerText = v;
+                    e.appendChild(p);
+                });
+            });
+        }
+        doSalvar() {
+            this.dialog.openDialog({
+                titulo: "Salvar História",
+                icone: "bookmark_add",
+                mensagem: `
+                Sua história será avaliada antes de ser publicada.
+                <br />
+                Você deseja continuar com a gravação?
+            `,
+                cancel: "Não",
+                ok: "Sim",
+                retorno: ""
+            });
+            this.dialog.okDialog = () => {
+                const titulo = localStorage.getItem(this.tituloNovaHistoria.id) ?? "";
+                const historia = localStorage.getItem(this.novaHistoria.id) ?? "";
+                this.onSalvar(titulo, historia);
+            };
         }
     }
     class VisualizarNovaHistoriaService extends service_8.default {
@@ -663,8 +706,11 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
         }
         async initialize() {
             await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
-            const dialog = await dialog_component_1.default.load(this);
-            this.viewModel.onSalvar = () => this.dispatchEvent(new Event("salvar"));
+            this.viewModel.dialog = await dialog_component_2.default.load(this);
+            this.viewModel.onSalvar = (titulo, historia) => {
+                alert(titulo);
+                alert(historia);
+            };
         }
     }
     exports.default = VisualizarNovaHistoriaComponent;
@@ -826,7 +872,7 @@ define("components/acesso.component", ["require", "exports", "components/base/co
     }
     exports.default = AcessoComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service", "components/dialog.component"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2, dialog_component_2) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -841,10 +887,8 @@ define("app", ["require", "exports", "components/header.component", "components/
     pendentes_aprovacao_component_1 = __importDefault(pendentes_aprovacao_component_1);
     acesso_component_1 = __importDefault(acesso_component_1);
     token_service_2 = __importDefault(token_service_2);
-    dialog_component_2 = __importDefault(dialog_component_2);
     class App {
         mainElement;
-        loadedComponents = [];
         headerComponent;
         currentComponent = null;
         constructor() {
@@ -856,7 +900,6 @@ define("app", ["require", "exports", "components/header.component", "components/
             this.headerComponent = this.header();
             if (location.pathname !== "/")
                 history.pushState({}, "", "/");
-            customElements.define("dialog-component", dialog_component_2.default);
         }
         header() {
             customElements.define("header-component", header_component_1.default);
@@ -905,10 +948,8 @@ define("app", ["require", "exports", "components/header.component", "components/
             localStorage.setItem("currentComponentName", name);
             const headerConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
             this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
-            if (!this.loadedComponents.includes(name)) {
+            if (!customElements.get(name))
                 customElements.define(name, constructor);
-                this.loadedComponents.push(name);
-            }
             this.currentComponent?.remove();
             this.currentComponent = document.createElement(name);
             this.mainElement.appendChild(this.currentComponent);

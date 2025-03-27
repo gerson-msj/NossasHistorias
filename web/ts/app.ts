@@ -12,11 +12,9 @@ import HistoriaVisualizadaComponent from "./components/historia-visualizada.comp
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
-import DialogComponent from "./components/dialog.component";
 
 class App {
     private mainElement: HTMLElement;
-    private loadedComponents: string[] = [];
     private headerComponent: HTMLElement;
     private currentComponent: HTMLElement | null = null;
 
@@ -31,8 +29,6 @@ class App {
 
         if (location.pathname !== "/")
             history.pushState({}, "", "/");
-
-        customElements.define("dialog-component", DialogComponent);
     }
 
     private header(): HTMLElement {
@@ -97,10 +93,8 @@ class App {
         const headerConfig: HeaderConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
         this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
 
-        if (!this.loadedComponents.includes(name)) {
+        if(!customElements.get(name))
             customElements.define(name, constructor);
-            this.loadedComponents.push(name);
-        }
 
         this.currentComponent?.remove();
         this.currentComponent = document.createElement(name);

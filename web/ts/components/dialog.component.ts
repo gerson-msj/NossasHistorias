@@ -100,8 +100,14 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
         this.viewModel.openDialog(data);
     }
 
+    
+
     public static load(element: HTMLElement): Promise<DialogComponent> {
-        return new Promise((resolve) => {    
+        return new Promise((resolve) => {
+            
+            if(!customElements.get("dialog-component"))
+                customElements.define("dialog-component", DialogComponent);
+            
             const dialogComponent = document.createElement("dialog-component") as DialogComponent;
             element.appendChild(dialogComponent);
             dialogComponent.addEventListener("initialized", () => {
@@ -109,6 +115,8 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
             });
         });
     }
+
+    
 }
 
 export default DialogComponent;
