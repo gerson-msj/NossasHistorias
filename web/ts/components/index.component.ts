@@ -22,10 +22,10 @@ class IndexViewModel extends ViewModel {
     public onHistoriasVisualizadas = () => { }
     public onPendentesAprovacao = () => { }
     public onAcesso = () => { }
-    
+
     constructor() {
         super();
-     
+
         this.menuContainer = this.getElement("menuContainer");
         this.menuBackdrop = this.getElement("menuBackdrop");
         this.novaHistoria = this.getElement("novaHistoria");
@@ -33,24 +33,18 @@ class IndexViewModel extends ViewModel {
         this.historiasVisualizadas = this.getElement("historiasVisualizadas");
         this.pendentesAprovacao = this.getElement("pendentesAprovacao");
         this.acesso = this.getElement("acesso");
-       
-        this.menuBackdrop.addEventListener("click", () => 
-            this.ocultarMenu());
 
-        this.novaHistoria.addEventListener("click", () => 
-            this.onNovaHistoria());
+        this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
 
-        this.minhasHistorias.addEventListener("click", () =>
-            this.onMinhasHistorias());
+        this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
 
-        this.historiasVisualizadas.addEventListener("click", () =>
-            this.onHistoriasVisualizadas());
-        
-        this.pendentesAprovacao.addEventListener("click", () =>
-            this.onPendentesAprovacao());
+        this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
 
-        this.acesso?.addEventListener("click", () => 
-            this.onAcesso());
+        this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
+
+        this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
+
+        this.acesso?.addEventListener("click", () => this.onAcesso());
 
 
     }
@@ -90,11 +84,11 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
 
     async initialize(): Promise<void> {
 
-           
+
 
         await this.initializeResources(IndexViewModel, IndexService);
-        
-        this.addEventListener(headerMenuClick, () => 
+
+        this.addEventListener(headerMenuClick, () =>
             this.viewModel.exibirMenu());
 
         this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
@@ -104,10 +98,10 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         this.viewModel.onAcesso = () => this.dispatchEvent(new Event("acesso"));
 
         const usuario = await this.service.obterUsuario();
-        if(!usuario.usuarioExistente)
+        if (!usuario.usuarioExistente)
             document.dispatchEvent(new Event("unauthorized"));
 
-        if(usuario.moderador)
+        if (usuario.moderador)
             this.viewModel.exibirPendentesAprovacao();
 
     }

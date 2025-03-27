@@ -17,8 +17,11 @@ class NovaHistoriaViewModel extends ViewModel {
         this.novaHistoria = this.getElement("novaHistoria");
         this.visualizar = this.getElement("visualizar");
 
-        this.visualizar.addEventListener("click", () => 
-            this.onVisualizar());
+        this.visualizar.addEventListener("click", () => {
+            localStorage.setItem(this.tituloNovaHistoria.id, this.tituloNovaHistoria.value);
+            localStorage.setItem(this.novaHistoria.id, this.novaHistoria.value);
+            this.onVisualizar();
+        });
 
         this.tituloNovaHistoria.focus();
 
@@ -28,7 +31,7 @@ class NovaHistoriaViewModel extends ViewModel {
         this.novaHistoria.addEventListener("keyup", this.saveData);
     }
 
-    
+
 }
 
 class NovaHistoriaService extends Service {
@@ -43,9 +46,7 @@ class NovaHistoriaComponent extends Component<NovaHistoriaViewModel, NovaHistori
 
     async initialize(): Promise<void> {
         await this.initializeResources(NovaHistoriaViewModel, NovaHistoriaService);
-        
         this.viewModel.onVisualizar = () => this.dispatchEvent(new Event("visualizar"));
-        //this.dispatch(this.viewModel.onVisualizar, "visualizar");
     }
 
 

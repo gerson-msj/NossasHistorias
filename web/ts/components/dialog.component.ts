@@ -101,8 +101,7 @@ class DialogComponent extends Component<DialogViewModel, DialogService> {
     }
 
     public static load(element: HTMLElement): Promise<DialogComponent> {
-        return new Promise((resolve) => {
-            customElements.define("dialog-component", DialogComponent);
+        return new Promise((resolve) => {    
             const dialogComponent = document.createElement("dialog-component") as DialogComponent;
             element.appendChild(dialogComponent);
             dialogComponent.addEventListener("initialized", () => {

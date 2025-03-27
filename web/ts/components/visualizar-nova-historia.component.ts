@@ -5,12 +5,21 @@ import DialogComponent from "./dialog.component";
 
 class VisualizarNovaHistoriaViewModel extends ViewModel {
 
+    private tituloNovaHistoria: HTMLElement;
+    private novaHistoria: HTMLElement;
+
     private salvar: HTMLButtonElement;
 
     public onSalvar = () => { };
 
     constructor() {
         super();
+        
+        this.tituloNovaHistoria = this.getElement("tituloNovaHistoria");
+        this.novaHistoria = this.getElement("novaHistoria");
+        
+        this.restoreData(this.tituloNovaHistoria, this.novaHistoria);
+
         this.salvar = this.getElement("salvar");
         this.salvar.addEventListener("click", () => this.onSalvar());
     }

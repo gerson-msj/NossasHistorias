@@ -12,6 +12,7 @@ import HistoriaVisualizadaComponent from "./components/historia-visualizada.comp
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
+import DialogComponent from "./components/dialog.component";
 
 class App {
     private mainElement: HTMLElement;
@@ -25,11 +26,13 @@ class App {
             localStorage.clear();
             this.intro();
         });
-            
+
         this.headerComponent = this.header();
 
         if (location.pathname !== "/")
             history.pushState({}, "", "/");
+
+        customElements.define("dialog-component", DialogComponent);
     }
 
     private header(): HTMLElement {
@@ -60,7 +63,7 @@ class App {
             case "nova-historia-component":
                 this.novaHistoria();
                 break;
-            case "visualizar-historia-component":
+            case "visualizar-nova-historia-component":
                 this.visualizarNovaHistoria();
                 break;
             case "minhas-historias-component":
@@ -107,6 +110,11 @@ class App {
 
     }
 
+    private loadIfCurrent(component: HTMLElement, load: () => void) {
+        if (this.currentComponent === component)
+            load();
+    }
+
     private footer() {
         const div = document.querySelector("#footer");
         div?.classList.remove("oculto");
@@ -135,19 +143,19 @@ class App {
 
     private novaHistoria() {
         const component = this.loadComponent("nova-historia-component", NovaHistoriaComponent, "Compartilhar uma História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
         component.addEventListener("visualizar", () => this.visualizarNovaHistoria());
     }
 
     private visualizarNovaHistoria() {
         const component = this.loadComponent("visualizar-nova-historia-component", VisualizarNovaHistoriaComponent, "Visualizar História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.novaHistoria());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.novaHistoria.bind(this)));
         component.addEventListener("salvar", () => this.index());
     }
 
     private minhasHistorias() {
         const component = this.loadComponent("minhas-historias-component", MinhasHistoriasComponent, "Minhas Histórias", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
         component.addEventListener("apresentarHistoria", (ev) => {
             const titulo = (ev as CustomEvent).detail;
             this.minhaHistoria(titulo);
@@ -156,7 +164,7 @@ class App {
 
     private minhaHistoria(titulo: string) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.minhasHistorias());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias));
         component.addEventListener("excluir", () => this.minhasHistorias());
         component.addEventListener("initialized", () =>
             component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo }))
@@ -165,7 +173,7 @@ class App {
 
     private historiasVisualizadas() {
         const component = this.loadComponent("historias-visualizadas-component", HistoriasVisualizadasComponent, "Histórias Visualizadas", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
         component.addEventListener("apresentarHistoriaVisualizada", (ev) => {
             const historia = (ev as CustomEvent).detail as HistoriaModel;
             this.historiaVisualizada(historia);
@@ -174,7 +182,7 @@ class App {
 
     private historiaVisualizada(historia: HistoriaModel) {
         const component = this.loadComponent("historia-visualizada-component", HistoriaVisualizadaComponent, "História Visualizada", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.historiasVisualizadas());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.historiasVisualizadas.bind(this)));
         component.addEventListener("curtir", () => this.historiasVisualizadas());
         component.addEventListener("initialized", () =>
             component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
@@ -183,14 +191,14 @@ class App {
 
     private pendentesAprovacao() {
         const component = this.loadComponent("pendentes-aprovacao-component", PendentesAprovacaoComponent, "Pendentes de Aprovação", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
         component.addEventListener("aprovar", () => this.index());
         component.addEventListener("reprovar", () => this.index());
     }
 
     private acesso() {
         const component = this.loadComponent("acesso-component", AcessoComponent, "Dados de Acesso", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.index());
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
     }
 
 
