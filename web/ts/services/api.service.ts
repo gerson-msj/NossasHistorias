@@ -61,7 +61,7 @@ export default class ApiService {
         const headers: Record<string, string> = { "content-type": "application/json; charset=utf-8" };
 
         let token: string | null = null;
-        if (TokenService.verificarToken())
+        if (TokenService.possuiToken())
             token = localStorage.getItem("token");
 
         if (token !== null)

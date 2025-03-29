@@ -238,7 +238,7 @@ define("services/api.service", ["require", "exports", "services/token.service"],
         getHeaders() {
             const headers = { "content-type": "application/json; charset=utf-8" };
             let token = null;
-            if (token_service_1.default.verificarToken())
+            if (token_service_1.default.possuiToken())
                 token = localStorage.getItem("token");
             if (token !== null)
                 headers["authorization"] = `Bearer ${token}`;
