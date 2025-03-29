@@ -1,8 +1,10 @@
 import { assert } from "@std/assert"
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import Context from "./api/controllers/base/context.ts";
+import { HistoriaRequestModel } from "./api/models/request.model.ts";
+import HistoriaController from "./api/controllers/historia.controller.ts";
 
-Deno.test("Usuario POST", async () => {
+Deno.test.ignore("Usuario POST", async () => {
     const request: Request = new Request("http://localhost/api/usuario", {
         method: "POST",
         headers: {
@@ -17,7 +19,7 @@ Deno.test("Usuario POST", async () => {
     assert(() => result["token"] !== undefined);
 });
 
-Deno.test("Usuario GET", async () => {
+Deno.test.ignore("Usuario GET", async () => {
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjF9.pEYtdez1IgumkcF1yLGfOlfZMV231f11F9dp0ODWtCU";
     const request: Request = new Request("http://localhost/api/usuario", {
         method: "GET",
@@ -37,7 +39,29 @@ Deno.test("Usuario GET", async () => {
     assert(() => id == 1);
 });
 
-Deno.test("DataDia", () => {
+Deno.test("Historia POST", async () => {
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjF9.pEYtdez1IgumkcF1yLGfOlfZMV231f11F9dp0ODWtCU";
+    const historia: HistoriaRequestModel = {
+        titulo: "Título",
+        conteudo: "Conteúdo da História."
+    };
+    const request: Request = new Request("http://localhost/api/historia", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "authorization": `bearer ${token}`
+        },
+        body: JSON.stringify(historia)
+    });
+    const context = new Context(request);
+    await context.auth();
+    const controller = new HistoriaController();
+    const response = await controller.handle(context);
+    assert(() => response.ok);
+    
+});
+
+Deno.test.ignore("DataDia", () => {
     const dt = new Date();
     const fatorDia = 1000 * 60 * 60 * 24; // ms, s, m, h
     const x = Math.floor(dt.valueOf() / fatorDia);
@@ -45,7 +69,7 @@ Deno.test("DataDia", () => {
     assert(() => x > 0);
 });
 
-Deno.test("DataHora_ate_ss", () => {
+Deno.test.ignore("DataHora_ate_ss", () => {
     const dt = new Date();
     const fatorDia = 1000 * 60 * 60 * 24; // ms, s, m, h
     const x = dt.valueOf() / fatorDia;

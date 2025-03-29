@@ -16,18 +16,11 @@ class UsuarioService {
         this.crypt = new ServerCrypt();
     }
 
-    public novo(): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
-            const sql = "Insert Into Usuarios (DataCriacao, Moderador) Values (?, ?)";
-            try {
-                const query = this.db.prepare(sql);
-                const queryResult = query.run(DateService.DiaAtual(), 0);
-                const id = queryResult.lastInsertRowid as number;
-                resolve(id);
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public novo(): number {
+        const sql = "Insert Into Usuarios (DataCriacao, Moderador) Values (?, ?)";
+        const query = this.db.prepare(sql);
+        const queryResult = query.run(DateService.DiaAtual(), 0);
+        return queryResult.lastInsertRowid as number;
     }
 
     public criarToken(id: number): Promise<string> {
@@ -74,8 +67,7 @@ export default class UsuarioController extends Controller<UsuarioService> {
             }
 
             case "POST": {
-                // const request: LoginRequestModel = await context.request.json();
-                const id = await this.service.novo();
+                const id = this.service.novo();
                 const token = await this.service.criarToken(id);
                 return context.ok({ token: token });
             }
