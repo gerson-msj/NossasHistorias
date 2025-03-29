@@ -1,3 +1,5 @@
+import { HistoriaRequestModel } from "../models/request.model";
+import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -14,8 +16,8 @@ class VisualizarNovaHistoriaViewModel extends ViewModel {
 
     private salvar: HTMLButtonElement;
 
-    public onSalvar = (titulo: string, historia: string) => { };
-
+    public onSalvar = (titulo: string, conteudo: string) => { };
+    
     constructor() {
         super();
 
@@ -58,13 +60,34 @@ class VisualizarNovaHistoriaViewModel extends ViewModel {
 
         this.dialog.okDialog = () => {
             const titulo = localStorage.getItem(this.tituloNovaHistoria.id) ?? "";
-            const historia = localStorage.getItem(this.novaHistoria.id) ?? "";
-            this.onSalvar(titulo, historia);
+            const conteudo = localStorage.getItem(this.novaHistoria.id) ?? "";
+            this.onSalvar(titulo, conteudo);
         };
+    }
+
+    public clearData() {
+        localStorage.removeItem(this.tituloNovaHistoria.id);
+        localStorage.removeItem(this.novaHistoria.id);
     }
 }
 
 class VisualizarNovaHistoriaService extends Service {
+
+    private apiHistoria: ApiService;
+
+    constructor() {
+        super();
+        this.apiHistoria = new ApiService("historia");
+    }
+
+    public salvar(titulo: string, conteudo: string): Promise<void> {
+        const request: HistoriaRequestModel = {
+            titulo: titulo,
+            conteudo: conteudo
+        };
+
+        return this.apiHistoria.doPost(request);
+    }
 
 }
 
@@ -79,9 +102,26 @@ class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaVi
 
         this.viewModel.dialog = await DialogComponent.load(this);
 
-        this.viewModel.onSalvar = (titulo: string, historia: string) => {
-            alert(titulo);
-            alert(historia);
+        this.viewModel.onSalvar = async (titulo: string, conteudo: string) => {
+            await this.service.salvar(titulo, conteudo);
+            
+            this.viewModel.dialog.openDialog({
+                titulo: "Salvar História",
+                icone: "bookmark_added",
+                mensagem: `
+                    Gravação realizada com sucesso!
+                    <br />
+                    Sua história será avaliada antes de ser publicada.
+                `,
+                cancel: null,
+                ok: "ok",
+                retorno: ""
+            });
+
+            this.viewModel.dialog.okDialog = () => {
+                this.viewModel.clearData();
+                this.dispatchEvent(new Event("voltar"));
+            };
         };
     }
 

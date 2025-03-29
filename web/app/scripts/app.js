@@ -1,4 +1,3 @@
-"use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -207,14 +206,13 @@ define("services/api.service", ["require", "exports", "services/token.service"],
             });
             return this.getResult(response);
         }
-        async doPost(obj, bearer = null) {
+        async doPost(request) {
             const response = await fetch(this.baseUrl, {
                 method: "POST",
                 headers: this.getHeaders(),
-                body: JSON.stringify(obj)
+                body: JSON.stringify(request)
             });
-            const data = await response.json();
-            return data;
+            return this.getResult(response);
         }
         async doPut(request) {
             const response = await fetch(this.baseUrl, {
@@ -642,9 +640,14 @@ define("components/minha-historia.component", ["require", "exports", "components
     }
     exports.default = MinhaHistoriaComponent;
 });
-define("components/visualizar-nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_8, service_8, viewmodel_8, dialog_component_2) {
+define("models/request.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("components/visualizar-nova-historia.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_3, component_8, service_8, viewmodel_8, dialog_component_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_3 = __importDefault(api_service_3);
     component_8 = __importDefault(component_8);
     service_8 = __importDefault(service_8);
     viewmodel_8 = __importDefault(viewmodel_8);
@@ -656,7 +659,7 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
         get dialog() { return this._dialog; }
         set dialog(v) { this._dialog = v; }
         salvar;
-        onSalvar = (titulo, historia) => { };
+        onSalvar = (titulo, conteudo) => { };
         constructor() {
             super();
             this.tituloNovaHistoria = this.getElement("tituloNovaHistoria");
@@ -693,12 +696,28 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
             });
             this.dialog.okDialog = () => {
                 const titulo = localStorage.getItem(this.tituloNovaHistoria.id) ?? "";
-                const historia = localStorage.getItem(this.novaHistoria.id) ?? "";
-                this.onSalvar(titulo, historia);
+                const conteudo = localStorage.getItem(this.novaHistoria.id) ?? "";
+                this.onSalvar(titulo, conteudo);
             };
+        }
+        clearData() {
+            localStorage.removeItem(this.tituloNovaHistoria.id);
+            localStorage.removeItem(this.novaHistoria.id);
         }
     }
     class VisualizarNovaHistoriaService extends service_8.default {
+        apiHistoria;
+        constructor() {
+            super();
+            this.apiHistoria = new api_service_3.default("historia");
+        }
+        salvar(titulo, conteudo) {
+            const request = {
+                titulo: titulo,
+                conteudo: conteudo
+            };
+            return this.apiHistoria.doPost(request);
+        }
     }
     class VisualizarNovaHistoriaComponent extends component_8.default {
         constructor() {
@@ -707,9 +726,24 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
         async initialize() {
             await this.initializeResources(VisualizarNovaHistoriaViewModel, VisualizarNovaHistoriaService);
             this.viewModel.dialog = await dialog_component_2.default.load(this);
-            this.viewModel.onSalvar = (titulo, historia) => {
-                alert(titulo);
-                alert(historia);
+            this.viewModel.onSalvar = async (titulo, conteudo) => {
+                await this.service.salvar(titulo, conteudo);
+                this.viewModel.dialog.openDialog({
+                    titulo: "Salvar História",
+                    icone: "bookmark_added",
+                    mensagem: `
+                    Gravação realizada com sucesso!
+                    <br />
+                    Sua história será avaliada antes de ser publicada.
+                `,
+                    cancel: null,
+                    ok: "ok",
+                    retorno: ""
+                });
+                this.viewModel.dialog.okDialog = () => {
+                    this.viewModel.clearData();
+                    this.dispatchEvent(new Event("voltar"));
+                };
             };
         }
     }
@@ -990,7 +1024,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         visualizarNovaHistoria() {
             const component = this.loadComponent("visualizar-nova-historia-component", visualizar_nova_historia_component_1.default, "Visualizar História", true);
             this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.loadIfCurrent(component, this.novaHistoria.bind(this)));
-            component.addEventListener("salvar", () => this.index());
+            component.addEventListener("voltar", () => this.index());
         }
         minhasHistorias() {
             const component = this.loadComponent("minhas-historias-component", minhas_historias_component_1.default, "Minhas Histórias", true);

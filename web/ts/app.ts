@@ -144,7 +144,7 @@ class App {
     private visualizarNovaHistoria() {
         const component = this.loadComponent("visualizar-nova-historia-component", VisualizarNovaHistoriaComponent, "Visualizar História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.novaHistoria.bind(this)));
-        component.addEventListener("salvar", () => this.index());
+        component.addEventListener("voltar", () => this.index());
     }
 
     private minhasHistorias() {

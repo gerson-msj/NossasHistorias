@@ -6,7 +6,7 @@ import { Situacao } from "../models/db.model.ts";
 import DateService from "../services/date.service.ts";
 
 class HistoriaService {
-     private db: DatabaseSync;
+    private db: DatabaseSync;
 
     constructor(db: DatabaseSync) {
         this.db = db;
@@ -23,7 +23,7 @@ class HistoriaService {
 export default class HistoriaController extends Controller<HistoriaService> {
 
     public override async handle(context: Context): Promise<Response> {
-        
+
         if (context.url.pathname != "/api/historia")
             return this.nextHandle(context);
 
@@ -31,11 +31,11 @@ export default class HistoriaController extends Controller<HistoriaService> {
             const db = context.openDb();
             this.service = new HistoriaService(db);
         }
-        
-        if(context.tokenSub === null)
+
+        if (context.tokenSub === null)
             return context.unauthorized();
 
-        switch  (context.request.method) {
+        switch (context.request.method) {
             case "POST": {
                 const request: HistoriaRequestModel = await context.request.json();
                 this.service.Incluir(context.tokenSub, request);

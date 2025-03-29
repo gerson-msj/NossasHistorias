@@ -17,19 +17,18 @@ export default class ApiService {
             headers: this.getHeaders()
         });
 
-        return this.getResult(response);
+        return this.getResult<TResult>(response);
     }
 
-    public async doPost<TResult>(obj: object, bearer: string | null = null): Promise<TResult> {
+    public async doPost<TResult>(request: object): Promise<TResult> {
 
         const response = await fetch(this.baseUrl, {
             method: "POST",
             headers: this.getHeaders(),
-            body: JSON.stringify(obj)
+            body: JSON.stringify(request)
         });
 
-        const data: TResult = await response.json();
-        return data;
+        return this.getResult<TResult>(response);
     }
 
     public async doPut<TResult>(request: object): Promise<TResult> {

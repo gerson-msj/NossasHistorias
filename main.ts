@@ -6,6 +6,7 @@ import PageController from "./api/controllers/page.controller.ts";
 // import AbrirController from "./api/controllers/abrir.controller.ts";
 // import AnotacoesController from "./api/controllers/anotacoes.controller.ts";
 import UsuarioController from "./api/controllers/usuario.controller.ts";
+import HistoriaController from "./api/controllers/historia.controller.ts";
 
 const page = Controller.createInstance(PageController);
 
@@ -31,12 +32,14 @@ const handler = async (request: Request): Promise<Response> => {
             return context.unauthorized();
         
         const usuario = new UsuarioController();
+        const historia = new HistoriaController();
         const controllers = Controller.enlistHandlers(
-            usuario
+            usuario,
+            historia
         );
 
         try {
-            return controllers.handle(context);    
+            return await controllers.handle(context);    
         } catch (error) {
             console.error(error);
             return context.serverError();
