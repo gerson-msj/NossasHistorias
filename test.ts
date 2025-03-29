@@ -37,10 +37,21 @@ Deno.test("Usuario GET", async () => {
     assert(() => id == 1);
 });
 
-Deno.test("Data", () => {
+Deno.test("DataDia", () => {
     const dt = new Date();
-    const fatorDia = 1000 * 60 * 60 * 24;
+    const fatorDia = 1000 * 60 * 60 * 24; // ms, s, m, h
     const x = Math.floor(dt.valueOf() / fatorDia);
     console.log("dias", x);
+    assert(() => x > 0);
+});
+
+Deno.test("DataHora_ate_ss", () => {
+    const dt = new Date();
+    const fatorDia = 1000 * 60 * 60 * 24; // ms, s, m, h
+    const x = dt.valueOf() / fatorDia;
+    const y = Math.round(x * 100000) / 100000
+    console.log("valueOf", dt.valueOf());
+    console.log("dia e hora", x);
+    console.log("dia e hora", y);
     assert(() => x > 0);
 });

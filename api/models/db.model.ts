@@ -5,25 +5,36 @@ export interface Usuario {
     Moderador: number;
 }
 
-export type HistoriaSituacao = "Em analise" | "Aprovada" | "Reprovada";
-export const HistoriaSituacaoAnalise: HistoriaSituacao = "Em analise";
-export const HistoriaSituacaoAprovada: HistoriaSituacao = "Aprovada";
-export const HistoriaSituacaoReprovada: HistoriaSituacao = "Reprovada";
+export type HistoriaSituacaoDescricao = "Em analise" | "Aprovada" | "Reprovada";
+export const HistoriaSituacaoAnalise: HistoriaSituacaoDescricao = "Em analise";
+export const HistoriaSituacaoAprovada: HistoriaSituacaoDescricao = "Aprovada";
+export const HistoriaSituacaoReprovada: HistoriaSituacaoDescricao = "Reprovada";
+
+export interface HistoriaSituacao {
+    Id: number;
+    Descricao: string;
+}
+
+export enum Situacao {
+    analise = 1,
+    aprovada = 2,
+    reprovada = 3
+}
 
 export interface Historia {
     Id: number;
     IdUsuarioAutor: number;
-    IdUsuarioModerador: number;
+    IdUsuarioModerador: number | null;
     Titulo: string;
     Conteudo: string;
-    Situacao: HistoriaSituacao;
-    MotivoSituacao: string | null;
+    IdSituacao: Situacao;
     DataHoraCriacao: number;
+    MotivoModeracao: string | null;
     DataHoraModeracao: number | null;
 }
 
 export interface Visualizacao {
     IdUsuario: number;
     IdHistoria: number;
-    curtida: boolean;
+    Curtida: boolean;
 }

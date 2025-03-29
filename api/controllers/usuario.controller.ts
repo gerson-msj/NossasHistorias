@@ -6,7 +6,7 @@ import { Usuario } from "../models/db.model.ts";
 import { UsuarioResponseModel } from "../models/response.model.ts";
 import DateService from "../services/date.service.ts";
 
-export class UsuarioService {
+class UsuarioService {
 
     private db: DatabaseSync;
     private crypt: ServerCrypt;
@@ -22,7 +22,7 @@ export class UsuarioService {
             try {
                 const query = this.db.prepare(sql);
                 const queryResult = query.run(DateService.DiaAtual(), 0);
-                const id = queryResult.lastInsertRowid as number;                
+                const id = queryResult.lastInsertRowid as number;
                 resolve(id);
             } catch (error) {
                 reject(error);
@@ -34,17 +34,10 @@ export class UsuarioService {
         return this.crypt.criarToken(id);
     }
 
-    public obterUsuario(id: number): Promise<Usuario | undefined> {
-        return new Promise<Usuario | undefined>((resolve, reject) => {
-            const sql = "Select * From Usuarios Where Id = ?";
-            try {
-                const query = this.db.prepare(sql);
-                const row = query.get(id);
-                resolve(row as Usuario);
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public obterUsuario(id: number): Usuario | undefined {
+        const sql = "Select * From Usuarios Where Id = ?";
+        const query = this.db.prepare(sql);
+        return query.get(id) as Usuario;
     }
 
     public obterUsuarioResponseModel(usuario: Usuario | undefined): UsuarioResponseModel {
@@ -71,12 +64,12 @@ export default class UsuarioController extends Controller<UsuarioService> {
 
         switch (context.request.method) {
             case "GET": {
-                if(context.tokenSub === null)
+                if (context.tokenSub === null)
                     return context.unauthorized();
 
-                const usuario = await this.service.obterUsuario(context.tokenSub);
+                const usuario = this.service.obterUsuario(context.tokenSub);
                 const response = this.service.obterUsuarioResponseModel(usuario);
-                
+
                 return Promise.resolve(context.ok(response));
             }
 
@@ -84,7 +77,7 @@ export default class UsuarioController extends Controller<UsuarioService> {
                 // const request: LoginRequestModel = await context.request.json();
                 const id = await this.service.novo();
                 const token = await this.service.criarToken(id);
-                return context.ok({token: token});
+                return context.ok({ token: token });
             }
 
             default: {

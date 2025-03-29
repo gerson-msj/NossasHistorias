@@ -1,5 +1,7 @@
 export default class DateService {
     
+    private static fatorDia: number = 1000 * 60 * 60 * 24;
+
     public static DataHoraLocal(): Date {
         const now = new Date();
         const brTimezoneOffset = -3 * 60;
@@ -8,8 +10,12 @@ export default class DateService {
 
     public static DiaAtual(): number {
         const dt = new Date();
-        const fatorDia = 1000 * 60 * 60 * 24;
-        return Math.floor(dt.valueOf() / fatorDia);
+        return Math.floor(dt.valueOf() / this.fatorDia);
     }
-    
+
+    public static DiaHoraAtual(): number {
+        const dt = new Date();
+        const dtValue = dt.valueOf() / this.fatorDia;
+        return Math.round(dtValue * 100000) / 100000
+    }
 }

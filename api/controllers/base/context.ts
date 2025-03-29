@@ -26,19 +26,14 @@ export default class Context {
         this.crypt = new ServerCrypt();
     }
 
-
     public openDb(): sqlite.DatabaseSync {
-        if (this._db === null) {
-            this._db = new sqlite.DatabaseSync("api/data/nossas_historias.db", { readOnly: false, open: true });
-        }
+        this._db ??= new sqlite.DatabaseSync("api/data/nossas_historias.db", { readOnly: false, open: true });
         return this._db;
     }
 
     public closeDb(): void {
-        if (this._db !== null)
-            this._db.close();
+        this._db?.close();
     }
-
 
     public async auth(): Promise<boolean> {
 

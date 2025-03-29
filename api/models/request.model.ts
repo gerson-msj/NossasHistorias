@@ -1,3 +1,15 @@
+export interface HistoriaRequestModel {
+    titulo: string,
+    conteudo: string
+}
+
+
+
+
+
+
+
+
 export interface CadastroResponsavelRequestModel {
     nome: string,
     email: string,
