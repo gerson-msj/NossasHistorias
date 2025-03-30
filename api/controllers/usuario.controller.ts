@@ -51,7 +51,7 @@ export default class UsuarioController extends Controller<UsuarioService> {
             return this.nextHandle(context);
 
         if (["GET", "POST"].includes(context.request.method)) {
-            const db = context.openDb();
+            const db = await context.openDb();
             this.service = new UsuarioService(db);
         }
 

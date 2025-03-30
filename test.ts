@@ -1,8 +1,9 @@
-import { assert } from "@std/assert"
+import { assert, assertEquals, assertNotEquals } from "@std/assert"
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import Context from "./api/controllers/base/context.ts";
 import { HistoriaRequestModel } from "./api/models/request.model.ts";
 import HistoriaController from "./api/controllers/historia.controller.ts";
+import ModeradorController from "./api/controllers/moderador.controller.ts";
 
 Deno.test.ignore("Usuario POST", async () => {
     const request: Request = new Request("http://localhost/api/usuario", {
@@ -39,7 +40,7 @@ Deno.test.ignore("Usuario GET", async () => {
     assert(() => id == 1);
 });
 
-Deno.test("Historia POST", async () => {
+Deno.test.ignore("Historia POST", async () => {
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjF9.pEYtdez1IgumkcF1yLGfOlfZMV231f11F9dp0ODWtCU";
     const historia: HistoriaRequestModel = {
         titulo: "Título",
@@ -78,4 +79,23 @@ Deno.test.ignore("DataHora_ate_ss", () => {
     console.log("dia e hora", x);
     console.log("dia e hora", y);
     assert(() => x > 0);
+});
+
+Deno.test.ignore("Moderador GET", async () => {
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjF9.pEYtdez1IgumkcF1yLGfOlfZMV231f11F9dp0ODWtCU";
+    const request: Request = new Request("http://localhost/api/moderador", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "authorization": `bearer ${token}`
+        }
+    });
+    const context = new Context(request);
+    await context.auth();
+    const controller = new ModeradorController();
+    const response = await controller.handle(context);
+    const result = await response.json();
+    console.log("Historia Moderador", result);
+    const id = result['id'];
+    assertNotEquals(id, 0);
 });

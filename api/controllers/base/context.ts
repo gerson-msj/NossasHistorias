@@ -11,9 +11,6 @@ export default class Context {
     private _db: sqlite.DatabaseSync | null = null;
     public get db() { return this._db; }
 
-    private _kv: Deno.Kv | null = null;
-    public get kv() { return this._kv!; }
-
     public tokenSub: number | null = null;
 
     public get isApiRequest(): boolean {
@@ -26,9 +23,9 @@ export default class Context {
         this.crypt = new ServerCrypt();
     }
 
-    public openDb(): sqlite.DatabaseSync {
+    public openDb(): Promise<sqlite.DatabaseSync> {
         this._db ??= new sqlite.DatabaseSync("api/data/nossas_historias.db", { readOnly: false, open: true });
-        return this._db;
+        return Promise.resolve(this._db);
     }
 
     public closeDb(): void {

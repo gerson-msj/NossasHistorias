@@ -848,25 +848,25 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_11, service_11, viewmodel_11) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_11, service_11, viewmodel_11, dialog_component_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_11 = __importDefault(component_11);
     service_11 = __importDefault(service_11);
     viewmodel_11 = __importDefault(viewmodel_11);
+    dialog_component_3 = __importDefault(dialog_component_3);
     class PendentesAprovacaoViewModel extends viewmodel_11.default {
         aprovar;
         reprovar;
-        motivoReprovacao;
+        dialog;
         onAprovar = () => { };
-        onReprovar = (motivoReprovacao) => { };
+        onReprovar = () => { };
         constructor() {
             super();
             this.aprovar = this.getElement("aprovar");
             this.reprovar = this.getElement("reprovar");
-            this.motivoReprovacao = this.getElement("motivoReprovacao");
             this.aprovar.addEventListener("click", () => this.onAprovar());
-            this.reprovar.addEventListener("click", () => this.onReprovar(this.motivoReprovacao.value));
+            this.reprovar.addEventListener("click", () => this.onReprovar());
         }
     }
     class PendentesAprovacaoService extends service_11.default {
@@ -877,8 +877,9 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "compo
         }
         async initialize() {
             await this.initializeResources(PendentesAprovacaoViewModel, PendentesAprovacaoService);
+            this.viewModel.dialog = await dialog_component_3.default.load(this);
             this.viewModel.onAprovar = () => this.dispatchEvent(new Event("aprovar"));
-            this.viewModel.onReprovar = (motivoReprovacao) => this.dispatchEvent(new Event("reprovar"));
+            this.viewModel.onReprovar = () => this.dispatchEvent(new Event("reprovar"));
         }
     }
     exports.default = PendentesAprovacaoComponent;

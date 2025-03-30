@@ -28,7 +28,7 @@ export default class HistoriaController extends Controller<HistoriaService> {
             return this.nextHandle(context);
 
         if (["POST"].includes(context.request.method)) {
-            const db = context.openDb();
+            const db = await context.openDb();
             this.service = new HistoriaService(db);
         }
 
