@@ -263,10 +263,13 @@ define("components/dialog.component", ["require", "exports", "components/base/co
         dialogHeader;
         dialogIcon;
         dialogMsg;
+        dialogInput;
+        dialogInputLabel;
+        dialogInputBox;
         dialogCancel;
         dialogOk;
         onCancel = () => { };
-        onOk = () => { };
+        onOk = (inputText) => { };
         constructor() {
             super();
             this.dialogContainer = this.getElement("dialogContainer");
@@ -274,25 +277,49 @@ define("components/dialog.component", ["require", "exports", "components/base/co
             this.dialogHeader = this.getElement("dialogHeader");
             this.dialogIcon = this.getElement("dialogIcon");
             this.dialogMsg = this.getElement("dialogMsg");
+            this.dialogInput = this.getElement("dialogInput");
+            this.dialogInputLabel = this.getElement("dialogInputLabel");
+            this.dialogInputBox = this.getElement("dialogInputBox");
             this.dialogCancel = this.getElement("dialogCancel");
             this.dialogOk = this.getElement("dialogOk");
             this.dialogCancel.addEventListener("click", () => this.onCancel());
             this.dialogBackdrop.addEventListener("click", () => this.onCancel());
-            this.dialogOk.addEventListener("click", () => this.onOk());
+            this.dialogOk.addEventListener("click", () => this.onOk(this.dialogInputBox.value));
+            this.dialogInputBox.addEventListener("keyup", () => {
+                this.dialogOk.disabled = this.dialogInputBox.value.trim() === "";
+            });
         }
-        openDialog(data) {
-            if (data.titulo === null)
-                this.dialogHeader.classList.add("oculto");
-            if (data.icone === null)
-                this.dialogIcon.classList.add("oculto");
-            if (data.cancel === null)
-                this.dialogCancel.classList.add("oculto");
-            this.dialogHeader.innerText = data.titulo ?? "";
-            this.dialogIcon.innerText = data.icone ?? "";
-            this.dialogMsg.innerHTML = data.mensagem;
-            this.dialogCancel.innerText = data.cancel ?? "";
-            this.dialogOk.innerText = data.ok;
+        openMsgBox(msgBox) {
+            this.setBasicDialog(msgBox);
+            this.dialogMsg.classList.remove("oculto");
+            this.dialogInput.classList.add("oculto");
+            this.dialogInputLabel.innerText = "";
+            this.dialogInputBox.value = "";
+            this.dialogOk.disabled = false;
             this.dialogContainer.classList.remove("oculto");
+        }
+        openInputBox(inputBox) {
+            this.setBasicDialog(inputBox);
+            this.dialogMsg.classList.add("oculto");
+            this.dialogInput.classList.remove("oculto");
+            this.dialogMsg.innerText = "";
+            this.dialogOk.disabled = true;
+            this.dialogContainer.classList.remove("oculto");
+        }
+        setBasicDialog(dialog) {
+            if (dialog.titulo === null)
+                this.dialogHeader.classList.add("oculto");
+            if (dialog.icone === null)
+                this.dialogIcon.classList.add("oculto");
+            if (dialog.cancel === null)
+                this.dialogCancel.classList.add("oculto");
+            this.dialogHeader.innerText = dialog.titulo ?? "";
+            this.dialogIcon.innerText = dialog.icone ?? "";
+            this.dialogMsg.innerHTML = dialog.mensagem;
+            this.dialogInputLabel.innerText = dialog.mensagem;
+            this.dialogInputBox.value = "";
+            this.dialogCancel.innerText = dialog.cancel ?? "";
+            this.dialogOk.innerText = dialog.ok;
         }
         closeDialog() {
             this.dialogContainer.classList.add("oculto");
@@ -301,32 +328,38 @@ define("components/dialog.component", ["require", "exports", "components/base/co
     class DialogService extends service_2.default {
     }
     class DialogComponent extends component_2.default {
-        retorno = "";
-        okDialog = (retorno) => { };
-        cancelDialog = (retorno) => { };
+        msgBoxOk = () => { };
+        inputBoxOk = () => { };
+        cancel = () => { };
         constructor() {
             super("dialog");
         }
         async initialize() {
             await this.initializeResources(DialogViewModel, DialogService);
-            this.addEventListener("opendialog", (ev) => {
-                const data = ev.detail;
-                this.openDialog(data);
-            });
-            this.viewModel.onCancel = () => {
+            this.viewModel.onOk = async (inputText) => {
                 this.viewModel.closeDialog();
-                this.cancelDialog(this.retorno);
-                this.dispatchEvent(new CustomEvent("canceldialog", { detail: this.retorno }));
+                if (this.msgBoxOk)
+                    await this.msgBoxOk();
+                if (this.inputBoxOk)
+                    await this.inputBoxOk(inputText);
             };
-            this.viewModel.onOk = () => {
+            this.viewModel.onCancel = async () => {
                 this.viewModel.closeDialog();
-                this.okDialog(this.retorno);
-                this.dispatchEvent(new CustomEvent("okdialog", { detail: this.retorno }));
+                if (this.cancel)
+                    await this.cancel();
             };
         }
-        openDialog(data) {
-            this.retorno = data.retorno;
-            this.viewModel.openDialog(data);
+        openMsgBox(msgBox, ok, cancel) {
+            this.msgBoxOk = ok;
+            this.inputBoxOk = undefined;
+            this.cancel = cancel;
+            this.viewModel.openMsgBox(msgBox);
+        }
+        openInputBox(inputBox, ok, cancel) {
+            this.msgBoxOk = undefined;
+            this.inputBoxOk = ok;
+            this.cancel = cancel;
+            this.viewModel.openInputBox(inputBox);
         }
         static load(element) {
             return new Promise((resolve) => {
@@ -513,15 +546,13 @@ define("components/nova-historia.component", ["require", "exports", "components/
             if (this.tituloNovaHistoria.value.trim() !== "" && this.novaHistoria.value.trim() !== "") {
                 return true;
             }
-            const dialogModel = {
+            this.dialog.openMsgBox({
                 titulo: "Visualizar História",
                 mensagem: "Dê um título e conte sua história, não deixe nada vazio!",
                 icone: "emergency_home",
                 cancel: null,
-                ok: "Ok",
-                retorno: "podeVisualizar"
-            };
-            this.dialog.openDialog(dialogModel);
+                ok: "Ok"
+            });
             return false;
         }
     }
@@ -682,7 +713,7 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
             });
         }
         doSalvar() {
-            this.dialog.openDialog({
+            this.dialog.openMsgBox({
                 titulo: "Salvar História",
                 icone: "bookmark_add",
                 mensagem: `
@@ -691,14 +722,12 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
                 Você deseja continuar com a gravação?
             `,
                 cancel: "Não",
-                ok: "Sim",
-                retorno: ""
-            });
-            this.dialog.okDialog = () => {
+                ok: "Sim"
+            }, () => {
                 const titulo = localStorage.getItem(this.tituloNovaHistoria.id) ?? "";
                 const conteudo = localStorage.getItem(this.novaHistoria.id) ?? "";
                 this.onSalvar(titulo, conteudo);
-            };
+            });
         }
         clearData() {
             localStorage.removeItem(this.tituloNovaHistoria.id);
@@ -728,7 +757,7 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
             this.viewModel.dialog = await dialog_component_2.default.load(this);
             this.viewModel.onSalvar = async (titulo, conteudo) => {
                 await this.service.salvar(titulo, conteudo);
-                this.viewModel.dialog.openDialog({
+                this.viewModel.dialog.openMsgBox({
                     titulo: "Salvar História",
                     icone: "bookmark_added",
                     mensagem: `
@@ -737,13 +766,11 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
                     Sua história será avaliada antes de ser publicada.
                 `,
                     cancel: null,
-                    ok: "ok",
-                    retorno: ""
-                });
-                this.viewModel.dialog.okDialog = () => {
+                    ok: "ok"
+                }, () => {
                     this.viewModel.clearData();
                     this.dispatchEvent(new Event("voltar"));
-                };
+                });
             };
         }
     }
@@ -848,28 +875,82 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("components/pendentes-aprovacao.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_11, service_11, viewmodel_11, dialog_component_3) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_4, component_11, service_11, viewmodel_11, dialog_component_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_4 = __importDefault(api_service_4);
     component_11 = __importDefault(component_11);
     service_11 = __importDefault(service_11);
     viewmodel_11 = __importDefault(viewmodel_11);
     dialog_component_3 = __importDefault(dialog_component_3);
     class PendentesAprovacaoViewModel extends viewmodel_11.default {
+        tituloPendente;
+        conteudoPendente;
         aprovar;
         reprovar;
         dialog;
+        historia;
         onAprovar = () => { };
-        onReprovar = () => { };
+        onReprovar = (motivoModeracao) => { };
         constructor() {
             super();
+            this.tituloPendente = this.getElement("tituloPendente");
+            this.conteudoPendente = this.getElement("conteudoPendente");
             this.aprovar = this.getElement("aprovar");
             this.reprovar = this.getElement("reprovar");
-            this.aprovar.addEventListener("click", () => this.onAprovar());
-            this.reprovar.addEventListener("click", () => this.onReprovar());
+            this.aprovar.addEventListener("click", () => {
+                this.dialog?.openMsgBox({
+                    titulo: "Aprovar",
+                    icone: "bookmark_add",
+                    mensagem: "Confirma a aprovação da história?",
+                    cancel: "Cancelar",
+                    ok: "Aprovar"
+                }, () => this.onAprovar());
+            });
+            this.reprovar.addEventListener("click", () => {
+                this.dialog?.openInputBox({
+                    titulo: "Reprovar",
+                    icone: "bookmark_remove",
+                    mensagem: "Informe o motivo da reprovação desta história",
+                    cancel: "Cancelar",
+                    ok: "Reprovar"
+                }, (inputText) => this.onReprovar(inputText));
+            });
+        }
+        apresentarHistoria(historia) {
+            if (historia.id > 0) {
+                this.tituloPendente.innerText = historia.titulo;
+                this.conteudoPendente.innerHTML = "";
+                const values = historia.conteudo.split(/\r?\n/);
+                values.forEach(v => {
+                    const p = document.createElement("p");
+                    p.innerHTML = v;
+                    this.conteudoPendente.appendChild(p);
+                });
+                this.historia = historia;
+                this.aprovar.disabled = false;
+                this.reprovar.disabled = false;
+            }
+            else {
+                this.tituloPendente.innerText = "-- Fim das Histórias --";
+                this.conteudoPendente.innerHTML = "";
+                const p = document.createElement("p");
+                p.innerText = "Não existem mais histórias pendentes de aprovação.";
+                this.historia = undefined;
+                this.aprovar.disabled = true;
+                this.reprovar.disabled = true;
+            }
         }
     }
     class PendentesAprovacaoService extends service_11.default {
+        apiModerador;
+        constructor() {
+            super();
+            this.apiModerador = new api_service_4.default("moderador");
+        }
+        obterHistoria() {
+            return this.apiModerador.doGet();
+        }
     }
     class PendentesAprovacaoComponent extends component_11.default {
         constructor() {
@@ -878,8 +959,10 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "compo
         async initialize() {
             await this.initializeResources(PendentesAprovacaoViewModel, PendentesAprovacaoService);
             this.viewModel.dialog = await dialog_component_3.default.load(this);
-            this.viewModel.onAprovar = () => this.dispatchEvent(new Event("aprovar"));
-            this.viewModel.onReprovar = () => this.dispatchEvent(new Event("reprovar"));
+            const historia = await this.service.obterHistoria();
+            this.viewModel.apresentarHistoria(historia);
+            // this.viewModel.onAprovar = () => this.dispatchEvent(new Event("aprovar"));
+            // this.viewModel.onReprovar = () => this.dispatchEvent(new Event("reprovar"));
         }
     }
     exports.default = PendentesAprovacaoComponent;

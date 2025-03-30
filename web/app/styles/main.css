@@ -190,9 +190,17 @@ h1 {
     margin: 0 5px 0 0;
 }
 
-.dialog-msg {
+.dialog-msg,
+.dialog-label {
     font-size: 12pt;
 }
+
+.dialog-input {
+    width: 100%;
+    margin-top: 5px;
+}
+
+
 
 .dialog-buttons {
     height: 40px;

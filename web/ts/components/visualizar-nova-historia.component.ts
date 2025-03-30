@@ -45,7 +45,7 @@ class VisualizarNovaHistoriaViewModel extends ViewModel {
     }
 
     private doSalvar() {
-        this.dialog.openDialog({
+        this.dialog.openMsgBox({
             titulo: "Salvar História",
             icone: "bookmark_add",
             mensagem: `
@@ -54,15 +54,12 @@ class VisualizarNovaHistoriaViewModel extends ViewModel {
                 Você deseja continuar com a gravação?
             `,
             cancel: "Não",
-            ok: "Sim",
-            retorno: ""
-        });
-
-        this.dialog.okDialog = () => {
+            ok: "Sim"
+        }, () => {
             const titulo = localStorage.getItem(this.tituloNovaHistoria.id) ?? "";
             const conteudo = localStorage.getItem(this.novaHistoria.id) ?? "";
             this.onSalvar(titulo, conteudo);
-        };
+        });
     }
 
     public clearData() {
@@ -105,7 +102,7 @@ class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaVi
         this.viewModel.onSalvar = async (titulo: string, conteudo: string) => {
             await this.service.salvar(titulo, conteudo);
             
-            this.viewModel.dialog.openDialog({
+            this.viewModel.dialog.openMsgBox({
                 titulo: "Salvar História",
                 icone: "bookmark_added",
                 mensagem: `
@@ -114,14 +111,11 @@ class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaVi
                     Sua história será avaliada antes de ser publicada.
                 `,
                 cancel: null,
-                ok: "ok",
-                retorno: ""
-            });
-
-            this.viewModel.dialog.okDialog = () => {
+                ok: "ok"
+            }, () => {
                 this.viewModel.clearData();
                 this.dispatchEvent(new Event("voltar"));
-            };
+            });
         };
     }
 

@@ -15,5 +15,4 @@ export interface DialogModel {
     mensagem: string;
     cancel: string | null;
     ok: string;
-    retorno: string;
 }

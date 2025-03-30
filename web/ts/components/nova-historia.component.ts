@@ -64,16 +64,14 @@ class NovaHistoriaViewModel extends ViewModel {
             return true;
         }
 
-        const dialogModel: DialogModel = {
+        this.dialog.openMsgBox({
             titulo: "Visualizar História",
             mensagem: "Dê um título e conte sua história, não deixe nada vazio!",
             icone: "emergency_home",
             cancel: null,
-            ok: "Ok",
-            retorno: "podeVisualizar"
-        };
-
-        this.dialog.openDialog(dialogModel);
+            ok: "Ok"
+        });
+        
         return false;
     }
 

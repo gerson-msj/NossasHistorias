@@ -2,6 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
 import { HistoriaModeradorResponseModel } from "../models/response.model.ts";
+import { Historia } from "../models/db.model.ts";
 
 class ModeradorService {
     private db: DatabaseSync;
@@ -13,7 +14,16 @@ class ModeradorService {
     public obterPendente(): HistoriaModeradorResponseModel {
         const sql = "Select Id, Titulo, Conteudo From Historias Where IdSituacao = 1 Order By Id Asc Limit 1;"
         const query = this.db.prepare(sql);
-        return query.get() as HistoriaModeradorResponseModel ?? { id: 0, titulo: "", conteudo: "" };
+        const result = query.get() as Historia;
+        return result ? {
+            id: result.Id,
+            titulo: result.Titulo,
+            conteudo: result.Conteudo
+        } : {
+            id: 0,
+            titulo: "",
+            conteudo: ""
+        };
     }
 }
 
