@@ -65,13 +65,13 @@ class DialogViewModel extends ViewModel {
     }
 
     private setBasicDialog(dialog: DialogModel) {
-        if (dialog.titulo === null)
+        if (dialog.titulo === undefined)
             this.dialogHeader.classList.add("oculto");
 
-        if (dialog.icone === null)
+        if (dialog.icone === undefined)
             this.dialogIcon.classList.add("oculto");
 
-        if (dialog.cancel === null)
+        if (dialog.cancel === undefined)
             this.dialogCancel.classList.add("oculto");
 
         this.dialogHeader.innerText = dialog.titulo ?? "";

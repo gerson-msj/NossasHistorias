@@ -110,7 +110,6 @@ class VisualizarNovaHistoriaComponent extends Component<VisualizarNovaHistoriaVi
                     <br />
                     Sua história será avaliada antes de ser publicada.
                 `,
-                cancel: null,
                 ok: "ok"
             }, () => {
                 this.viewModel.clearData();

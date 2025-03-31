@@ -68,7 +68,6 @@ class NovaHistoriaViewModel extends ViewModel {
             titulo: "Visualizar História",
             mensagem: "Dê um título e conte sua história, não deixe nada vazio!",
             icone: "emergency_home",
-            cancel: null,
             ok: "Ok"
         });
         

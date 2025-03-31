@@ -8,7 +8,7 @@ import MinhaHistoriaComponent from "./components/minha-historia.component";
 import VisualizarNovaHistoriaComponent from "./components/visualizar-nova-historia.component";
 import HistoriasVisualizadasComponent from "./components/historias-visualizadas.component";
 import { HistoriaModel } from "./models/model";
-import HistoriaVisualizadaComponent from "./components/historia-visualizada.component copy";
+import HistoriaVisualizadaComponent from "./components/historia-visualizada.component";
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
@@ -186,8 +186,7 @@ class App {
     private pendentesAprovacao() {
         const component = this.loadComponent("pendentes-aprovacao-component", PendentesAprovacaoComponent, "Pendentes de Aprovação", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
-        component.addEventListener("aprovar", () => this.index());
-        component.addEventListener("reprovar", () => this.index());
+        component.addEventListener("voltar", () => this.loadIfCurrent(component, this.index.bind(this)));
     }
 
     private acesso() {

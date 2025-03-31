@@ -10,9 +10,9 @@ export interface HistoriaModel {
 }
 
 export interface DialogModel {
-    titulo: string | null;
-    icone: string | null;
+    titulo?: string;
+    icone?: string;
     mensagem: string;
-    cancel: string | null;
+    cancel?: string;
     ok: string;
 }

@@ -39,7 +39,7 @@ export default class ApiService {
             body: JSON.stringify(request)
         });
 
-        return this.getResult(response);
+        return this.getResult<TResult>(response);
     }
 
     private async getResult<TResult>(response: Response): Promise<TResult> {

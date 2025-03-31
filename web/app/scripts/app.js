@@ -307,11 +307,11 @@ define("components/dialog.component", ["require", "exports", "components/base/co
             this.dialogContainer.classList.remove("oculto");
         }
         setBasicDialog(dialog) {
-            if (dialog.titulo === null)
+            if (dialog.titulo === undefined)
                 this.dialogHeader.classList.add("oculto");
-            if (dialog.icone === null)
+            if (dialog.icone === undefined)
                 this.dialogIcon.classList.add("oculto");
-            if (dialog.cancel === null)
+            if (dialog.cancel === undefined)
                 this.dialogCancel.classList.add("oculto");
             this.dialogHeader.innerText = dialog.titulo ?? "";
             this.dialogIcon.innerText = dialog.icone ?? "";
@@ -550,7 +550,6 @@ define("components/nova-historia.component", ["require", "exports", "components/
                 titulo: "Visualizar História",
                 mensagem: "Dê um título e conte sua história, não deixe nada vazio!",
                 icone: "emergency_home",
-                cancel: null,
                 ok: "Ok"
             });
             return false;
@@ -674,6 +673,13 @@ define("components/minha-historia.component", ["require", "exports", "components
 define("models/request.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Situacao = void 0;
+    var Situacao;
+    (function (Situacao) {
+        Situacao[Situacao["analise"] = 1] = "analise";
+        Situacao[Situacao["aprovada"] = 2] = "aprovada";
+        Situacao[Situacao["reprovada"] = 3] = "reprovada";
+    })(Situacao || (exports.Situacao = Situacao = {}));
 });
 define("components/visualizar-nova-historia.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_3, component_8, service_8, viewmodel_8, dialog_component_2) {
     "use strict";
@@ -765,7 +771,6 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
                     <br />
                     Sua história será avaliada antes de ser publicada.
                 `,
-                    cancel: null,
                     ok: "ok"
                 }, () => {
                     this.viewModel.clearData();
@@ -839,7 +844,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
     }
     exports.default = HistoriasVisualizadasComponent;
 });
-define("components/historia-visualizada.component copy", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
+define("components/historia-visualizada.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_10, service_10, viewmodel_10) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_10 = __importDefault(component_10);
@@ -875,7 +880,7 @@ define("components/historia-visualizada.component copy", ["require", "exports", 
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("components/pendentes-aprovacao.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_4, component_11, service_11, viewmodel_11, dialog_component_3) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "models/request.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, request_model_1, api_service_4, component_11, service_11, viewmodel_11, dialog_component_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_4 = __importDefault(api_service_4);
@@ -890,8 +895,7 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "servi
         reprovar;
         dialog;
         historia;
-        onAprovar = () => { };
-        onReprovar = (motivoModeracao) => { };
+        onModerar = (request) => { };
         constructor() {
             super();
             this.tituloPendente = this.getElement("tituloPendente");
@@ -905,7 +909,7 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "servi
                     mensagem: "Confirma a aprovação da história?",
                     cancel: "Cancelar",
                     ok: "Aprovar"
-                }, () => this.onAprovar());
+                }, () => this.onModerar({ idHistoria: this.historia.id, idSituacao: request_model_1.Situacao.aprovada }));
             });
             this.reprovar.addEventListener("click", () => {
                 this.dialog?.openInputBox({
@@ -914,7 +918,7 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "servi
                     mensagem: "Informe o motivo da reprovação desta história",
                     cancel: "Cancelar",
                     ok: "Reprovar"
-                }, (inputText) => this.onReprovar(inputText));
+                }, (inputText) => this.onModerar({ idHistoria: this.historia.id, idSituacao: request_model_1.Situacao.reprovada, motivoModeracao: inputText }));
             });
         }
         apresentarHistoria(historia) {
@@ -951,6 +955,9 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "servi
         obterHistoria() {
             return this.apiModerador.doGet();
         }
+        moderar(request) {
+            return this.apiModerador.doPut(request);
+        }
     }
     class PendentesAprovacaoComponent extends component_11.default {
         constructor() {
@@ -959,10 +966,26 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "servi
         async initialize() {
             await this.initializeResources(PendentesAprovacaoViewModel, PendentesAprovacaoService);
             this.viewModel.dialog = await dialog_component_3.default.load(this);
+            await this.apresentarHistoria();
+            this.viewModel.onModerar = async (request) => {
+                await this.service.moderar(request);
+                const aprovada = request.idSituacao == request_model_1.Situacao.aprovada;
+                this.viewModel.dialog.openMsgBox({
+                    titulo: aprovada ? "História Aprovada" : "História Reprovada",
+                    mensagem: aprovada ? "A história foi aprovada." : "A história foi reprovada.",
+                    icone: aprovada ? "bookmark_add" : "bookmark_remove",
+                    cancel: "Encerrar Moderação",
+                    ok: "Próxima História"
+                }, async () => {
+                    await this.apresentarHistoria();
+                }, () => {
+                    this.dispatchEvent(new Event("voltar"));
+                });
+            };
+        }
+        async apresentarHistoria() {
             const historia = await this.service.obterHistoria();
             this.viewModel.apresentarHistoria(historia);
-            // this.viewModel.onAprovar = () => this.dispatchEvent(new Event("aprovar"));
-            // this.viewModel.onReprovar = () => this.dispatchEvent(new Event("reprovar"));
         }
     }
     exports.default = PendentesAprovacaoComponent;
@@ -990,7 +1013,7 @@ define("components/acesso.component", ["require", "exports", "components/base/co
     }
     exports.default = AcessoComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component copy", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_copy_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service"], function (require, exports, header_component_1, index_component_1, const_model_5, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -1001,7 +1024,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     minha_historia_component_1 = __importDefault(minha_historia_component_1);
     visualizar_nova_historia_component_1 = __importDefault(visualizar_nova_historia_component_1);
     historias_visualizadas_component_1 = __importDefault(historias_visualizadas_component_1);
-    historia_visualizada_component_copy_1 = __importDefault(historia_visualizada_component_copy_1);
+    historia_visualizada_component_1 = __importDefault(historia_visualizada_component_1);
     pendentes_aprovacao_component_1 = __importDefault(pendentes_aprovacao_component_1);
     acesso_component_1 = __importDefault(acesso_component_1);
     token_service_2 = __importDefault(token_service_2);
@@ -1133,7 +1156,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             });
         }
         historiaVisualizada(historia) {
-            const component = this.loadComponent("historia-visualizada-component", historia_visualizada_component_copy_1.default, "História Visualizada", true);
+            const component = this.loadComponent("historia-visualizada-component", historia_visualizada_component_1.default, "História Visualizada", true);
             this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.loadIfCurrent(component, this.historiasVisualizadas.bind(this)));
             component.addEventListener("curtir", () => this.historiasVisualizadas());
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: historia })));
@@ -1141,8 +1164,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         pendentesAprovacao() {
             const component = this.loadComponent("pendentes-aprovacao-component", pendentes_aprovacao_component_1.default, "Pendentes de Aprovação", true);
             this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
-            component.addEventListener("aprovar", () => this.index());
-            component.addEventListener("reprovar", () => this.index());
+            component.addEventListener("voltar", () => this.loadIfCurrent(component, this.index.bind(this)));
         }
         acesso() {
             const component = this.loadComponent("acesso-component", acesso_component_1.default, "Dados de Acesso", true);
