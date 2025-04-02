@@ -1,9 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
-import { HistoriaRequestModel, HistoriaResponseModel } from "../models/request.model.ts";
+import { HistoriaRequestModel } from "../models/request.model.ts";
 import { Situacao } from "../models/db.model.ts";
 import DateService from "../services/date.service.ts";
+import { HistoriaResponseModel } from "../models/response.model.ts";
 
 class HistoriaService {
     private db: DatabaseSync;
@@ -21,8 +22,10 @@ class HistoriaService {
 
     public proxima(idUsuario: number): HistoriaResponseModel | undefined {
         const proxima = this.obterProxima(idUsuario);
-        if(proxima)
-            this.registrarVisualizacao(idUsuario, proxima.id);
+        
+        // Para Testes não irá registrar visualização.
+        // if(proxima)
+        //     this.registrarVisualizacao(idUsuario, proxima.id);
 
         return proxima;
     }
@@ -54,7 +57,7 @@ class HistoriaService {
                     h.Id
             ), cteHistorias as (
                 Select
-                    h.Id, h.Titulo, h.Conteudo, c.Visualizacoes, c.Curtidas
+                    h.id, h.titulo, h.conteudo, c.visualizacoes, c.curtidas
                 From 
                     Historias as h
                     Inner Join cteContagem as c

@@ -10,3 +10,11 @@ export interface HistoriaModeradorResponseModel {
     titulo: string;
     conteudo: string;
 }
+
+export interface HistoriaResponseModel {
+    id: number,
+    titulo: string,
+    conteudo: string,
+    visualizacoes: number,
+    curtidas: number
+}

@@ -247,17 +247,179 @@ define("services/api.service", ["require", "exports", "services/token.service"],
     }
     exports.default = ApiService;
 });
+define("components/index.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, api_service_1, component_2, service_2, viewmodel_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_1 = __importDefault(api_service_1);
+    component_2 = __importDefault(component_2);
+    service_2 = __importDefault(service_2);
+    viewmodel_2 = __importDefault(viewmodel_2);
+    class IndexViewModel extends viewmodel_2.default {
+        // Menu
+        menuContainer;
+        menuBackdrop;
+        novaHistoria;
+        minhasHistorias;
+        historiasVisualizadas;
+        pendentesAprovacao;
+        acesso;
+        onNovaHistoria = () => { };
+        onMinhasHistorias = () => { };
+        onHistoriasVisualizadas = () => { };
+        onPendentesAprovacao = () => { };
+        onAcesso = () => { };
+        // História
+        tituloHistoria;
+        conteudoHistoria;
+        curtir;
+        proxima;
+        idHistoria;
+        onCurtir = (idHistoria) => { };
+        onProxima = () => { };
+        constructor() {
+            super();
+            // Menu
+            this.menuContainer = this.getElement("menuContainer");
+            this.menuBackdrop = this.getElement("menuBackdrop");
+            this.novaHistoria = this.getElement("novaHistoria");
+            this.minhasHistorias = this.getElement("minhasHistorias");
+            this.historiasVisualizadas = this.getElement("historiasVisualizadas");
+            this.pendentesAprovacao = this.getElement("pendentesAprovacao");
+            this.acesso = this.getElement("acesso");
+            this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
+            this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
+            this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
+            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
+            this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
+            this.acesso.addEventListener("click", () => this.onAcesso());
+            // História
+            this.tituloHistoria = this.getElement("tituloHistoria");
+            this.conteudoHistoria = this.getElement("conteudoHistoria");
+            this.curtir = this.getElement("curtir");
+            this.proxima = this.getElement("proxima");
+            this.curtir.addEventListener("click", () => this.onCurtir(this.idHistoria ?? 0));
+            this.proxima.addEventListener("click", () => this.onProxima());
+        }
+        exibirMenu() {
+            this.menuContainer.classList.remove("oculto");
+        }
+        ocultarMenu() {
+            this.menuContainer.classList.add("oculto");
+        }
+        exibirPendentesAprovacao() {
+            this.pendentesAprovacao.classList.remove("oculto");
+        }
+        apresentarProxima(historia) {
+            if (!historia) {
+                // Informar que não existem mais histórias
+                return;
+            }
+            this.tituloHistoria.innerText = historia.titulo;
+            this.conteudoHistoria.innerHTML = "";
+            const values = historia.conteudo.split(/\r?\n/);
+            values.forEach(v => {
+                const p = document.createElement("p");
+                p.innerText = v;
+                this.conteudoHistoria.appendChild(p);
+            });
+            const p = document.createElement("p");
+            p.innerText = `Visualizações: ${historia.visualizacoes} | Curtidas: ${historia.curtidas}`;
+            this.conteudoHistoria.appendChild(p);
+        }
+    }
+    class IndexService extends service_2.default {
+        apiUsuario;
+        apiHistoria;
+        constructor() {
+            super();
+            this.apiUsuario = new api_service_1.default("usuario");
+            this.apiHistoria = new api_service_1.default("historia");
+        }
+        obterUsuario() {
+            return this.apiUsuario.doGet();
+        }
+        obterProxima() {
+            return this.apiHistoria.doGet();
+        }
+    }
+    class IndexComponent extends component_2.default {
+        constructor() {
+            super("index");
+        }
+        async initialize() {
+            await this.initializeResources(IndexViewModel, IndexService);
+            //Menu
+            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
+            this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
+            this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
+            this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
+            this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
+            this.viewModel.onAcesso = () => this.dispatchEvent(new Event("acesso"));
+            const usuario = await this.service.obterUsuario();
+            if (!usuario.usuarioExistente)
+                document.dispatchEvent(new Event("unauthorized"));
+            if (usuario.moderador)
+                this.viewModel.exibirPendentesAprovacao();
+            //História
+            const historia = await this.service.obterProxima();
+            this.viewModel.apresentarProxima(historia);
+        }
+    }
+    exports.default = IndexComponent;
+});
+define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_3, service_3, viewmodel_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_2 = __importDefault(api_service_2);
+    component_3 = __importDefault(component_3);
+    service_3 = __importDefault(service_3);
+    viewmodel_3 = __importDefault(viewmodel_3);
+    class IntroViewModel extends viewmodel_3.default {
+        entrar;
+        onEntrar = () => { };
+        constructor() {
+            super();
+            this.entrar = this.getElement("entrar");
+            this.entrar.addEventListener("click", () => this.onEntrar());
+        }
+    }
+    class IntroService extends service_3.default {
+        apiUsuario;
+        constructor() {
+            super();
+            this.apiUsuario = new api_service_2.default("usuario");
+        }
+        async obterToken() {
+            const result = await this.apiUsuario.doPost({});
+            return result.token;
+        }
+    }
+    class IntroComponent extends component_3.default {
+        constructor() {
+            super("intro");
+        }
+        async initialize() {
+            await this.initializeResources(IntroViewModel, IntroService);
+            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
+            if (!this.validarTokenSubject()) {
+                const token = await this.service.obterToken();
+                localStorage.setItem("token", token);
+            }
+        }
+    }
+    exports.default = IntroComponent;
+});
 define("models/model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
+define("components/dialog.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    component_2 = __importDefault(component_2);
-    service_2 = __importDefault(service_2);
-    viewmodel_2 = __importDefault(viewmodel_2);
-    class DialogViewModel extends viewmodel_2.default {
+    component_4 = __importDefault(component_4);
+    service_4 = __importDefault(service_4);
+    viewmodel_4 = __importDefault(viewmodel_4);
+    class DialogViewModel extends viewmodel_4.default {
         dialogContainer;
         dialogBackdrop;
         dialogHeader;
@@ -325,9 +487,9 @@ define("components/dialog.component", ["require", "exports", "components/base/co
             this.dialogContainer.classList.add("oculto");
         }
     }
-    class DialogService extends service_2.default {
+    class DialogService extends service_4.default {
     }
-    class DialogComponent extends component_2.default {
+    class DialogComponent extends component_4.default {
         msgBoxOk = () => { };
         inputBoxOk = () => { };
         cancel = () => { };
@@ -374,125 +536,6 @@ define("components/dialog.component", ["require", "exports", "components/base/co
         }
     }
     exports.default = DialogComponent;
-});
-define("components/index.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, api_service_1, component_3, service_3, viewmodel_3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    api_service_1 = __importDefault(api_service_1);
-    component_3 = __importDefault(component_3);
-    service_3 = __importDefault(service_3);
-    viewmodel_3 = __importDefault(viewmodel_3);
-    class IndexViewModel extends viewmodel_3.default {
-        menuContainer;
-        menuBackdrop;
-        novaHistoria;
-        minhasHistorias;
-        historiasVisualizadas;
-        pendentesAprovacao;
-        acesso;
-        onNovaHistoria = () => { };
-        onMinhasHistorias = () => { };
-        onHistoriasVisualizadas = () => { };
-        onPendentesAprovacao = () => { };
-        onAcesso = () => { };
-        constructor() {
-            super();
-            this.menuContainer = this.getElement("menuContainer");
-            this.menuBackdrop = this.getElement("menuBackdrop");
-            this.novaHistoria = this.getElement("novaHistoria");
-            this.minhasHistorias = this.getElement("minhasHistorias");
-            this.historiasVisualizadas = this.getElement("historiasVisualizadas");
-            this.pendentesAprovacao = this.getElement("pendentesAprovacao");
-            this.acesso = this.getElement("acesso");
-            this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
-            this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
-            this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
-            this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
-            this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
-            this.acesso?.addEventListener("click", () => this.onAcesso());
-        }
-        exibirMenu() {
-            this.menuContainer.classList.remove("oculto");
-        }
-        ocultarMenu() {
-            this.menuContainer.classList.add("oculto");
-        }
-        exibirPendentesAprovacao() {
-            this.pendentesAprovacao.classList.remove("oculto");
-        }
-    }
-    class IndexService extends service_3.default {
-        apiUsuario;
-        constructor() {
-            super();
-            this.apiUsuario = new api_service_1.default("usuario");
-        }
-        obterUsuario() {
-            return this.apiUsuario.doGet();
-        }
-    }
-    class IndexComponent extends component_3.default {
-        constructor() {
-            super("index");
-        }
-        async initialize() {
-            await this.initializeResources(IndexViewModel, IndexService);
-            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
-            this.viewModel.onNovaHistoria = () => this.dispatchEvent(new Event("novaHistoria"));
-            this.viewModel.onMinhasHistorias = () => this.dispatchEvent(new Event("minhasHistorias"));
-            this.viewModel.onHistoriasVisualizadas = () => this.dispatchEvent(new Event("historiasVisualizadas"));
-            this.viewModel.onPendentesAprovacao = () => this.dispatchEvent(new Event("pendentesAprovacao"));
-            this.viewModel.onAcesso = () => this.dispatchEvent(new Event("acesso"));
-            const usuario = await this.service.obterUsuario();
-            if (!usuario.usuarioExistente)
-                document.dispatchEvent(new Event("unauthorized"));
-            if (usuario.moderador)
-                this.viewModel.exibirPendentesAprovacao();
-        }
-    }
-    exports.default = IndexComponent;
-});
-define("components/intro.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    api_service_2 = __importDefault(api_service_2);
-    component_4 = __importDefault(component_4);
-    service_4 = __importDefault(service_4);
-    viewmodel_4 = __importDefault(viewmodel_4);
-    class IntroViewModel extends viewmodel_4.default {
-        entrar;
-        onEntrar = () => { };
-        constructor() {
-            super();
-            this.entrar = this.getElement("entrar");
-            this.entrar.addEventListener("click", () => this.onEntrar());
-        }
-    }
-    class IntroService extends service_4.default {
-        apiUsuario;
-        constructor() {
-            super();
-            this.apiUsuario = new api_service_2.default("usuario");
-        }
-        async obterToken() {
-            const result = await this.apiUsuario.doPost({});
-            return result.token;
-        }
-    }
-    class IntroComponent extends component_4.default {
-        constructor() {
-            super("intro");
-        }
-        async initialize() {
-            await this.initializeResources(IntroViewModel, IntroService);
-            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-            if (!this.validarTokenSubject()) {
-                const token = await this.service.obterToken();
-                localStorage.setItem("token", token);
-            }
-        }
-    }
-    exports.default = IntroComponent;
 });
 define("components/nova-historia.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, component_5, service_5, viewmodel_5, dialog_component_1) {
     "use strict";

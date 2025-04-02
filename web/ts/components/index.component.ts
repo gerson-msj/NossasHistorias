@@ -1,13 +1,13 @@
 import { headerMenuClick } from "../models/const.model";
-import { UsuarioResponseModel } from "../models/response.model";
+import { HistoriaResponseModel, UsuarioResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
-import DialogComponent from "./dialog.component";
 
 class IndexViewModel extends ViewModel {
 
+    // Menu
     private menuContainer: HTMLDivElement;
     private menuBackdrop: HTMLDivElement;
 
@@ -23,9 +23,20 @@ class IndexViewModel extends ViewModel {
     public onPendentesAprovacao = () => { }
     public onAcesso = () => { }
 
+    // História
+    private tituloHistoria: HTMLElement;
+    private conteudoHistoria: HTMLElement;
+    private curtir: HTMLButtonElement;
+    private proxima: HTMLButtonElement;
+    private idHistoria?: number;
+
+    public onCurtir = (idHistoria: number) => { }
+    public onProxima = () => { }
+
     constructor() {
         super();
 
+        // Menu
         this.menuContainer = this.getElement("menuContainer");
         this.menuBackdrop = this.getElement("menuBackdrop");
         this.novaHistoria = this.getElement("novaHistoria");
@@ -35,18 +46,19 @@ class IndexViewModel extends ViewModel {
         this.acesso = this.getElement("acesso");
 
         this.menuBackdrop.addEventListener("click", () => this.ocultarMenu());
-
         this.novaHistoria.addEventListener("click", () => this.onNovaHistoria());
-
         this.minhasHistorias.addEventListener("click", () => this.onMinhasHistorias());
-
         this.historiasVisualizadas.addEventListener("click", () => this.onHistoriasVisualizadas());
-
         this.pendentesAprovacao.addEventListener("click", () => this.onPendentesAprovacao());
+        this.acesso.addEventListener("click", () => this.onAcesso());
 
-        this.acesso?.addEventListener("click", () => this.onAcesso());
-
-
+        // História
+        this.tituloHistoria = this.getElement("tituloHistoria");
+        this.conteudoHistoria = this.getElement("conteudoHistoria");
+        this.curtir = this.getElement("curtir");
+        this.proxima = this.getElement("proxima");
+        this.curtir.addEventListener("click", () => this.onCurtir(this.idHistoria ?? 0));
+        this.proxima.addEventListener("click", () => this.onProxima());
     }
 
     exibirMenu() {
@@ -61,18 +73,49 @@ class IndexViewModel extends ViewModel {
         this.pendentesAprovacao.classList.remove("oculto");
     }
 
+    apresentarProxima(historia?: HistoriaResponseModel) {
+        if (!historia) {
+            // Informar que não existem mais histórias
+            return;
+        }
+
+        this.tituloHistoria.innerText = historia.titulo;
+        this.conteudoHistoria.innerHTML = "";
+        const values = historia.conteudo.split(/\r?\n/);
+        values.forEach(v => {
+            const p = document.createElement("p");
+            p.innerText = v;
+            this.conteudoHistoria.appendChild(p);
+        });
+        const p = document.createElement("p");
+        p.innerText = `Visualizações: ${historia.visualizacoes} | Curtidas: ${historia.curtidas}`;
+        this.conteudoHistoria.appendChild(p);
+
+        var dbRequest = indexedDB.open("NossasHistorias");
+        dbRequest.addEventListener("success", e => {
+            
+        })
+
+    }
+
 }
 
 class IndexService extends Service {
     private apiUsuario: ApiService;
+    private apiHistoria: ApiService;
 
     constructor() {
         super();
         this.apiUsuario = new ApiService("usuario");
+        this.apiHistoria = new ApiService("historia");
     }
 
     public obterUsuario(): Promise<UsuarioResponseModel> {
         return this.apiUsuario.doGet<UsuarioResponseModel>();
+    }
+
+    public obterProxima(): Promise<HistoriaResponseModel | undefined> {
+        return this.apiHistoria.doGet<HistoriaResponseModel | undefined>();
     }
 }
 
@@ -83,11 +126,9 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
     }
 
     async initialize(): Promise<void> {
-
-
-
         await this.initializeResources(IndexViewModel, IndexService);
 
+        //Menu
         this.addEventListener(headerMenuClick, () =>
             this.viewModel.exibirMenu());
 
@@ -104,6 +145,9 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         if (usuario.moderador)
             this.viewModel.exibirPendentesAprovacao();
 
+        //História
+        const historia = await this.service.obterProxima();
+        this.viewModel.apresentarProxima(historia);
     }
 
 }
