@@ -54,6 +54,15 @@ export default class Context {
 
     }
 
+    public async getRequest<T>() : Promise<T> {
+        const request: T = await this.request.json();
+        return request;
+    }
+
+    public getSearchParam(name: string): string | null {
+        return this.url.searchParams.get(name);
+    }
+
     public ok<T>(obj: T): Response {
         return new Response(obj ? JSON.stringify(obj) : null, { status: 200, headers: this.headers });
     }

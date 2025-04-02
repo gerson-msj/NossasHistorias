@@ -1,5 +1,6 @@
 import { headerMenuClick } from "../models/const.model";
-import { HistoriaResponseModel, UsuarioResponseModel } from "../models/response.model";
+import { ProximaHistoriaRequestModel } from "../models/request.model";
+import { ProximaHistoriaResponseModel, UsuarioResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -73,12 +74,14 @@ class IndexViewModel extends ViewModel {
         this.pendentesAprovacao.classList.remove("oculto");
     }
 
-    apresentarProxima(historia?: HistoriaResponseModel) {
+    apresentar(historia?: ProximaHistoriaResponseModel) {
         if (!historia) {
             // Informar que não existem mais histórias
+            localStorage.removeItem("idHistoria");
             return;
         }
 
+        localStorage.setItem("idHistoria", btoa(historia.id.toString()));
         this.tituloHistoria.innerText = historia.titulo;
         this.conteudoHistoria.innerHTML = "";
         const values = historia.conteudo.split(/\r?\n/);
@@ -93,7 +96,7 @@ class IndexViewModel extends ViewModel {
 
         var dbRequest = indexedDB.open("NossasHistorias");
         dbRequest.addEventListener("success", e => {
-            
+
         })
 
     }
@@ -114,8 +117,12 @@ class IndexService extends Service {
         return this.apiUsuario.doGet<UsuarioResponseModel>();
     }
 
-    public obterProxima(): Promise<HistoriaResponseModel | undefined> {
-        return this.apiHistoria.doGet<HistoriaResponseModel | undefined>();
+    public obterProximaHistoria(idHistoria: string | null): Promise<ProximaHistoriaResponseModel | undefined> {
+        const searchParams = new URLSearchParams();
+        if(idHistoria)
+            searchParams.append("idHistoria", atob(idHistoria));
+        
+        return this.apiHistoria.doGet<ProximaHistoriaResponseModel | undefined>(searchParams);
     }
 }
 
@@ -146,8 +153,9 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
             this.viewModel.exibirPendentesAprovacao();
 
         //História
-        const historia = await this.service.obterProxima();
-        this.viewModel.apresentarProxima(historia);
+        const idHistoria = localStorage.getItem("idHistoria");
+        const historia = await this.service.obterProximaHistoria(idHistoria);
+        this.viewModel.apresentar(historia);
     }
 
 }

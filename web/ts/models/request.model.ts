@@ -14,3 +14,7 @@ export interface HistoriaModeracaoRequestModel {
     idSituacao: Situacao,
     motivoModeracao?: string
 }
+
+export interface ProximaHistoriaRequestModel {
+    idHistoria?: number
+}

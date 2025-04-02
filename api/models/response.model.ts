@@ -11,7 +11,7 @@ export interface HistoriaModeradorResponseModel {
     conteudo: string;
 }
 
-export interface HistoriaResponseModel {
+export interface ProximaHistoriaResponseModel {
     id: number,
     titulo: string,
     conteudo: string,

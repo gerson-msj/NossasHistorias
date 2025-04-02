@@ -155,6 +155,17 @@ define("components/header.component", ["require", "exports", "models/const.model
     }
     exports.default = HeaderComponent;
 });
+define("models/request.model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Situacao = void 0;
+    var Situacao;
+    (function (Situacao) {
+        Situacao[Situacao["analise"] = 1] = "analise";
+        Situacao[Situacao["aprovada"] = 2] = "aprovada";
+        Situacao[Situacao["reprovada"] = 3] = "reprovada";
+    })(Situacao || (exports.Situacao = Situacao = {}));
+});
 define("models/response.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -309,11 +320,13 @@ define("components/index.component", ["require", "exports", "models/const.model"
         exibirPendentesAprovacao() {
             this.pendentesAprovacao.classList.remove("oculto");
         }
-        apresentarProxima(historia) {
+        apresentar(historia) {
             if (!historia) {
                 // Informar que não existem mais histórias
+                localStorage.removeItem("idHistoria");
                 return;
             }
+            localStorage.setItem("idHistoria", btoa(historia.id.toString()));
             this.tituloHistoria.innerText = historia.titulo;
             this.conteudoHistoria.innerHTML = "";
             const values = historia.conteudo.split(/\r?\n/);
@@ -341,8 +354,11 @@ define("components/index.component", ["require", "exports", "models/const.model"
         obterUsuario() {
             return this.apiUsuario.doGet();
         }
-        obterProxima() {
-            return this.apiHistoria.doGet();
+        obterProximaHistoria(idHistoria) {
+            const searchParams = new URLSearchParams();
+            if (idHistoria)
+                searchParams.append("idHistoria", atob(idHistoria));
+            return this.apiHistoria.doGet(searchParams);
         }
     }
     class IndexComponent extends component_2.default {
@@ -364,8 +380,9 @@ define("components/index.component", ["require", "exports", "models/const.model"
             if (usuario.moderador)
                 this.viewModel.exibirPendentesAprovacao();
             //História
-            const historia = await this.service.obterProxima();
-            this.viewModel.apresentarProxima(historia);
+            const idHistoria = localStorage.getItem("idHistoria");
+            const historia = await this.service.obterProximaHistoria(idHistoria);
+            this.viewModel.apresentar(historia);
         }
     }
     exports.default = IndexComponent;
@@ -715,17 +732,6 @@ define("components/minha-historia.component", ["require", "exports", "components
         }
     }
     exports.default = MinhaHistoriaComponent;
-});
-define("models/request.model", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Situacao = void 0;
-    var Situacao;
-    (function (Situacao) {
-        Situacao[Situacao["analise"] = 1] = "analise";
-        Situacao[Situacao["aprovada"] = 2] = "aprovada";
-        Situacao[Situacao["reprovada"] = 3] = "reprovada";
-    })(Situacao || (exports.Situacao = Situacao = {}));
 });
 define("components/visualizar-nova-historia.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_3, component_8, service_8, viewmodel_8, dialog_component_2) {
     "use strict";

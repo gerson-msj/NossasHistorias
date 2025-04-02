@@ -1,10 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
-import { HistoriaRequestModel } from "../models/request.model.ts";
+import { HistoriaRequestModel, ProximaHistoriaRequestModel } from "../models/request.model.ts";
 import { Situacao } from "../models/db.model.ts";
 import DateService from "../services/date.service.ts";
-import { HistoriaResponseModel } from "../models/response.model.ts";
+import { ProximaHistoriaResponseModel } from "../models/response.model.ts";
 
 class HistoriaService {
     private db: DatabaseSync;
@@ -20,14 +20,13 @@ class HistoriaService {
         return queryResult.lastInsertRowid as number;
     }
 
-    public proxima(idUsuario: number): HistoriaResponseModel | undefined {
-        const proxima = this.obterProxima(idUsuario);
-        
-        // Para Testes não irá registrar visualização.
-        // if(proxima)
-        //     this.registrarVisualizacao(idUsuario, proxima.id);
+    public proximaHistoria(idUsuario: number, idHistoria?: number): ProximaHistoriaResponseModel | undefined {
+        const historia = idHistoria ? this.obterAtual(idHistoria) : this.obterProxima(idUsuario);
 
-        return proxima;
+        // if (historia && !idHistoria)
+        //     this.registrarVisualizacao(idUsuario, historia.id);
+
+        return historia;
     }
 
     private registrarVisualizacao(idUsuario: number, idHistoria: number) {
@@ -36,10 +35,16 @@ class HistoriaService {
         query.run(idUsuario, idHistoria);
     }
 
-    private obterProxima(idUsuario: number): HistoriaResponseModel | undefined {
+    private obterProxima(idUsuario: number): ProximaHistoriaResponseModel | undefined {
         const sql = this.sqlProxima();
         const query = this.db.prepare(sql);
-        return query.get(idUsuario) as HistoriaResponseModel | undefined;
+        return query.get(idUsuario) as ProximaHistoriaResponseModel | undefined;
+    }
+
+    private obterAtual(idHistoria: number): ProximaHistoriaResponseModel | undefined {
+        const sql = this.sqlAtual();
+        const query = this.db.prepare(sql);
+        return query.get(idHistoria) as ProximaHistoriaResponseModel | undefined;
     }
 
     private sqlProxima(): string {
@@ -57,7 +62,11 @@ class HistoriaService {
                     h.Id
             ), cteHistorias as (
                 Select
-                    h.id, h.titulo, h.conteudo, c.visualizacoes, c.curtidas
+                    h.Id as id, 
+                    h.Titulo as titulo, 
+                    h.Conteudo as conteudo, 
+                    c.Visualizacoes as visualizacoes, 
+                    c.Curtidas as curtidas
                 From 
                     Historias as h
                     Inner Join cteContagem as c
@@ -76,6 +85,36 @@ class HistoriaService {
                 1
             Offset 
                 coalesce(abs(random()) % (Select Count(*) From cteHistorias), 0)
+            ;
+        `;
+    }
+
+    private sqlAtual(): string {
+        return `        
+            With cteContagem as (
+                Select 
+                    h.Id, 
+                    Count(v.IdHistoria) as Visualizacoes,
+                    Sum(Case When v.Curtida = 1 Then 1 Else 0 End) as Curtidas 
+                From 
+                    Historias as h 
+                    Left Join Visualizacoes as v
+                        on v.IdHistoria = h.Id
+                Group By
+                    h.Id
+            )
+            Select
+                h.Id as id, 
+                h.Titulo as titulo, 
+                h.Conteudo as conteudo, 
+                c.Visualizacoes as visualizacoes, 
+                c.Curtidas as curtidas
+            From 
+                Historias as h
+                Inner Join cteContagem as c
+                    on c.Id = h.Id
+                Where 
+                    h.Id = ?
             ;
         `;
     }
@@ -98,10 +137,12 @@ export default class HistoriaController extends Controller<HistoriaService> {
 
         switch (context.request.method) {
             case "GET": {
-                const response = this.service.proxima(context.tokenSub);
+                const request = context.getSearchParam("idHistoria");
+                const idHistoria = request ? parseInt(request) : undefined;
+                const response = this.service.proximaHistoria(context.tokenSub, idHistoria);
                 return context.ok(response);
             }
-            
+
             case "POST": {
                 const request: HistoriaRequestModel = await context.request.json();
                 this.service.incluir(context.tokenSub, request);
