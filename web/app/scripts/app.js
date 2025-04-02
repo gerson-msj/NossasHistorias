@@ -325,6 +325,9 @@ define("components/index.component", ["require", "exports", "models/const.model"
             const p = document.createElement("p");
             p.innerText = `Visualizações: ${historia.visualizacoes} | Curtidas: ${historia.curtidas}`;
             this.conteudoHistoria.appendChild(p);
+            var dbRequest = indexedDB.open("NossasHistorias");
+            dbRequest.addEventListener("success", e => {
+            });
         }
     }
     class IndexService extends service_2.default {
