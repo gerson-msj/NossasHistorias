@@ -326,7 +326,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
                 localStorage.removeItem("idHistoria");
                 return;
             }
-            localStorage.setItem("idHistoria", btoa(historia.id.toString()));
+            localStorage.setItem("idHistoria", (historia.id.toString()));
             this.tituloHistoria.innerText = historia.titulo;
             this.conteudoHistoria.innerHTML = "";
             const values = historia.conteudo.split(/\r?\n/);
@@ -357,7 +357,7 @@ define("components/index.component", ["require", "exports", "models/const.model"
         obterProximaHistoria(idHistoria) {
             const searchParams = new URLSearchParams();
             if (idHistoria)
-                searchParams.append("idHistoria", atob(idHistoria));
+                searchParams.append("idHistoria", (idHistoria));
             return this.apiHistoria.doGet(searchParams);
         }
     }

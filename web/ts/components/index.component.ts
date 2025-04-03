@@ -81,7 +81,7 @@ class IndexViewModel extends ViewModel {
             return;
         }
 
-        localStorage.setItem("idHistoria", btoa(historia.id.toString()));
+        localStorage.setItem("idHistoria", (historia.id.toString()));
         this.tituloHistoria.innerText = historia.titulo;
         this.conteudoHistoria.innerHTML = "";
         const values = historia.conteudo.split(/\r?\n/);
@@ -120,7 +120,7 @@ class IndexService extends Service {
     public obterProximaHistoria(idHistoria: string | null): Promise<ProximaHistoriaResponseModel | undefined> {
         const searchParams = new URLSearchParams();
         if(idHistoria)
-            searchParams.append("idHistoria", atob(idHistoria));
+            searchParams.append("idHistoria", (idHistoria));
         
         return this.apiHistoria.doGet<ProximaHistoriaResponseModel | undefined>(searchParams);
     }
