@@ -235,8 +235,8 @@ define("services/api.service", ["require", "exports", "services/token.service"],
         }
         async getResult(response) {
             if (response.ok) {
-                const data = await response.json();
-                return data;
+                const text = await response.text();
+                return text ? JSON.parse(text) : undefined;
             }
             else {
                 if (response.status == 401)
@@ -284,8 +284,8 @@ define("components/index.component", ["require", "exports", "models/const.model"
         conteudoHistoria;
         curtir;
         proxima;
-        idHistoria;
-        onCurtir = (idHistoria) => { };
+        historia;
+        onCurtir = async (request) => { };
         onProxima = () => { };
         constructor() {
             super();
@@ -308,7 +308,13 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.conteudoHistoria = this.getElement("conteudoHistoria");
             this.curtir = this.getElement("curtir");
             this.proxima = this.getElement("proxima");
-            this.curtir.addEventListener("click", () => this.onCurtir(this.idHistoria ?? 0));
+            this.curtir.addEventListener("click", async () => {
+                if (this.historia) {
+                    this.historia.curtida = !this.historia.curtida;
+                    await this.onCurtir({ idHistoria: this.historia.id, curtida: this.historia.curtida });
+                    this.apresentarCurtir();
+                }
+            });
             this.proxima.addEventListener("click", () => this.onProxima());
         }
         exibirMenu() {
@@ -321,9 +327,16 @@ define("components/index.component", ["require", "exports", "models/const.model"
             this.pendentesAprovacao.classList.remove("oculto");
         }
         apresentar(historia) {
+            this.historia = historia;
             if (!historia) {
-                // Informar que não existem mais histórias
+                this.tituloHistoria.innerText = "Não existem novas histórias (⊙_◎)";
+                this.conteudoHistoria.innerHTML = "";
+                const p = document.createElement("p");
+                p.innerText = `Não deixe as histórias acabarem, compartilhe suas histórias!`;
+                this.conteudoHistoria.appendChild(p);
                 localStorage.removeItem("idHistoria");
+                this.curtir.classList.add("oculto");
+                this.proxima.classList.add("oculto");
                 return;
             }
             localStorage.setItem("idHistoria", (historia.id.toString()));
@@ -338,18 +351,26 @@ define("components/index.component", ["require", "exports", "models/const.model"
             const p = document.createElement("p");
             p.innerText = `Visualizações: ${historia.visualizacoes} | Curtidas: ${historia.curtidas}`;
             this.conteudoHistoria.appendChild(p);
-            var dbRequest = indexedDB.open("NossasHistorias");
-            dbRequest.addEventListener("success", e => {
-            });
+            this.apresentarCurtir();
+            this.curtir.classList.remove("oculto");
+            this.proxima.classList.remove("oculto");
+        }
+        apresentarCurtir() {
+            if (this.historia?.curtida)
+                this.curtir.classList.add("fill");
+            else
+                this.curtir.classList.remove("fill");
         }
     }
     class IndexService extends service_2.default {
         apiUsuario;
         apiHistoria;
+        apiVisualizacoes;
         constructor() {
             super();
             this.apiUsuario = new api_service_1.default("usuario");
             this.apiHistoria = new api_service_1.default("historia");
+            this.apiVisualizacoes = new api_service_1.default("visualizacoes");
         }
         obterUsuario() {
             return this.apiUsuario.doGet();
@@ -359,6 +380,9 @@ define("components/index.component", ["require", "exports", "models/const.model"
             if (idHistoria)
                 searchParams.append("idHistoria", (idHistoria));
             return this.apiHistoria.doGet(searchParams);
+        }
+        curtir(request) {
+            return this.apiVisualizacoes.doPut(request);
         }
     }
     class IndexComponent extends component_2.default {
@@ -382,6 +406,13 @@ define("components/index.component", ["require", "exports", "models/const.model"
             //História
             const idHistoria = localStorage.getItem("idHistoria");
             const historia = await this.service.obterProximaHistoria(idHistoria);
+            this.viewModel.apresentar(historia);
+            this.viewModel.onCurtir = (request) => this.service.curtir(request);
+            this.viewModel.onProxima = () => this.obterProximaHistoria();
+        }
+        async obterProximaHistoria() {
+            localStorage.removeItem("idHistoria");
+            const historia = await this.service.obterProximaHistoria(null);
             this.viewModel.apresentar(historia);
         }
     }

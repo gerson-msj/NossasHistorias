@@ -1,7 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
-import { HistoriaRequestModel, ProximaHistoriaRequestModel } from "../models/request.model.ts";
+import { HistoriaRequestModel } from "../models/request.model.ts";
 import { Situacao } from "../models/db.model.ts";
 import DateService from "../services/date.service.ts";
 import { ProximaHistoriaResponseModel } from "../models/response.model.ts";
@@ -21,10 +21,10 @@ class HistoriaService {
     }
 
     public proximaHistoria(idUsuario: number, idHistoria?: number): ProximaHistoriaResponseModel | undefined {
-        const historia = idHistoria ? this.obterAtual(idHistoria) : this.obterProxima(idUsuario);
+        const historia = idHistoria ? this.obterAtual(idUsuario, idHistoria) : this.obterProxima(idUsuario);
 
-        // if (historia && !idHistoria)
-        //     this.registrarVisualizacao(idUsuario, historia.id);
+        if (historia && !idHistoria)
+            this.registrarVisualizacao(idUsuario, historia.id);
 
         return historia;
     }
@@ -41,10 +41,10 @@ class HistoriaService {
         return query.get(idUsuario) as ProximaHistoriaResponseModel | undefined;
     }
 
-    private obterAtual(idHistoria: number): ProximaHistoriaResponseModel | undefined {
+    private obterAtual(idUsuario: number, idHistoria: number): ProximaHistoriaResponseModel | undefined {
         const sql = this.sqlAtual();
         const query = this.db.prepare(sql);
-        return query.get(idHistoria) as ProximaHistoriaResponseModel | undefined;
+        return query.get(idUsuario, idHistoria) as ProximaHistoriaResponseModel | undefined;
     }
 
     private sqlProxima(): string {
@@ -65,6 +65,7 @@ class HistoriaService {
                     h.Id as id, 
                     h.Titulo as titulo, 
                     h.Conteudo as conteudo, 
+                    Coalesce(v.Curtida, 0) as curtida,
                     c.Visualizacoes as visualizacoes, 
                     c.Curtidas as curtidas
                 From 
@@ -84,7 +85,7 @@ class HistoriaService {
             Limit
                 1
             Offset 
-                coalesce(abs(random()) % (Select Count(*) From cteHistorias), 0)
+                Coalesce(abs(random()) % (Select Count(*) From cteHistorias), 0)
             ;
         `;
     }
@@ -107,14 +108,17 @@ class HistoriaService {
                 h.Id as id, 
                 h.Titulo as titulo, 
                 h.Conteudo as conteudo, 
+                Coalesce(v.Curtida, 0) as curtida,
                 c.Visualizacoes as visualizacoes, 
                 c.Curtidas as curtidas
             From 
                 Historias as h
                 Inner Join cteContagem as c
                     on c.Id = h.Id
-                Where 
-                    h.Id = ?
+                Left Join Visualizacoes as v
+                        on v.IdHistoria = h.Id And v.IdUsuario = ?
+            Where 
+                h.Id = ?
             ;
         `;
     }

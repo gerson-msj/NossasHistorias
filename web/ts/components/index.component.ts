@@ -1,5 +1,5 @@
 import { headerMenuClick } from "../models/const.model";
-import { ProximaHistoriaRequestModel } from "../models/request.model";
+import { CurtirRequestModel } from "../models/request.model";
 import { ProximaHistoriaResponseModel, UsuarioResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
@@ -27,11 +27,11 @@ class IndexViewModel extends ViewModel {
     // História
     private tituloHistoria: HTMLElement;
     private conteudoHistoria: HTMLElement;
-    private curtir: HTMLButtonElement;
+    private curtir: HTMLSpanElement;
     private proxima: HTMLButtonElement;
-    private idHistoria?: number;
+    private historia?: ProximaHistoriaResponseModel;
 
-    public onCurtir = (idHistoria: number) => { }
+    public onCurtir = async (request: CurtirRequestModel): Promise<void> => { }
     public onProxima = () => { }
 
     constructor() {
@@ -58,7 +58,13 @@ class IndexViewModel extends ViewModel {
         this.conteudoHistoria = this.getElement("conteudoHistoria");
         this.curtir = this.getElement("curtir");
         this.proxima = this.getElement("proxima");
-        this.curtir.addEventListener("click", () => this.onCurtir(this.idHistoria ?? 0));
+        this.curtir.addEventListener("click", async () => {
+            if (this.historia) {
+                this.historia.curtida = !this.historia.curtida;
+                await this.onCurtir({ idHistoria: this.historia.id, curtida: this.historia.curtida });
+                this.apresentarCurtir();
+            }
+        });
         this.proxima.addEventListener("click", () => this.onProxima());
     }
 
@@ -75,9 +81,16 @@ class IndexViewModel extends ViewModel {
     }
 
     apresentar(historia?: ProximaHistoriaResponseModel) {
+        this.historia = historia;
         if (!historia) {
-            // Informar que não existem mais histórias
+            this.tituloHistoria.innerText = "Não existem novas histórias (⊙_◎)";
+            this.conteudoHistoria.innerHTML = "";
+            const p = document.createElement("p");
+            p.innerText = `Não deixe as histórias acabarem, compartilhe suas histórias!`;
+            this.conteudoHistoria.appendChild(p);
             localStorage.removeItem("idHistoria");
+            this.curtir.classList.add("oculto");
+            this.proxima.classList.add("oculto");
             return;
         }
 
@@ -94,11 +107,17 @@ class IndexViewModel extends ViewModel {
         p.innerText = `Visualizações: ${historia.visualizacoes} | Curtidas: ${historia.curtidas}`;
         this.conteudoHistoria.appendChild(p);
 
-        var dbRequest = indexedDB.open("NossasHistorias");
-        dbRequest.addEventListener("success", e => {
+        this.apresentarCurtir();
 
-        })
+        this.curtir.classList.remove("oculto");
+        this.proxima.classList.remove("oculto");
+    }
 
+    private apresentarCurtir() {
+        if (this.historia?.curtida)
+            this.curtir.classList.add("fill");
+        else
+            this.curtir.classList.remove("fill");
     }
 
 }
@@ -106,11 +125,13 @@ class IndexViewModel extends ViewModel {
 class IndexService extends Service {
     private apiUsuario: ApiService;
     private apiHistoria: ApiService;
+    private apiVisualizacoes: ApiService;
 
     constructor() {
         super();
         this.apiUsuario = new ApiService("usuario");
         this.apiHistoria = new ApiService("historia");
+        this.apiVisualizacoes = new ApiService("visualizacoes");
     }
 
     public obterUsuario(): Promise<UsuarioResponseModel> {
@@ -119,10 +140,14 @@ class IndexService extends Service {
 
     public obterProximaHistoria(idHistoria: string | null): Promise<ProximaHistoriaResponseModel | undefined> {
         const searchParams = new URLSearchParams();
-        if(idHistoria)
+        if (idHistoria)
             searchParams.append("idHistoria", (idHistoria));
-        
+
         return this.apiHistoria.doGet<ProximaHistoriaResponseModel | undefined>(searchParams);
+    }
+
+    public curtir(request: CurtirRequestModel): Promise<void> {
+        return this.apiVisualizacoes.doPut<void>(request);
     }
 }
 
@@ -155,6 +180,15 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         //História
         const idHistoria = localStorage.getItem("idHistoria");
         const historia = await this.service.obterProximaHistoria(idHistoria);
+        this.viewModel.apresentar(historia);
+
+        this.viewModel.onCurtir = (request: CurtirRequestModel) => this.service.curtir(request);
+        this.viewModel.onProxima = () => this.obterProximaHistoria();
+    }
+
+    private async obterProximaHistoria() {
+        localStorage.removeItem("idHistoria");
+        const historia = await this.service.obterProximaHistoria(null);
         this.viewModel.apresentar(historia);
     }
 

@@ -44,8 +44,8 @@ export default class ApiService {
 
     private async getResult<TResult>(response: Response): Promise<TResult> {
         if (response.ok) {
-            const data: TResult = await response.json();
-            return data;
+            const text = await response.text();
+            return text ? JSON.parse(text) as TResult : undefined as TResult;
         } else {
             if (response.status == 401)
                 document.dispatchEvent(new Event("unauthorized"));

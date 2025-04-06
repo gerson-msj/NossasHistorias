@@ -18,3 +18,8 @@ export interface HistoriaModeracaoRequestModel {
 export interface ProximaHistoriaRequestModel {
     idHistoria?: number
 }
+
+export interface CurtirRequestModel {
+    idHistoria: number,
+    curtida: boolean
+}

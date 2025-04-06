@@ -2,16 +2,13 @@ import Controller from "./api/controllers/base/controller.ts";
 import Context from "./api/controllers/base/context.ts";
 import PageController from "./api/controllers/page.controller.ts";
 
-// import CriarController from "./api/controllers/criar.controller.ts";
-// import AbrirController from "./api/controllers/abrir.controller.ts";
-// import AnotacoesController from "./api/controllers/anotacoes.controller.ts";
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import HistoriaController from "./api/controllers/historia.controller.ts";
 import ModeradorController from "./api/controllers/moderador.controller.ts";
+import VisualizacoesController from "./api/controllers/visualizacoes.controller.ts";
 
 const page = Controller.createInstance(PageController);
 
-// const handler = async (request: Request): Promise<Response> => {
 const handler = async (request: Request): Promise<Response> => {
     
     // const headers = new Headers({
@@ -35,10 +32,12 @@ const handler = async (request: Request): Promise<Response> => {
         const usuario = new UsuarioController();
         const historia = new HistoriaController();
         const moderador = new ModeradorController();
+        const visualizacoes = new VisualizacoesController();
         const controllers = Controller.enlistHandlers(
             usuario,
             historia,
-            moderador
+            moderador,
+            visualizacoes
         );
 
         try {
