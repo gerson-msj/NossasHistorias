@@ -1,9 +1,10 @@
-import { assert, assertEquals, assertNotEquals } from "@std/assert"
+import { assert, assertNotEquals } from "@std/assert"
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import Context from "./api/controllers/base/context.ts";
-import { HistoriaRequestModel } from "./api/models/request.model.ts";
+import { HistoriaRequestModel, MinhasHistoriasRequestModel } from "./api/models/request.model.ts";
 import HistoriaController from "./api/controllers/historia.controller.ts";
 import ModeradorController from "./api/controllers/moderador.controller.ts";
+import MinhasHistoriasController from "./api/controllers/minhas-historias.controller.ts";
 
 Deno.test.ignore("Usuario POST", async () => {
     const request: Request = new Request("http://localhost/api/usuario", {
@@ -98,4 +99,22 @@ Deno.test.ignore("Moderador GET", async () => {
     console.log("Historia Moderador", result);
     const id = result['id'];
     assertNotEquals(id, 0);
+});
+
+Deno.test("Minhas Histórias", async () => {
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjJ9.t_UQhqUXiRDc0dDmFZ1vMFpMB1OTz1sqpvY64RIR9w8";
+    const request: Request = new Request("http://localhost/api/minhas-historias?pagina=5", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "authorization": `bearer ${token}`
+        }
+    });
+    const context = new Context(request);
+    await context.auth();
+    const controller = new MinhasHistoriasController();
+    const response = await controller.handle(context);
+    const result = await response.json();
+    console.log("MinhasHistorias", result);
+    assert(() => result !== undefined);
 });

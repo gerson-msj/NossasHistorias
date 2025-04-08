@@ -19,3 +19,20 @@ export interface ProximaHistoriaResponseModel {
     visualizacoes: number,
     curtidas: number
 }
+
+export interface MinhaHistoriaResponseModel {
+    id: number,
+    titulo: string,
+    conteudo: string,
+    situacao: string,
+    visualizacoes: number,
+    curtidas: number
+}
+
+export interface MinhasHistoriasResponseModel {
+    pagina: number,
+    paginas: number,
+    parcial: number,
+    total: number,
+    historias: MinhaHistoriaResponseModel[]
+}
