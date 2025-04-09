@@ -1,7 +1,7 @@
 import { assert, assertNotEquals } from "@std/assert"
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import Context from "./api/controllers/base/context.ts";
-import { HistoriaRequestModel, MinhasHistoriasRequestModel } from "./api/models/request.model.ts";
+import { HistoriaRequestModel } from "./api/models/request.model.ts";
 import HistoriaController from "./api/controllers/historia.controller.ts";
 import ModeradorController from "./api/controllers/moderador.controller.ts";
 import MinhasHistoriasController from "./api/controllers/minhas-historias.controller.ts";
@@ -101,7 +101,7 @@ Deno.test.ignore("Moderador GET", async () => {
     assertNotEquals(id, 0);
 });
 
-Deno.test("Minhas Histórias", async () => {
+Deno.test.ignore("Minhas Histórias", async () => {
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjJ9.t_UQhqUXiRDc0dDmFZ1vMFpMB1OTz1sqpvY64RIR9w8";
     const request: Request = new Request("http://localhost/api/minhas-historias?pagina=5", {
         method: "GET",

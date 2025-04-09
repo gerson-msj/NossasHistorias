@@ -11,9 +11,9 @@ export interface HeaderConfig {
 
 class HeaderViewModel extends ViewModel {
 
-    private icone: HTMLSpanElement;
-    private titulo: HTMLHeadingElement;
-    private menu: HTMLSpanElement;
+    private headerIcone: HTMLSpanElement;
+    private headerTitulo: HTMLHeadingElement;
+    private headerMenu: HTMLSpanElement;
 
     private cssPointer = "pointer";
     private cssOculto = "oculto";
@@ -23,14 +23,14 @@ class HeaderViewModel extends ViewModel {
 
     constructor() {
         super();
-        this.icone = this.getElement("icone");
-        this.titulo = this.getElement("titulo");
-        this.menu = this.getElement("menu");
+        this.headerIcone = this.getElement("headerIcone");
+        this.headerTitulo = this.getElement("headerTitulo");
+        this.headerMenu = this.getElement("headerMenu");
 
-        this.menu.addEventListener("click", () => this.onMenuClick());
+        this.headerMenu.addEventListener("click", () => this.onMenuClick());
 
-        this.icone.addEventListener("click", () => {
-            if(this.icone.innerText == "chevron_left")
+        this.headerIcone.addEventListener("click", () => {
+            if(this.headerIcone.innerText == "chevron_left")
                 this.onVoltarClick();
         });
 
@@ -38,23 +38,23 @@ class HeaderViewModel extends ViewModel {
 
     config(headerConfig: HeaderConfig) {
         
-        this.titulo.innerText = headerConfig.titulo;
+        this.headerTitulo.innerText = headerConfig.titulo;
         
         if (headerConfig.exibirVoltar) {
-            this.icone.innerText = "chevron_left";
-            if (!this.icone.classList.contains(this.cssPointer))
-                this.icone.classList.add(this.cssPointer);
+            this.headerIcone.innerText = "chevron_left";
+            if (!this.headerIcone.classList.contains(this.cssPointer))
+                this.headerIcone.classList.add(this.cssPointer);
         } else {
-            this.icone.innerText = "auto_stories";
-            if (this.icone.classList.contains(this.cssPointer))
-                this.icone.classList.remove(this.cssPointer);
+            this.headerIcone.innerText = "auto_stories";
+            if (this.headerIcone.classList.contains(this.cssPointer))
+                this.headerIcone.classList.remove(this.cssPointer);
         }
 
-        const estaOculto = this.menu.classList.contains(this.cssOculto);
+        const estaOculto = this.headerMenu.classList.contains(this.cssOculto);
         if (headerConfig.exibirMenu && estaOculto)
-            this.menu.classList.remove(this.cssOculto);
+            this.headerMenu.classList.remove(this.cssOculto);
         else if (!headerConfig.exibirMenu && !estaOculto)
-            this.menu.classList.add(this.cssOculto);
+            this.headerMenu.classList.add(this.cssOculto);
     }
 
 }

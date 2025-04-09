@@ -97,41 +97,41 @@ define("components/header.component", ["require", "exports", "models/const.model
     service_1 = __importDefault(service_1);
     viewmodel_1 = __importDefault(viewmodel_1);
     class HeaderViewModel extends viewmodel_1.default {
-        icone;
-        titulo;
-        menu;
+        headerIcone;
+        headerTitulo;
+        headerMenu;
         cssPointer = "pointer";
         cssOculto = "oculto";
         onMenuClick = () => { };
         onVoltarClick = () => { };
         constructor() {
             super();
-            this.icone = this.getElement("icone");
-            this.titulo = this.getElement("titulo");
-            this.menu = this.getElement("menu");
-            this.menu.addEventListener("click", () => this.onMenuClick());
-            this.icone.addEventListener("click", () => {
-                if (this.icone.innerText == "chevron_left")
+            this.headerIcone = this.getElement("headerIcone");
+            this.headerTitulo = this.getElement("headerTitulo");
+            this.headerMenu = this.getElement("headerMenu");
+            this.headerMenu.addEventListener("click", () => this.onMenuClick());
+            this.headerIcone.addEventListener("click", () => {
+                if (this.headerIcone.innerText == "chevron_left")
                     this.onVoltarClick();
             });
         }
         config(headerConfig) {
-            this.titulo.innerText = headerConfig.titulo;
+            this.headerTitulo.innerText = headerConfig.titulo;
             if (headerConfig.exibirVoltar) {
-                this.icone.innerText = "chevron_left";
-                if (!this.icone.classList.contains(this.cssPointer))
-                    this.icone.classList.add(this.cssPointer);
+                this.headerIcone.innerText = "chevron_left";
+                if (!this.headerIcone.classList.contains(this.cssPointer))
+                    this.headerIcone.classList.add(this.cssPointer);
             }
             else {
-                this.icone.innerText = "auto_stories";
-                if (this.icone.classList.contains(this.cssPointer))
-                    this.icone.classList.remove(this.cssPointer);
+                this.headerIcone.innerText = "auto_stories";
+                if (this.headerIcone.classList.contains(this.cssPointer))
+                    this.headerIcone.classList.remove(this.cssPointer);
             }
-            const estaOculto = this.menu.classList.contains(this.cssOculto);
+            const estaOculto = this.headerMenu.classList.contains(this.cssOculto);
             if (headerConfig.exibirMenu && estaOculto)
-                this.menu.classList.remove(this.cssOculto);
+                this.headerMenu.classList.remove(this.cssOculto);
             else if (!headerConfig.exibirMenu && !estaOculto)
-                this.menu.classList.add(this.cssOculto);
+                this.headerMenu.classList.add(this.cssOculto);
         }
     }
     class HeaderService extends service_1.default {
@@ -670,10 +670,20 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
     service_6 = __importDefault(service_6);
     viewmodel_6 = __importDefault(viewmodel_6);
     class MinhasHistoriasViewModel extends viewmodel_6.default {
+        primeira;
+        anterior;
+        visorPagina;
+        proxima;
+        ultima;
         historias;
         onApresentarHistoria = (titulo) => { };
         constructor() {
             super();
+            this.primeira = this.getElement("primeira");
+            this.anterior = this.getElement("anterior");
+            this.visorPagina = this.getElement("visorPagina");
+            this.proxima = this.getElement("proxima");
+            this.ultima = this.getElement("ultima");
             this.historias = this.getElement("historias");
         }
         apresentarHistorias(historias) {
@@ -681,12 +691,12 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
             historias.forEach(historia => {
                 const titulo = document.createElement("span");
                 const situacao = document.createElement("span");
-                const curtidas = document.createElement("span");
+                const vc = document.createElement("span");
                 titulo.innerText = historia.titulo;
                 situacao.innerText = historia.situacao;
-                curtidas.innerHTML = historia.curtidas.toString();
+                vc.innerHTML = historia.curtidas.toString();
                 const row = document.createElement("div");
-                row.append(titulo, situacao, curtidas);
+                row.append(titulo, situacao, vc);
                 row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
                 this.historias.appendChild(row);
             });

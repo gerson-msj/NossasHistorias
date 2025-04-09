@@ -6,12 +6,24 @@ import ViewModel from "./base/viewmodel";
 
 class MinhasHistoriasViewModel extends ViewModel {
 
+    private primeira: HTMLSpanElement;
+    private anterior: HTMLSpanElement;
+    private visorPagina: HTMLSpanElement;
+    private proxima: HTMLSpanElement;
+    private ultima: HTMLSpanElement;
+
     private historias: HTMLElement;
 
     public onApresentarHistoria = (titulo: string) => { };
 
     constructor() {
         super();
+
+        this.primeira = this.getElement("primeira");
+        this.anterior = this.getElement("anterior");
+        this.visorPagina = this.getElement("visorPagina");
+        this.proxima = this.getElement("proxima");
+        this.ultima = this.getElement("ultima");
 
         this.historias = this.getElement("historias");
     }
@@ -21,12 +33,12 @@ class MinhasHistoriasViewModel extends ViewModel {
         historias.forEach(historia => {
             const titulo = document.createElement("span");
             const situacao = document.createElement("span");
-            const curtidas = document.createElement("span");
+            const vc = document.createElement("span");
             titulo.innerText = historia.titulo;
             situacao.innerText = historia.situacao;
-            curtidas.innerHTML = historia.curtidas.toString();
+            vc.innerHTML = historia.curtidas.toString();
             const row = document.createElement("div");
-            row.append(titulo, situacao, curtidas);
+            row.append(titulo, situacao, vc);
             row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
             this.historias.appendChild(row);
         });
