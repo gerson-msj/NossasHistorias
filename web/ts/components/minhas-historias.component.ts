@@ -1,5 +1,7 @@
 import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
+import { MinhasHistoriasResponseModel } from "../models/response.model";
+import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -28,44 +30,38 @@ class MinhasHistoriasViewModel extends ViewModel {
         this.historias = this.getElement("historias");
     }
 
-    public apresentarHistorias(historias: HistoriaModel[]) {
+    public apresentarHistorias(minhasHistorias: MinhasHistoriasResponseModel) {
         this.historias.innerHTML = "";
-        historias.forEach(historia => {
+        minhasHistorias.historias.forEach(historia => {
             const titulo = document.createElement("span");
             const situacao = document.createElement("span");
             const vc = document.createElement("span");
             titulo.innerText = historia.titulo;
             situacao.innerText = historia.situacao;
-            vc.innerHTML = historia.curtidas.toString();
+            vc.innerHTML = `${historia.visualizacoes} / ${historia.curtidas}`;
             const row = document.createElement("div");
             row.append(titulo, situacao, vc);
             row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
             this.historias.appendChild(row);
         });
+
+        this.visorPagina.innerText = `página ${minhasHistorias.pagina} de ${minhasHistorias.paginas}`;
     }
 }
 
 class MinhasHistoriasService extends Service {
-    public obterMinhasHistorias(): Promise<HistoriaModel[]> {
-        const historias: HistoriaModel[] = [
-            {
-                titulo: "Primeira História",
-                conteudo: "Primeira\nHistória.",
-                situacao: HistoriaSituacaoAnalise,
-                visualizacoes: 0,
-                curtidas: 0,
-                motivoSituacao: null
-            },
-            {
-                titulo: "Segunda História",
-                conteudo: "Segunda\nHistória.",
-                situacao: HistoriaSituacaoAprovada,
-                visualizacoes: 37,
-                curtidas: 14,
-                motivoSituacao: null
-            }
-        ];
-        return Promise.resolve(historias);
+    
+    private apiMinhasHistorias: ApiService;
+
+    constructor() {
+        super();
+        this.apiMinhasHistorias = new ApiService("minhas-historias");
+    }
+
+    public obterMinhasHistorias(pagina: number): Promise<MinhasHistoriasResponseModel> {
+        const searchParams = new URLSearchParams();
+        searchParams.append("pagina", pagina.toString());
+        return this.apiMinhasHistorias.doGet<MinhasHistoriasResponseModel>(searchParams);
     }
 }
 
@@ -78,7 +74,8 @@ class MinhasHistoriasComponent extends Component<MinhasHistoriasViewModel, Minha
     async initialize(): Promise<void> {
         await this.initializeResources(MinhasHistoriasViewModel, MinhasHistoriasService);
 
-        const historias = await this.service.obterMinhasHistorias();
+        const pagina = parseInt(localStorage.getItem("pagina") ?? "1")
+        const historias = await this.service.obterMinhasHistorias(pagina);
         this.viewModel.apresentarHistorias(historias);
 
         this.viewModel.onApresentarHistoria = (titulo: string) =>

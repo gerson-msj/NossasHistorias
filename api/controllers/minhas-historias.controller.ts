@@ -97,7 +97,7 @@ export default class MinhasHistoriasController extends Controller<MinhasHistoria
 
         switch (context.request.method) {
             case "GET": {
-                const request = await context.getSearchParam("pagina");
+                const request = context.getSearchParam("pagina");
                 const pagina = request ? parseInt(request) : undefined;
                 if (pagina == undefined)
                     return context.badRequest("Página não informada");
