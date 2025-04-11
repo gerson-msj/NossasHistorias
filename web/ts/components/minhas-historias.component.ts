@@ -62,6 +62,7 @@ class MinhasHistoriasViewModel extends ViewModel {
             }
         });
     }
+    
 }
 
 class MinhasHistoriasService extends Service {
