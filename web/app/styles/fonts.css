@@ -33,3 +33,17 @@
     align-items: center;
     justify-content: center;
 }
+
+.material-symbols-rounded.link {
+    cursor: pointer;
+}
+
+.material-symbols-rounded.link:hover {
+    color: #aaf;
+}
+
+.material-symbols-rounded.disabled {
+    cursor: default;
+    color: #667
+}
+

@@ -46,11 +46,26 @@ class MinhasHistoriasViewModel extends ViewModel {
         });
 
         this.visorPagina.innerText = `página ${minhasHistorias.pagina} de ${minhasHistorias.paginas}`;
+
+        this.exibirLink(minhasHistorias.pagina !== 1, this.primeira, this.anterior);
+        this.exibirLink(minhasHistorias.pagina !== minhasHistorias.paginas, this.proxima, this.ultima);
+    }
+
+    private exibirLink(exibir: boolean, ...elements: HTMLSpanElement[]) {
+        elements.forEach(e => {
+            if (exibir) {
+                e.classList.add('link');
+                e.classList.remove('disabled');
+            } else {
+                e.classList.remove('link');
+                e.classList.add('disabled');
+            }
+        });
     }
 }
 
 class MinhasHistoriasService extends Service {
-    
+
     private apiMinhasHistorias: ApiService;
 
     constructor() {
