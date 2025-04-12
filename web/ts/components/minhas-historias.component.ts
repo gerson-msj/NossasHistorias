@@ -1,6 +1,6 @@
 import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada, localStorageKey_minhasHistorias_pagina } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
-import { MinhasHistoriasResponseModel } from "../models/response.model";
+import { MinhaHistoriaResponseModel, MinhasHistoriasResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -29,7 +29,7 @@ class MinhasHistoriasViewModel extends ViewModel {
 
     public onIrParaPagina = (pagina: number) => { }
     
-    public onApresentarHistoria = (titulo: string) => { };
+    public onApresentarHistoria = (historia: MinhaHistoriaResponseModel) => { };
 
     constructor() {
         super();
@@ -74,7 +74,7 @@ class MinhasHistoriasViewModel extends ViewModel {
             vc.innerHTML = `${historia.visualizacoes} / ${historia.curtidas}`;
             const row = document.createElement("div");
             row.append(titulo, situacao, vc);
-            row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+            row.addEventListener("click", () => this.onApresentarHistoria(historia));
             this.historias.appendChild(row);
         });
 
@@ -128,8 +128,8 @@ class MinhasHistoriasComponent extends Component<MinhasHistoriasViewModel, Minha
 
         await this.apresentarHistorias(this.viewModel.pagina);
 
-        this.viewModel.onApresentarHistoria = (titulo: string) =>
-            this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+        this.viewModel.onApresentarHistoria = (historia: MinhaHistoriaResponseModel) =>
+            this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: historia }));
 
         this.viewModel.onIrParaPagina = async (pagina: number) => {
             await this.apresentarHistorias(pagina);

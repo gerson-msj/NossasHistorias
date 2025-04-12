@@ -687,7 +687,7 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
         }
         paginas;
         onIrParaPagina = (pagina) => { };
-        onApresentarHistoria = (titulo) => { };
+        onApresentarHistoria = (historia) => { };
         constructor() {
             super();
             this.primeira = this.getElement("primeira");
@@ -724,7 +724,7 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
                 vc.innerHTML = `${historia.visualizacoes} / ${historia.curtidas}`;
                 const row = document.createElement("div");
                 row.append(titulo, situacao, vc);
-                row.addEventListener("click", () => this.onApresentarHistoria(historia.titulo));
+                row.addEventListener("click", () => this.onApresentarHistoria(historia));
                 this.historias.appendChild(row);
             });
             this.visorPagina.innerText = `página ${minhasHistorias.pagina} de ${minhasHistorias.paginas}`;
@@ -765,7 +765,7 @@ define("components/minhas-historias.component", ["require", "exports", "models/c
         async initialize() {
             await this.initializeResources(MinhasHistoriasViewModel, MinhasHistoriasService);
             await this.apresentarHistorias(this.viewModel.pagina);
-            this.viewModel.onApresentarHistoria = (titulo) => this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
+            this.viewModel.onApresentarHistoria = (historia) => this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: historia }));
             this.viewModel.onIrParaPagina = async (pagina) => {
                 await this.apresentarHistorias(pagina);
             };
@@ -785,15 +785,30 @@ define("components/minha-historia.component", ["require", "exports", "components
     viewmodel_7 = __importDefault(viewmodel_7);
     class MinhaHistoriaViewModel extends viewmodel_7.default {
         excluir;
-        _titulo;
-        get titulo() { return this._titulo.innerText; }
-        set titulo(value) { this._titulo.innerText = value; }
-        onExcluir = () => { };
+        titulo;
+        conteudo;
+        idHistoria;
+        onExcluir = (idHistoria) => { };
         constructor() {
             super();
-            this._titulo = this.getElement("tituloHistoria");
+            this.titulo = this.getElement("titulo");
+            this.conteudo = this.getElement("conteudo");
             this.excluir = this.getElement("excluir");
-            this.excluir.addEventListener("click", () => this.onExcluir());
+            this.excluir.addEventListener("click", () => {
+                if (this.idHistoria)
+                    this.onExcluir(this.idHistoria);
+            });
+        }
+        apresentarHistoria(historia) {
+            this.titulo.innerText = historia.titulo;
+            this.conteudo.innerHTML = "";
+            const values = historia.conteudo.split(/\r?\n/);
+            values.forEach(v => {
+                const p = document.createElement("p");
+                p.innerText = v;
+                this.conteudo.appendChild(p);
+            });
+            this.idHistoria = historia.id;
         }
     }
     class MinhaHistoriaService extends service_7.default {
@@ -804,10 +819,10 @@ define("components/minha-historia.component", ["require", "exports", "components
         }
         async initialize() {
             await this.initializeResources(MinhaHistoriaViewModel, MinhaHistoriaService);
-            this.viewModel.onExcluir = () => this.dispatchEvent(new Event("excluir"));
+            this.viewModel.onExcluir = (idHistoria) => { alert(idHistoria); };
             this.addEventListener("initializeData", (ev) => {
-                const titulo = ev.detail;
-                this.viewModel.titulo = titulo;
+                const historia = ev.detail;
+                this.viewModel.apresentarHistoria(historia);
             });
         }
     }
@@ -1276,15 +1291,15 @@ define("app", ["require", "exports", "components/header.component", "components/
                 });
             });
             component.addEventListener("apresentarHistoria", (ev) => {
-                const titulo = ev.detail;
-                this.minhaHistoria(titulo);
+                const historia = ev.detail;
+                this.minhaHistoria(historia);
             });
         }
-        minhaHistoria(titulo) {
+        minhaHistoria(historia) {
             const component = this.loadComponent("minha-historia-component", minha_historia_component_1.default, "Minha História", true);
             this.headerComponent.addEventListener(const_model_5.headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias));
             component.addEventListener("excluir", () => this.minhasHistorias());
-            component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo })));
+            component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: historia })));
         }
         historiasVisualizadas() {
             const component = this.loadComponent("historias-visualizadas-component", historias_visualizadas_component_1.default, "Histórias Visualizadas", true);

@@ -12,6 +12,7 @@ import HistoriaVisualizadaComponent from "./components/historia-visualizada.comp
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
+import { MinhaHistoriaResponseModel } from "./models/response.model";
 
 class App {
     private mainElement: HTMLElement;
@@ -160,17 +161,17 @@ class App {
             })
         });
         component.addEventListener("apresentarHistoria", (ev) => {
-            const titulo = (ev as CustomEvent).detail;
-            this.minhaHistoria(titulo);
+            const historia = (ev as CustomEvent).detail as MinhaHistoriaResponseModel;
+            this.minhaHistoria(historia);
         });
     }
 
-    private minhaHistoria(titulo: string) {
+    private minhaHistoria(historia: MinhaHistoriaResponseModel) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias));
         component.addEventListener("excluir", () => this.minhasHistorias());
         component.addEventListener("initialized", () =>
-            component.dispatchEvent(new CustomEvent("initializeData", { detail: titulo }))
+            component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
         );
     }
 

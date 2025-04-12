@@ -60,7 +60,7 @@ Deno.test.ignore("Historia POST", async () => {
     const controller = new HistoriaController();
     const response = await controller.handle(context);
     assert(() => response.ok);
-    
+
 });
 
 Deno.test.ignore("DataDia", () => {
@@ -117,4 +117,20 @@ Deno.test.ignore("Minhas Histórias", async () => {
     const result = await response.json();
     console.log("MinhasHistorias", result);
     assert(() => result !== undefined);
+});
+
+Deno.test("FB", () => {
+    let v1: number;
+    let v2: number;
+    let v3: number;
+
+    v1 = 1;
+    v2 = 1;
+
+    for (let index = 0; index < 100; index++) {
+        console.log(`${v1} + ${v2} = ${v1 + v2}`);
+        v3 = v1;
+        v1 = v1 + v2;
+        v2 = v3;
+    }
 });

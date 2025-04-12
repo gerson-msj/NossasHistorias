@@ -1,3 +1,4 @@
+import { MinhaHistoriaResponseModel } from "../models/response.model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -5,18 +6,33 @@ import ViewModel from "./base/viewmodel";
 class MinhaHistoriaViewModel extends ViewModel {
 
     private excluir: HTMLButtonElement;
-    private _titulo: HTMLHeadingElement;
+    private titulo: HTMLHeadingElement;
+    private conteudo: HTMLElement;
+    private idHistoria?: number;
 
-    public get titulo() { return this._titulo.innerText; }
-    public set titulo(value: string) { this._titulo.innerText = value; }
-
-    public onExcluir = () => { };
+    public onExcluir = (idHistoria: number) => { }
 
     constructor() {
         super();
-        this._titulo = this.getElement("tituloHistoria");
+        this.titulo = this.getElement("titulo");
+        this.conteudo = this.getElement("conteudo");
         this.excluir = this.getElement("excluir");
-        this.excluir.addEventListener("click", () => this.onExcluir());
+        this.excluir.addEventListener("click", () => {
+            if(this.idHistoria)
+                this.onExcluir(this.idHistoria);
+        });
+    }
+
+    public apresentarHistoria(historia: MinhaHistoriaResponseModel) {
+        this.titulo.innerText = historia.titulo;
+        this.conteudo.innerHTML = "";
+        const values = historia.conteudo.split(/\r?\n/);
+        values.forEach(v => {
+            const p = document.createElement("p");
+            p.innerText = v;
+            this.conteudo.appendChild(p);
+        });
+        this.idHistoria = historia.id;
     }
 }
 
@@ -32,11 +48,11 @@ class MinhaHistoriaComponent extends Component<MinhaHistoriaViewModel, MinhaHist
 
     async initialize(): Promise<void> {
         await this.initializeResources(MinhaHistoriaViewModel, MinhaHistoriaService);
-        this.viewModel.onExcluir = () => this.dispatchEvent(new Event("excluir"));
+        this.viewModel.onExcluir = (idHistoria: number) => { alert(idHistoria); };
         
         this.addEventListener("initializeData", (ev) => {
-            const titulo: string = (ev as CustomEvent).detail;
-            this.viewModel.titulo = titulo;
+            const historia: MinhaHistoriaResponseModel = (ev as CustomEvent).detail;
+            this.viewModel.apresentarHistoria(historia);
         });
     }
 
