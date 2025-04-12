@@ -1,6 +1,6 @@
 import HeaderComponent, { HeaderConfig } from "./components/header.component";
 import IndexComponent from "./components/index.component";
-import { headerMenuClick, headerVoltarClick } from "./models/const.model";
+import { headerMenuClick, headerVoltarClick, localStorageKey_minhasHistorias_pagina } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
@@ -104,9 +104,14 @@ class App {
 
     }
 
-    private loadIfCurrent(component: HTMLElement, load: () => void) {
-        if (this.currentComponent === component)
+    private loadIfCurrent(component: HTMLElement, load: () => void, preLoad?: () => void) {
+        if (this.currentComponent === component) {
+            if(preLoad)
+                preLoad();
+            
             load();
+        }
+            
     }
 
     private footer() {
@@ -149,7 +154,11 @@ class App {
 
     private minhasHistorias() {
         const component = this.loadComponent("minhas-historias-component", MinhasHistoriasComponent, "Minhas Histórias", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
+        this.headerComponent.addEventListener(headerVoltarClick, () => {
+            this.loadIfCurrent(component, this.index.bind(this), () => {
+                localStorage.removeItem(localStorageKey_minhasHistorias_pagina);
+            })
+        });
         component.addEventListener("apresentarHistoria", (ev) => {
             const titulo = (ev as CustomEvent).detail;
             this.minhaHistoria(titulo);

@@ -121,12 +121,12 @@ h1 {
     justify-content: start;
 }
 
-.menu-container button[type=menu] span {
+.menu-container button[type=menu] span:first-child {
     font-size: 24px;
     cursor: pointer;
 }
 
-.menu-container button[type=menu] label {
+.menu-container button[type=menu] span:last-child {
     padding-left: 5px;
     padding-bottom: 0;
     cursor: pointer;

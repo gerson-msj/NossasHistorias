@@ -5,6 +5,12 @@
 		}
 	],
 	"settings": {
-		"liveServer.settings.root": "/web/app"
+		"liveServer.settings.root": "/web/app",
+		"github.copilot.enable": {
+			"*": false,
+			"plaintext": false,
+			"markdown": false,
+			"scminput": false
+		}
 	}
 }

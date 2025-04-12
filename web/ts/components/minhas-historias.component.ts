@@ -1,4 +1,4 @@
-import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada } from "../models/const.model";
+import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada, localStorageKey_minhasHistorias_pagina } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
 import { MinhasHistoriasResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
@@ -15,7 +15,20 @@ class MinhasHistoriasViewModel extends ViewModel {
     private ultima: HTMLSpanElement;
 
     private historias: HTMLElement;
+    
+    public get pagina() : number {
+        const p = localStorage.getItem(localStorageKey_minhasHistorias_pagina);
+        return p ? parseInt(atob(p)) : 1;
+    }
+    
+    public set pagina(v : number) {
+        localStorage.setItem(localStorageKey_minhasHistorias_pagina, btoa(v.toString()));
+    }
 
+    private paginas?: number;
+
+    public onIrParaPagina = (pagina: number) => { }
+    
     public onApresentarHistoria = (titulo: string) => { };
 
     constructor() {
@@ -28,6 +41,26 @@ class MinhasHistoriasViewModel extends ViewModel {
         this.ultima = this.getElement("ultima");
 
         this.historias = this.getElement("historias");
+
+        this.primeira.addEventListener("click", () => {
+            if(this.pagina > 1)
+                this.onIrParaPagina(1);
+        });
+
+        this.anterior.addEventListener("click", () => {
+            if(this.pagina > 1)
+                this.onIrParaPagina(this.pagina - 1);
+        });
+
+        this.proxima.addEventListener("click", () => {
+            if(this.paginas && this.pagina < this.paginas)
+                this.onIrParaPagina(this.pagina + 1);
+        });
+
+        this.ultima.addEventListener("click", () => {
+            if(this.paginas && this.pagina < this.paginas)
+                this.onIrParaPagina(this.paginas);
+        });
     }
 
     public apresentarHistorias(minhasHistorias: MinhasHistoriasResponseModel) {
@@ -49,6 +82,9 @@ class MinhasHistoriasViewModel extends ViewModel {
 
         this.exibirLink(minhasHistorias.pagina !== 1, this.primeira, this.anterior);
         this.exibirLink(minhasHistorias.pagina !== minhasHistorias.paginas, this.proxima, this.ultima);
+
+        this.pagina = minhasHistorias.pagina;
+        this.paginas = minhasHistorias.paginas;
     }
 
     private exibirLink(exibir: boolean, ...elements: HTMLSpanElement[]) {
@@ -90,13 +126,20 @@ class MinhasHistoriasComponent extends Component<MinhasHistoriasViewModel, Minha
     async initialize(): Promise<void> {
         await this.initializeResources(MinhasHistoriasViewModel, MinhasHistoriasService);
 
-        const pagina = parseInt(localStorage.getItem("pagina") ?? "1")
-        const historias = await this.service.obterMinhasHistorias(pagina);
-        this.viewModel.apresentarHistorias(historias);
+        await this.apresentarHistorias(this.viewModel.pagina);
 
         this.viewModel.onApresentarHistoria = (titulo: string) =>
             this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: titulo }));
 
+        this.viewModel.onIrParaPagina = async (pagina: number) => {
+            await this.apresentarHistorias(pagina);
+        }
+
+    }
+
+    private async apresentarHistorias(pagina: number) {
+        const historias = await this.service.obterMinhasHistorias(pagina);
+        this.viewModel.apresentarHistorias(historias);
     }
 
 }
