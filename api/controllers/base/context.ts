@@ -63,6 +63,11 @@ export default class Context {
         return this.url.searchParams.get(name);
     }
 
+    public getSearchParamInt(name: string): number | undefined {
+        const request = this.url.searchParams.get(name);
+        return request ? parseInt(request) : undefined;
+    }
+
     public ok<T>(obj: T): Response {
         return new Response(obj ? JSON.stringify(obj) : null, { status: 200, headers: this.headers });
     }

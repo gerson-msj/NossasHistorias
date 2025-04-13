@@ -30,6 +30,12 @@ class MinhasHistoriasService extends Service {
         return response;
     }
 
+    public excluir(idHistoria: number) {
+        const sql = "Delete From Historias Where Id = ?";
+        const query = this.db.prepare(sql);
+        query.run(idHistoria);
+    }
+
     private obterTotal(idUsuario: number): number {
         const sql = "Select Count(*) as historias From Historias Where IdUsuarioAutor = ?";
         const query = this.db.prepare(sql);
@@ -107,6 +113,11 @@ export default class MinhasHistoriasController extends Controller<MinhasHistoria
             }
 
             case "DELETE": {
+                const idHistoria = context.getSearchParamInt("idHistoria");
+                if(!idHistoria)
+                    return context.badRequest("Id não informado");
+                
+                this.service.excluir(idHistoria);
                 return context.ok({});
             }
 

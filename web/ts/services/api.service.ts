@@ -42,6 +42,18 @@ export default class ApiService {
         return this.getResult<TResult>(response);
     }
 
+    public async doDelete<TResult>(searchParams: URLSearchParams | null = null): Promise<TResult> {
+
+        const url = searchParams ? `${this.baseUrl}?${searchParams}` : this.baseUrl;
+
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: this.getHeaders()
+        });
+
+        return this.getResult<TResult>(response);
+    }
+
     private async getResult<TResult>(response: Response): Promise<TResult> {
         if (response.ok) {
             const text = await response.text();

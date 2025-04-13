@@ -14,3 +14,5 @@ export const headerMenuVisible = "headermenuVisible";
 export const tokenLSKey = "token";
 
 export const localStorageKey_minhasHistorias_pagina = "minhasHistorias_pagina";
+
+export const localStorageKey_minhaHistoria_historia = "minhaHistoria_historia";

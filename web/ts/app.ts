@@ -1,6 +1,6 @@
 import HeaderComponent, { HeaderConfig } from "./components/header.component";
 import IndexComponent from "./components/index.component";
-import { headerMenuClick, headerVoltarClick, localStorageKey_minhasHistorias_pagina } from "./models/const.model";
+import { headerMenuClick, headerVoltarClick, localStorageKey_minhaHistoria_historia, localStorageKey_minhasHistorias_pagina } from "./models/const.model";
 import IntroComponent from "./components/intro.component";
 import NovaHistoriaComponent from "./components/nova-historia.component";
 import MinhasHistoriasComponent from "./components/minhas-historias.component";
@@ -64,8 +64,10 @@ class App {
                 this.visualizarNovaHistoria();
                 break;
             case "minhas-historias-component":
-            case "minha-historia-component":
                 this.minhasHistorias();
+                break;
+            case "minha-historia-component":
+                this.minhaHistoria();
                 break;
             case "historias-visualizadas-component":
             case "historia-visualizada-component":
@@ -94,7 +96,7 @@ class App {
         const headerConfig: HeaderConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
         this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
 
-        if(!customElements.get(name))
+        if (!customElements.get(name))
             customElements.define(name, constructor);
 
         this.currentComponent?.remove();
@@ -107,12 +109,12 @@ class App {
 
     private loadIfCurrent(component: HTMLElement, load: () => void, preLoad?: () => void) {
         if (this.currentComponent === component) {
-            if(preLoad)
+            if (preLoad)
                 preLoad();
-            
+
             load();
         }
-            
+
     }
 
     private footer() {
@@ -166,13 +168,18 @@ class App {
         });
     }
 
-    private minhaHistoria(historia: MinhaHistoriaResponseModel) {
+    private minhaHistoria(historia?: MinhaHistoriaResponseModel) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias));
-        component.addEventListener("excluir", () => this.minhasHistorias());
-        component.addEventListener("initialized", () =>
-            component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
-        );
+        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias.bind(this), () => localStorage.removeItem(localStorageKey_minhaHistoria_historia)));
+        component.addEventListener("voltar", () => {
+            this.minhasHistorias();
+            localStorage.removeItem(localStorageKey_minhaHistoria_historia);
+        });
+        if (historia) {
+            component.addEventListener("initialized", () =>
+                component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
+            );
+        }
     }
 
     private historiasVisualizadas() {
