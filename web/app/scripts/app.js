@@ -818,17 +818,15 @@ define("components/minha-historia.component", ["require", "exports", "models/con
             this.conteudo = this.getElement("conteudo");
             this.excluir = this.getElement("excluir");
             this.excluir.addEventListener("click", () => {
-                if (!this.historia)
+                if (!this.historia || !this.dialog)
                     return;
                 this.dialog.openMsgBox({
                     titulo: "Excluir",
-                    mensagem: "A exclusão não poderá ser desfeita<br />Deseja realmente excluir esta história?",
                     icone: "bookmark_remove",
+                    mensagem: "A exclusão não poderá ser desfeita<br />Deseja realmente excluir esta história?",
                     ok: "Sim",
                     cancel: "Não"
-                }, () => {
-                    this.onExcluir(this.historia.id);
-                });
+                }, () => this.onExcluir(this.historia.id));
             });
         }
         apresentarHistoria(historia) {
@@ -847,7 +845,7 @@ define("components/minha-historia.component", ["require", "exports", "models/con
         apiMinhasHistorias;
         constructor() {
             super();
-            this.apiMinhasHistorias = new api_service_4.default("MinhasHistorias");
+            this.apiMinhasHistorias = new api_service_4.default("minhas-historias");
         }
         excluir(idHistoria) {
             const p = new URLSearchParams({ idHistoria: idHistoria.toString() });
@@ -860,6 +858,7 @@ define("components/minha-historia.component", ["require", "exports", "models/con
         }
         async initialize() {
             await this.initializeResources(MinhaHistoriaViewModel, MinhaHistoriaService);
+            this.viewModel.dialog = await dialog_component_2.default.load(this);
             this.viewModel.onExcluir = async (idHistoria) => {
                 await this.service.excluir(idHistoria);
                 this.viewModel.dialog.openMsgBox({
@@ -869,7 +868,6 @@ define("components/minha-historia.component", ["require", "exports", "models/con
                     ok: "Ok"
                 }, () => this.voltar(), () => this.voltar());
             };
-            this.viewModel.dialog = await dialog_component_2.default.load(this);
             if (this.viewModel.historia)
                 this.viewModel.apresentarHistoria(this.viewModel.historia);
             this.addEventListener("initializeData", (ev) => {

@@ -39,18 +39,16 @@ class MinhaHistoriaViewModel extends ViewModel {
         this.conteudo = this.getElement("conteudo");
         this.excluir = this.getElement("excluir");
         this.excluir.addEventListener("click", () => {
-            if (!this.historia)
+            if (!this.historia || !this.dialog)
                 return;
 
-            this.dialog!.openMsgBox({
+            this.dialog.openMsgBox({
                 titulo: "Excluir",
-                mensagem: "A exclusão não poderá ser desfeita<br />Deseja realmente excluir esta história?",
                 icone: "bookmark_remove",
+                mensagem: "A exclusão não poderá ser desfeita<br />Deseja realmente excluir esta história?",
                 ok: "Sim",
                 cancel: "Não"
-            }, () => {
-                this.onExcluir(this.historia!.id);
-            });
+            }, () => this.onExcluir(this.historia!.id));
         });
     }
 
@@ -73,7 +71,7 @@ class MinhaHistoriaService extends Service {
 
     constructor() {
         super();
-        this.apiMinhasHistorias = new ApiService("MinhasHistorias");
+        this.apiMinhasHistorias = new ApiService("minhas-historias");
     }
 
     public excluir(idHistoria: number): Promise<void> {
@@ -90,6 +88,8 @@ class MinhaHistoriaComponent extends Component<MinhaHistoriaViewModel, MinhaHist
 
     async initialize(): Promise<void> {
         await this.initializeResources(MinhaHistoriaViewModel, MinhaHistoriaService);
+        this.viewModel.dialog = await DialogComponent.load(this);
+
         this.viewModel.onExcluir = async (idHistoria: number) => {
             await this.service.excluir(idHistoria);
             this.viewModel.dialog!.openMsgBox({
@@ -97,12 +97,10 @@ class MinhaHistoriaComponent extends Component<MinhaHistoriaViewModel, MinhaHist
                 mensagem: "A exclusão foi realizada.",
                 icone: "bookmark_remove",
                 ok: "Ok"
-            }, 
-            () => this.voltar(), 
-            () => this.voltar());
+            },
+                () => this.voltar(),
+                () => this.voltar());
         };
-
-        this.viewModel.dialog = await DialogComponent.load(this);
 
         if (this.viewModel.historia)
             this.viewModel.apresentarHistoria(this.viewModel.historia);

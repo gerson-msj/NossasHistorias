@@ -8,7 +8,7 @@ class MinhasHistoriasService extends Service {
 
         const response: MinhasHistoriasResponseModel = {
             pagina: pagina,
-            paginas: 0,
+            paginas: 1,
             total: 0,
             parcial: 0,
             historias: []
@@ -18,11 +18,11 @@ class MinhasHistoriasService extends Service {
         if (response.total == 0 || response.pagina <= 0)
             return response;
 
-        const limit = 4;
+        const limit = 10;
         response.paginas = Math.ceil(response.total / limit);
 
         if (response.pagina > response.paginas)
-            return response;
+            response.pagina = response.paginas;
 
         const offset = (response.pagina - 1) * limit;
         response.historias = this.obterHistorias(idUsuario, limit, offset);
