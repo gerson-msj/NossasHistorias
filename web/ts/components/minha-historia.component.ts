@@ -1,5 +1,5 @@
 import { localStorageKey_minhaHistoria_historia } from "../models/const.model";
-import { MinhaHistoriaResponseModel } from "../models/response.model";
+import { HistoriaResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -12,19 +12,19 @@ class MinhaHistoriaViewModel extends ViewModel {
     private titulo: HTMLHeadingElement;
     private conteudo: HTMLElement;
 
-    private _historia?: MinhaHistoriaResponseModel;
+    private _historia?: HistoriaResponseModel;
 
-    public get historia(): MinhaHistoriaResponseModel | undefined {
+    public get historia(): HistoriaResponseModel | undefined {
         if (this._historia)
             return this._historia;
 
         const v = localStorage.getItem(localStorageKey_minhaHistoria_historia);
-        this._historia = v ? JSON.parse(atob(v)) as MinhaHistoriaResponseModel : undefined;
+        this._historia = v ? JSON.parse(atob(v)) as HistoriaResponseModel : undefined;
 
         return this._historia;
     }
 
-    public set historia(v: MinhaHistoriaResponseModel) {
+    public set historia(v: HistoriaResponseModel) {
         localStorage.setItem(localStorageKey_minhaHistoria_historia, btoa(JSON.stringify(v)));
         this._historia = v;
     }
@@ -52,7 +52,7 @@ class MinhaHistoriaViewModel extends ViewModel {
         });
     }
 
-    public apresentarHistoria(historia: MinhaHistoriaResponseModel) {
+    public apresentarHistoria(historia: HistoriaResponseModel) {
         this.titulo.innerText = historia.titulo;
         this.conteudo.innerHTML = "";
         const values = historia.conteudo.split(/\r?\n/);
@@ -106,7 +106,7 @@ class MinhaHistoriaComponent extends Component<MinhaHistoriaViewModel, MinhaHist
             this.viewModel.apresentarHistoria(this.viewModel.historia);
 
         this.addEventListener("initializeData", (ev) => {
-            const historia: MinhaHistoriaResponseModel = (ev as CustomEvent).detail;
+            const historia: HistoriaResponseModel = (ev as CustomEvent).detail;
             this.viewModel.apresentarHistoria(historia);
         });
     }

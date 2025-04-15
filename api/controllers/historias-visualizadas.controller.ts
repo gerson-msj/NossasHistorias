@@ -3,8 +3,8 @@ import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
 import Service from "./base/service.ts";
 
-class MinhasHistoriasService extends Service {
-    public obter(idUsuario: number, pagina: number): HistoriasResponseModel {
+class HistoriasVisualizadasService extends Service {
+    public obter(idUsuario: number, pagina: number, titulo: string, curtida: number): HistoriasResponseModel {
 
         const response: HistoriasResponseModel = {
             pagina: pagina,
@@ -14,7 +14,9 @@ class MinhasHistoriasService extends Service {
             historias: []
         }
 
-        response.total = this.obterTotal(idUsuario);
+        titulo = titulo === "" ? "" : `%${titulo}%`;
+
+        response.total = this.obterTotal(idUsuario, titulo!, curtida);
         if (response.total == 0 || response.pagina <= 0)
             return response;
 
@@ -25,25 +27,31 @@ class MinhasHistoriasService extends Service {
             response.pagina = response.paginas;
 
         const offset = (response.pagina - 1) * limit;
-        response.historias = this.obterHistorias(idUsuario, limit, offset);
+        response.historias = this.obterHistorias(idUsuario, titulo!, curtida, limit, offset);
         response.parcial = response.historias.length;
         return response;
     }
 
-    public excluir(idHistoria: number) {
-        const sql = "Delete From Historias Where Id = ?";
+    private obterTotal(idUsuario: number, titulo: string, curtida: number): number {
+        const sql = `
+            Select 
+                Count(*) as historias
+            From 
+                Historias as h
+                Inner Join Visualizacoes as v 
+                    on v.IdHistoria = h.Id
+            Where 
+                v.IdUsuario = ?
+                And h.IdSituacao = 2
+                And (? = "" Or h.Titulo like ?)
+                And (? = 0 Or v.Curtida = 1)
+        `;
         const query = this.db.prepare(sql);
-        query.run(idHistoria);
-    }
-
-    private obterTotal(idUsuario: number): number {
-        const sql = "Select Count(*) as historias From Historias Where IdUsuarioAutor = ?";
-        const query = this.db.prepare(sql);
-        const result = query.get(idUsuario) as { historias: number };
+        const result = query.get(idUsuario, titulo, titulo, curtida) as { historias: number };
         return result?.historias ?? 0;
     }
 
-    private obterHistorias(idUsuario: number, limit: number, offset: number): HistoriaResponseModel[] {
+    private obterHistorias(idUsuario: number, titulo: string, curtida: number, limit: number, offset: number): HistoriaResponseModel[] {
         const sql = `
             With cteContagem as (
                 Select 
@@ -68,10 +76,15 @@ class MinhasHistoriasService extends Service {
                 Historias as h
                 Inner Join HistoriaSituacao as s
                     on s.Id = h.IdSituacao
+                Inner Join Visualizacoes as v 
+                    on v.IdHistoria = h.Id
                 Left Join cteContagem as c
                     on c.Id = h.Id
             Where 
-                h.IdUsuarioAutor = ?
+                v.IdUsuario = ?
+                And h.IdSituacao = 2
+                And (? = "" Or h.Titulo like ?)
+                And (? = 0 Or v.Curtida = 1)
             Order By
                 s.Ordem asc, 6 desc, 5 desc, h.Id desc
             Limit
@@ -82,19 +95,19 @@ class MinhasHistoriasService extends Service {
         `;
 
         const query = this.db.prepare(sql);
-        return query.all(idUsuario, limit, offset) as HistoriaResponseModel[];
+        return query.all(idUsuario, titulo, titulo, curtida, limit, offset) as HistoriaResponseModel[];
     }
 }
 
-export default class MinhasHistoriasController extends Controller<MinhasHistoriasService> {
+export default class HistoriasVisualizadasController extends Controller<HistoriasVisualizadasService> {
 
     public override async handle(context: Context): Promise<Response> {
-        if (context.url.pathname != "/api/minhas-historias")
+        if (context.url.pathname != "/api/historias-visualizadas")
             return this.nextHandle(context);
 
-        if (["GET", "DELETE"].includes(context.request.method)) {
+        if (["GET"].includes(context.request.method)) {
             const db = await context.openDb();
-            this.service = new MinhasHistoriasService();
+            this.service = new HistoriasVisualizadasService();
             this.service.db = db;
         }
 
@@ -103,22 +116,12 @@ export default class MinhasHistoriasController extends Controller<MinhasHistoria
 
         switch (context.request.method) {
             case "GET": {
-                const request = context.getSearchParam("pagina");
-                const pagina = request ? parseInt(request) : undefined;
-                if (pagina == undefined)
-                    return context.badRequest("Página não informada");
+                const pagina = context.getSearchParamNumber("pagina") ?? 1;
+                const titulo = context.getSearchParam("titulo") ?? "";
+                const curtida = context.getSearchParamNumber("curtida") ?? 0;
 
-                const response = this.service.obter(context.tokenSub, pagina);
+                const response = this.service.obter(context.tokenSub, pagina, titulo, curtida);
                 return context.ok(response);
-            }
-
-            case "DELETE": {
-                const idHistoria = context.getSearchParamNumber("idHistoria");
-                if(!idHistoria)
-                    return context.badRequest("Id não informado");
-                
-                this.service.excluir(idHistoria);
-                return context.ok({});
             }
 
             default: {

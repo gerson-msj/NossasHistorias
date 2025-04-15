@@ -12,7 +12,7 @@ import HistoriaVisualizadaComponent from "./components/historia-visualizada.comp
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
-import { MinhaHistoriaResponseModel } from "./models/response.model";
+import { HistoriaResponseModel } from "./models/response.model";
 
 class App {
     private mainElement: HTMLElement;
@@ -163,12 +163,12 @@ class App {
             })
         });
         component.addEventListener("apresentarHistoria", (ev) => {
-            const historia = (ev as CustomEvent).detail as MinhaHistoriaResponseModel;
+            const historia = (ev as CustomEvent).detail as HistoriaResponseModel;
             this.minhaHistoria(historia);
         });
     }
 
-    private minhaHistoria(historia?: MinhaHistoriaResponseModel) {
+    private minhaHistoria(historia?: HistoriaResponseModel) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
         this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias.bind(this), () => localStorage.removeItem(localStorageKey_minhaHistoria_historia)));
         component.addEventListener("voltar", () => {

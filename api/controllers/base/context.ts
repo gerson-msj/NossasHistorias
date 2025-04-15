@@ -63,7 +63,7 @@ export default class Context {
         return this.url.searchParams.get(name);
     }
 
-    public getSearchParamInt(name: string): number | undefined {
+    public getSearchParamNumber(name: string): number | undefined {
         const request = this.url.searchParams.get(name);
         return request ? parseInt(request) : undefined;
     }

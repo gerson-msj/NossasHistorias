@@ -1,6 +1,6 @@
 import { HistoriaSituacaoAnalise, HistoriaSituacaoAprovada, localStorageKey_minhasHistorias_pagina } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
-import { MinhaHistoriaResponseModel, MinhasHistoriasResponseModel } from "../models/response.model";
+import { HistoriaResponseModel, HistoriasResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -29,7 +29,7 @@ class MinhasHistoriasViewModel extends ViewModel {
 
     public onIrParaPagina = (pagina: number) => { }
     
-    public onApresentarHistoria = (historia: MinhaHistoriaResponseModel) => { };
+    public onApresentarHistoria = (historia: HistoriaResponseModel) => { };
 
     constructor() {
         super();
@@ -63,7 +63,7 @@ class MinhasHistoriasViewModel extends ViewModel {
         });
     }
 
-    public apresentarHistorias(minhasHistorias: MinhasHistoriasResponseModel) {
+    public apresentarHistorias(minhasHistorias: HistoriasResponseModel) {
         this.historias.innerHTML = "";
         minhasHistorias.historias.forEach(historia => {
             const titulo = document.createElement("span");
@@ -110,10 +110,10 @@ class MinhasHistoriasService extends Service {
         this.apiMinhasHistorias = new ApiService("minhas-historias");
     }
 
-    public obterMinhasHistorias(pagina: number): Promise<MinhasHistoriasResponseModel> {
+    public obterMinhasHistorias(pagina: number): Promise<HistoriasResponseModel> {
         const searchParams = new URLSearchParams();
         searchParams.append("pagina", pagina.toString());
-        return this.apiMinhasHistorias.doGet<MinhasHistoriasResponseModel>(searchParams);
+        return this.apiMinhasHistorias.doGet<HistoriasResponseModel>(searchParams);
     }
 }
 
@@ -128,7 +128,7 @@ class MinhasHistoriasComponent extends Component<MinhasHistoriasViewModel, Minha
 
         await this.apresentarHistorias(this.viewModel.pagina);
 
-        this.viewModel.onApresentarHistoria = (historia: MinhaHistoriaResponseModel) =>
+        this.viewModel.onApresentarHistoria = (historia: HistoriaResponseModel) =>
             this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: historia }));
 
         this.viewModel.onIrParaPagina = async (pagina: number) => {

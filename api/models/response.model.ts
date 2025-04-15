@@ -20,7 +20,7 @@ export interface ProximaHistoriaResponseModel {
     curtidas: number
 }
 
-export interface MinhaHistoriaResponseModel {
+export interface HistoriaResponseModel {
     id: number,
     titulo: string,
     conteudo: string,
@@ -29,10 +29,10 @@ export interface MinhaHistoriaResponseModel {
     curtidas: number
 }
 
-export interface MinhasHistoriasResponseModel {
+export interface HistoriasResponseModel {
     pagina: number,
     paginas: number,
     parcial: number,
     total: number,
-    historias: MinhaHistoriaResponseModel[]
+    historias: HistoriaResponseModel[]
 }
