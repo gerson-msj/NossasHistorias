@@ -7,6 +7,7 @@ import HistoriaController from "./api/controllers/historia.controller.ts";
 import ModeradorController from "./api/controllers/moderador.controller.ts";
 import VisualizacoesController from "./api/controllers/visualizacoes.controller.ts";
 import MinhasHistoriasController from "./api/controllers/minhas-historias.controller.ts";
+import HistoriasVisualizadasController from "./api/controllers/historias-visualizadas.controller.ts";
 
 const page = Controller.createInstance(PageController);
 
@@ -30,17 +31,13 @@ const handler = async (request: Request): Promise<Response> => {
         if(!await context.auth())
             return context.unauthorized();
         
-        const usuario = new UsuarioController();
-        const historia = new HistoriaController();
-        const moderador = new ModeradorController();
-        const visualizacoes = new VisualizacoesController();
-        const minhasHistorias = new MinhasHistoriasController();
         const controllers = Controller.enlistHandlers(
-            usuario,
-            historia,
-            moderador,
-            visualizacoes,
-            minhasHistorias
+            UsuarioController,
+            HistoriaController,
+            ModeradorController,
+            VisualizacoesController,
+            MinhasHistoriasController,
+            HistoriasVisualizadasController
         );
 
         try {
