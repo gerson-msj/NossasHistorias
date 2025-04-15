@@ -9,8 +9,8 @@
                             <label for="filtroTitulo">Localizar por Título</label>
                         </span>
                         <span>
-                            <input type="checkbox" id="filtroCurtidas">
-                            <label for="filtroCurtidas">Somente curtidas por mim</label>
+                            <input type="checkbox" id="filtroCurtida">
+                            <label for="filtroCurtida">Somente curtidas por mim</label>
                         </span>
                         
                     </div>
@@ -19,13 +19,26 @@
                         <button type="button" id="buscar">Buscar</button>
                     </div>
                     <div>
-                        <label>Título</label>
-                        <label>Curtidas</label>
+                        <span>Título</span>
+                        <span title="Visualizações | Curtidas">V | C</span>
                     </div>
                 </section>
-                <section id="historias"></section>
+                <section id="historias">
+                </section>
                 <section>
-                    &lt página 1 de 7 - exibindo 20 de 80 histórias &gt
+                    <span id="primeira" class="material-symbols-rounded link">
+                        first_page
+                    </span>
+                    <span id="anterior" class="material-symbols-rounded link">
+                        chevron_left
+                    </span>
+                    <span id="visorPagina">página 1 de 7</span>
+                    <span id="proxima" class="material-symbols-rounded link">
+                        chevron_right
+                    </span>
+                    <span id="ultima" class="material-symbols-rounded link">
+                        last_page
+                    </span>
                 </section>
             </form>
 

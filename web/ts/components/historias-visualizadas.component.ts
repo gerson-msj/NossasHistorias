@@ -1,4 +1,4 @@
-import { HistoriaSituacaoAprovada } from "../models/const.model";
+import { HistoriaSituacaoAprovada, localStorageKey_historiasVisualizadas_curtida, localStorageKey_historiasVisualizadas_pagina, localStorageKey_historiasVisualizadas_titulo } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -6,14 +6,58 @@ import ViewModel from "./base/viewmodel";
 
 class HistoriasVisualizadasViewModel extends ViewModel {
 
+    private filtroTitulo: HTMLInputElement;
+    private filtroCurtida: HTMLInputElement;
+    private buscar: HTMLButtonElement;
     private historias: HTMLElement;
+    private primeira: HTMLSpanElement;
+    private anterior: HTMLSpanElement;
+    private visorPagina: HTMLSpanElement;
+    private proxima: HTMLSpanElement;
+    private ultima: HTMLSpanElement;
+
+    public get pagina() : number {
+        const p = localStorage.getItem(localStorageKey_historiasVisualizadas_pagina);
+        return p ? parseInt(atob(p)) : 1;
+    }
+        
+    public set pagina(v : number) {
+        localStorage.setItem(localStorageKey_historiasVisualizadas_pagina, btoa(v.toString()));
+    }
+
+    public get titulo() : string {
+        const p = localStorage.getItem(localStorageKey_historiasVisualizadas_titulo);
+        return p ? atob(p) : "";
+    }
+        
+    public set titulo(v : string) {
+        localStorage.setItem(localStorageKey_historiasVisualizadas_titulo, btoa(v));
+    }
+
+    public get curtida() : number {
+        const p = localStorage.getItem(localStorageKey_historiasVisualizadas_curtida);
+        return p ? parseInt(atob(p)) : 0;
+    }
+        
+    public set curtida(v : number) {
+        localStorage.setItem(localStorageKey_historiasVisualizadas_curtida, btoa(v.toString()));
+    }
 
     public onApresentarHistoria = (historia: HistoriaModel) => { };
 
     constructor() {
         super();
 
+        this.filtroTitulo = this.getElement("titulo");
+        this.filtroCurtida = this.getElement("curtida");
+        this.buscar = this.getElement("buscar");
         this.historias = this.getElement("historias");
+        this.primeira = this.getElement("primeira");
+        this.anterior = this.getElement("anterior");
+        this.visorPagina = this.getElement("visorPagina");
+        this.proxima = this.getElement("proxima");
+        this.ultima = this.getElement("ultima");
+
     }
 
     public apresentarHistorias(historias: HistoriaModel[]) {
@@ -27,6 +71,18 @@ class HistoriasVisualizadasViewModel extends ViewModel {
             row.append(titulo, curtidas);
             row.addEventListener("click", () => this.onApresentarHistoria(historia));
             this.historias.appendChild(row);
+        });
+    }
+
+    private exibirLink(exibir: boolean, ...elements: HTMLSpanElement[]) {
+        elements.forEach(e => {
+            if (exibir) {
+                e.classList.add('link');
+                e.classList.remove('disabled');
+            } else {
+                e.classList.remove('link');
+                e.classList.add('disabled');
+            }
         });
     }
 }
