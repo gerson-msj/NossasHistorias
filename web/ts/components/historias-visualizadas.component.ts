@@ -1,5 +1,7 @@
 import { HistoriaSituacaoAprovada, localStorageKey_historiasVisualizadas_curtida, localStorageKey_historiasVisualizadas_pagina, localStorageKey_historiasVisualizadas_titulo } from "../models/const.model";
 import { HistoriaModel } from "../models/model";
+import { HistoriaResponseModel, HistoriasResponseModel } from "../models/response.model";
+import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -43,13 +45,15 @@ class HistoriasVisualizadasViewModel extends ViewModel {
         localStorage.setItem(localStorageKey_historiasVisualizadas_curtida, btoa(v.toString()));
     }
 
-    public onApresentarHistoria = (historia: HistoriaModel) => { };
+    private paginas?: number;
+
+    public onApresentarHistoria = (historia: HistoriaResponseModel) => { };
 
     constructor() {
         super();
 
-        this.filtroTitulo = this.getElement("titulo");
-        this.filtroCurtida = this.getElement("curtida");
+        this.filtroTitulo = this.getElement("filtroTitulo");
+        this.filtroCurtida = this.getElement("filtroCurtida");
         this.buscar = this.getElement("buscar");
         this.historias = this.getElement("historias");
         this.primeira = this.getElement("primeira");
@@ -60,18 +64,26 @@ class HistoriasVisualizadasViewModel extends ViewModel {
 
     }
 
-    public apresentarHistorias(historias: HistoriaModel[]) {
+    public apresentarHistorias(historiasVisualizadas: HistoriasResponseModel) {
         this.historias.innerHTML = "";
-        historias.forEach(historia => {
+        historiasVisualizadas.historias.forEach(historia => {
             const titulo = document.createElement("span");
-            const curtidas = document.createElement("span");
+            const vc = document.createElement("span");
             titulo.innerText = historia.titulo;
-            curtidas.innerHTML = historia.curtidas.toString();
+            vc.innerHTML = `${historia.visualizacoes} / ${historia.curtidas}`;
             const row = document.createElement("div");
-            row.append(titulo, curtidas);
+            row.append(titulo, vc);
             row.addEventListener("click", () => this.onApresentarHistoria(historia));
             this.historias.appendChild(row);
         });
+
+        this.visorPagina.innerText = `página ${historiasVisualizadas.pagina} de ${historiasVisualizadas.paginas}`;
+
+        this.exibirLink(historiasVisualizadas.pagina !== 1, this.primeira, this.anterior);
+        this.exibirLink(historiasVisualizadas.pagina !== historiasVisualizadas.paginas, this.proxima, this.ultima);
+
+        this.pagina = historiasVisualizadas.pagina;
+        this.paginas = historiasVisualizadas.paginas;
     }
 
     private exibirLink(exibir: boolean, ...elements: HTMLSpanElement[]) {
@@ -88,26 +100,16 @@ class HistoriasVisualizadasViewModel extends ViewModel {
 }
 
 class HistoriasVisualizadasService extends Service {
-    public obterHistoriasVisualizadas(): Promise<HistoriaModel[]> {
-        const historias: HistoriaModel[] = [
-            {
-                titulo: "Primeira História",
-                conteudo: "Primeira\nHistória.",
-                situacao: HistoriaSituacaoAprovada,
-                visualizacoes: 30,
-                curtidas: 15,
-                motivoSituacao: null
-            },
-            {
-                titulo: "Segunda História",
-                conteudo: "Segunda\nHistória.",
-                situacao: HistoriaSituacaoAprovada,
-                visualizacoes: 37,
-                curtidas: 14,
-                motivoSituacao: null
-            }
-        ];
-        return Promise.resolve(historias);
+
+    private apiHistoriasVisualizadas = new ApiService("historias-visualizadas");
+
+    public obterHistoriasVisualizadas(pagina: number, titulo: string, curtida: number): Promise<HistoriasResponseModel> {
+        const sp = new URLSearchParams([
+            ["pagina", pagina.toString()],
+            ["titulo", titulo],
+            ["curtida", curtida.toString()]
+        ]);
+        return this.apiHistoriasVisualizadas.doGet<HistoriasResponseModel>(sp);
     }
 }
 
@@ -120,12 +122,21 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
     async initialize(): Promise<void> {
         await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
 
-        const historias = await this.service.obterHistoriasVisualizadas();
+        //await this.apresentarHistorias();
+
+        // this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
+        //     this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
+
+    }
+
+    private async apresentarHistorias() {
+        const historias = await this.service.obterHistoriasVisualizadas(
+            this.viewModel.pagina,
+            this.viewModel.titulo,
+            this.viewModel.curtida
+        );
+
         this.viewModel.apresentarHistorias(historias);
-
-        this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
-            this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
-
     }
 
     

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 define("models/const.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.localStorageKey_minhaHistoria_historia = exports.localStorageKey_minhasHistorias_pagina = exports.tokenLSKey = exports.headerMenuVisible = exports.headerVoltarClick = exports.headerMenuClick = exports.PerfilDep = exports.PerfilResp = exports.HistoriaSituacaoReprovada = exports.HistoriaSituacaoAprovada = exports.HistoriaSituacaoAnalise = void 0;
+    exports.localStorageKey_historiasVisualizadas_curtida = exports.localStorageKey_historiasVisualizadas_titulo = exports.localStorageKey_historiasVisualizadas_pagina = exports.localStorageKey_minhaHistoria_historia = exports.localStorageKey_minhasHistorias_pagina = exports.tokenLSKey = exports.headerMenuVisible = exports.headerVoltarClick = exports.headerMenuClick = exports.PerfilDep = exports.PerfilResp = exports.HistoriaSituacaoReprovada = exports.HistoriaSituacaoAprovada = exports.HistoriaSituacaoAnalise = void 0;
     exports.HistoriaSituacaoAnalise = "Em analise";
     exports.HistoriaSituacaoAprovada = "Aprovada";
     exports.HistoriaSituacaoReprovada = "Reprovada";
@@ -16,6 +16,9 @@ define("models/const.model", ["require", "exports"], function (require, exports)
     exports.tokenLSKey = "token";
     exports.localStorageKey_minhasHistorias_pagina = "minhasHistorias_pagina";
     exports.localStorageKey_minhaHistoria_historia = "minhaHistoria_historia";
+    exports.localStorageKey_historiasVisualizadas_pagina = "historiasVisualizadas_pagina";
+    exports.localStorageKey_historiasVisualizadas_titulo = "historiasVisualizadas_titulo";
+    exports.localStorageKey_historiasVisualizadas_curtida = "historiasVisualizadas_curtida";
 });
 define("components/base/service", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -981,54 +984,98 @@ define("components/visualizar-nova-historia.component", ["require", "exports", "
     }
     exports.default = VisualizarNovaHistoriaComponent;
 });
-define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_5, component_9, service_9, viewmodel_9) {
+define("components/historias-visualizadas.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_5, api_service_6, component_9, service_9, viewmodel_9) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_6 = __importDefault(api_service_6);
     component_9 = __importDefault(component_9);
     service_9 = __importDefault(service_9);
     viewmodel_9 = __importDefault(viewmodel_9);
     class HistoriasVisualizadasViewModel extends viewmodel_9.default {
+        filtroTitulo;
+        filtroCurtida;
+        buscar;
         historias;
+        primeira;
+        anterior;
+        visorPagina;
+        proxima;
+        ultima;
+        get pagina() {
+            const p = localStorage.getItem(const_model_5.localStorageKey_historiasVisualizadas_pagina);
+            return p ? parseInt(atob(p)) : 1;
+        }
+        set pagina(v) {
+            localStorage.setItem(const_model_5.localStorageKey_historiasVisualizadas_pagina, btoa(v.toString()));
+        }
+        get titulo() {
+            const p = localStorage.getItem(const_model_5.localStorageKey_historiasVisualizadas_titulo);
+            return p ? atob(p) : "";
+        }
+        set titulo(v) {
+            localStorage.setItem(const_model_5.localStorageKey_historiasVisualizadas_titulo, btoa(v));
+        }
+        get curtida() {
+            const p = localStorage.getItem(const_model_5.localStorageKey_historiasVisualizadas_curtida);
+            return p ? parseInt(atob(p)) : 0;
+        }
+        set curtida(v) {
+            localStorage.setItem(const_model_5.localStorageKey_historiasVisualizadas_curtida, btoa(v.toString()));
+        }
+        paginas;
         onApresentarHistoria = (historia) => { };
         constructor() {
             super();
+            this.filtroTitulo = this.getElement("filtroTitulo");
+            this.filtroCurtida = this.getElement("filtroCurtida");
+            this.buscar = this.getElement("buscar");
             this.historias = this.getElement("historias");
+            this.primeira = this.getElement("primeira");
+            this.anterior = this.getElement("anterior");
+            this.visorPagina = this.getElement("visorPagina");
+            this.proxima = this.getElement("proxima");
+            this.ultima = this.getElement("ultima");
         }
-        apresentarHistorias(historias) {
+        apresentarHistorias(historiasVisualizadas) {
             this.historias.innerHTML = "";
-            historias.forEach(historia => {
+            historiasVisualizadas.historias.forEach(historia => {
                 const titulo = document.createElement("span");
-                const curtidas = document.createElement("span");
+                const vc = document.createElement("span");
                 titulo.innerText = historia.titulo;
-                curtidas.innerHTML = historia.curtidas.toString();
+                vc.innerHTML = `${historia.visualizacoes} / ${historia.curtidas}`;
                 const row = document.createElement("div");
-                row.append(titulo, curtidas);
+                row.append(titulo, vc);
                 row.addEventListener("click", () => this.onApresentarHistoria(historia));
                 this.historias.appendChild(row);
+            });
+            this.visorPagina.innerText = `página ${historiasVisualizadas.pagina} de ${historiasVisualizadas.paginas}`;
+            this.exibirLink(historiasVisualizadas.pagina !== 1, this.primeira, this.anterior);
+            this.exibirLink(historiasVisualizadas.pagina !== historiasVisualizadas.paginas, this.proxima, this.ultima);
+            this.pagina = historiasVisualizadas.pagina;
+            this.paginas = historiasVisualizadas.paginas;
+        }
+        exibirLink(exibir, ...elements) {
+            elements.forEach(e => {
+                if (exibir) {
+                    e.classList.add('link');
+                    e.classList.remove('disabled');
+                }
+                else {
+                    e.classList.remove('link');
+                    e.classList.add('disabled');
+                }
             });
         }
     }
     class HistoriasVisualizadasService extends service_9.default {
-        obterHistoriasVisualizadas() {
-            const historias = [
-                {
-                    titulo: "Primeira História",
-                    conteudo: "Primeira\nHistória.",
-                    situacao: const_model_5.HistoriaSituacaoAprovada,
-                    visualizacoes: 30,
-                    curtidas: 15,
-                    motivoSituacao: null
-                },
-                {
-                    titulo: "Segunda História",
-                    conteudo: "Segunda\nHistória.",
-                    situacao: const_model_5.HistoriaSituacaoAprovada,
-                    visualizacoes: 37,
-                    curtidas: 14,
-                    motivoSituacao: null
-                }
-            ];
-            return Promise.resolve(historias);
+        apiHistoriasVisualizadas = new api_service_6.default("historias-visualizadas");
+        obterHistoriasVisualizadas(pagina, titulo, curtida) {
+            const sp = new URLSearchParams([
+                ["pagina", pagina.toString()],
+                ["titulo", titulo],
+                ["curtida", curtida.toString()]
+            ]);
+            return this.apiHistoriasVisualizadas.doGet(sp);
         }
     }
     class HistoriasVisualizadasComponent extends component_9.default {
@@ -1037,9 +1084,13 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
         }
         async initialize() {
             await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
-            const historias = await this.service.obterHistoriasVisualizadas();
+            //await this.apresentarHistorias();
+            // this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
+            //     this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
+        }
+        async apresentarHistorias() {
+            const historias = await this.service.obterHistoriasVisualizadas(this.viewModel.pagina, this.viewModel.titulo, this.viewModel.curtida);
             this.viewModel.apresentarHistorias(historias);
-            this.viewModel.onApresentarHistoria = (historia) => this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
         }
     }
     exports.default = HistoriasVisualizadasComponent;
@@ -1080,10 +1131,10 @@ define("components/historia-visualizada.component", ["require", "exports", "comp
     }
     exports.default = HistoriaVisualizadaComponent;
 });
-define("components/pendentes-aprovacao.component", ["require", "exports", "models/request.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, request_model_1, api_service_6, component_11, service_11, viewmodel_11, dialog_component_4) {
+define("components/pendentes-aprovacao.component", ["require", "exports", "models/request.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, request_model_1, api_service_7, component_11, service_11, viewmodel_11, dialog_component_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    api_service_6 = __importDefault(api_service_6);
+    api_service_7 = __importDefault(api_service_7);
     component_11 = __importDefault(component_11);
     service_11 = __importDefault(service_11);
     viewmodel_11 = __importDefault(viewmodel_11);
@@ -1150,7 +1201,7 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "model
         apiModerador;
         constructor() {
             super();
-            this.apiModerador = new api_service_6.default("moderador");
+            this.apiModerador = new api_service_7.default("moderador");
         }
         obterHistoria() {
             return this.apiModerador.doGet();
