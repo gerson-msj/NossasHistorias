@@ -1,5 +1,4 @@
-import { HistoriaSituacaoAprovada, localStorageKey_historiasVisualizadas_curtida, localStorageKey_historiasVisualizadas_pagina, localStorageKey_historiasVisualizadas_titulo } from "../models/const.model";
-import { HistoriaModel } from "../models/model";
+import { localStorageKey_historiasVisualizadas_curtida, localStorageKey_historiasVisualizadas_pagina, localStorageKey_historiasVisualizadas_titulo } from "../models/const.model";
 import { HistoriaResponseModel, HistoriasResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
@@ -18,36 +17,37 @@ class HistoriasVisualizadasViewModel extends ViewModel {
     private proxima: HTMLSpanElement;
     private ultima: HTMLSpanElement;
 
-    public get pagina() : number {
+    public get pagina(): number {
         const p = localStorage.getItem(localStorageKey_historiasVisualizadas_pagina);
         return p ? parseInt(atob(p)) : 1;
     }
-        
-    public set pagina(v : number) {
+
+    public set pagina(v: number) {
         localStorage.setItem(localStorageKey_historiasVisualizadas_pagina, btoa(v.toString()));
     }
 
-    public get titulo() : string {
+    public get titulo(): string {
         const p = localStorage.getItem(localStorageKey_historiasVisualizadas_titulo);
         return p ? atob(p) : "";
     }
-        
-    public set titulo(v : string) {
+
+    public set titulo(v: string) {
         localStorage.setItem(localStorageKey_historiasVisualizadas_titulo, btoa(v));
     }
 
-    public get curtida() : number {
+    public get curtida(): number {
         const p = localStorage.getItem(localStorageKey_historiasVisualizadas_curtida);
         return p ? parseInt(atob(p)) : 0;
     }
-        
-    public set curtida(v : number) {
+
+    public set curtida(v: number) {
         localStorage.setItem(localStorageKey_historiasVisualizadas_curtida, btoa(v.toString()));
     }
 
     private paginas?: number;
 
-    public onApresentarHistoria = (historia: HistoriaResponseModel) => { };
+    public onApresentarHistoria = (historia: HistoriaResponseModel) => { }
+    public onBuscar = async () => { }
 
     constructor() {
         super();
@@ -62,6 +62,42 @@ class HistoriasVisualizadasViewModel extends ViewModel {
         this.proxima = this.getElement("proxima");
         this.ultima = this.getElement("ultima");
 
+        this.filtroTitulo.value = this.titulo;
+        this.filtroCurtida.checked = this.curtida === 1;
+        this.filtroTitulo.focus();
+
+        this.filtroTitulo.addEventListener("keypress", (ev) => {
+            if (ev.key === "Enter")
+                ev.preventDefault();
+        });
+
+        this.filtroTitulo.addEventListener("keyup", async (ev) => {
+            if (ev.key === "Enter") {
+                await this.doBuscar();
+                this.filtroTitulo.focus();
+            } else if (ev.key === "Escape") {
+                this.filtroTitulo.value = "";
+                await this.doBuscar();
+                this.filtroTitulo.focus();
+            }
+        });
+
+        this.filtroCurtida.addEventListener("keyup", async (ev) => {
+            if (ev.key === "Enter") {
+                await this.doBuscar();
+            } else if (ev.key === "Escape") {
+                this.filtroCurtida.checked = false;
+                await this.doBuscar();
+            }
+        });
+
+        this.buscar.addEventListener("click", async () => await this.doBuscar());
+    }
+
+    private async doBuscar() {
+        this.titulo = this.filtroTitulo.value;
+        this.curtida = this.filtroCurtida.checked ? 1 : 0;
+        await this.onBuscar();
     }
 
     public apresentarHistorias(historiasVisualizadas: HistoriasResponseModel) {
@@ -122,7 +158,9 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
     async initialize(): Promise<void> {
         await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
 
-        //await this.apresentarHistorias();
+        this.viewModel.onBuscar = async () => await this.apresentarHistorias();
+
+        await this.apresentarHistorias();
 
         // this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
         //     this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
@@ -139,7 +177,7 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
         this.viewModel.apresentarHistorias(historias);
     }
 
-    
+
 
 }
 

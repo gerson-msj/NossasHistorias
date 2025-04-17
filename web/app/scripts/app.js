@@ -1024,6 +1024,7 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
         }
         paginas;
         onApresentarHistoria = (historia) => { };
+        onBuscar = async () => { };
         constructor() {
             super();
             this.filtroTitulo = this.getElement("filtroTitulo");
@@ -1035,6 +1036,39 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
             this.visorPagina = this.getElement("visorPagina");
             this.proxima = this.getElement("proxima");
             this.ultima = this.getElement("ultima");
+            this.filtroTitulo.value = this.titulo;
+            this.filtroCurtida.checked = this.curtida === 1;
+            this.filtroTitulo.focus();
+            this.filtroTitulo.addEventListener("keypress", (ev) => {
+                if (ev.key === "Enter")
+                    ev.preventDefault();
+            });
+            this.filtroTitulo.addEventListener("keyup", async (ev) => {
+                if (ev.key === "Enter") {
+                    await this.doBuscar();
+                    this.filtroTitulo.focus();
+                }
+                else if (ev.key === "Escape") {
+                    this.filtroTitulo.value = "";
+                    await this.doBuscar();
+                    this.filtroTitulo.focus();
+                }
+            });
+            this.filtroCurtida.addEventListener("keyup", async (ev) => {
+                if (ev.key === "Enter") {
+                    await this.doBuscar();
+                }
+                else if (ev.key === "Escape") {
+                    this.filtroCurtida.checked = false;
+                    await this.doBuscar();
+                }
+            });
+            this.buscar.addEventListener("click", async () => await this.doBuscar());
+        }
+        async doBuscar() {
+            this.titulo = this.filtroTitulo.value;
+            this.curtida = this.filtroCurtida.checked ? 1 : 0;
+            await this.onBuscar();
         }
         apresentarHistorias(historiasVisualizadas) {
             this.historias.innerHTML = "";
@@ -1084,7 +1118,8 @@ define("components/historias-visualizadas.component", ["require", "exports", "mo
         }
         async initialize() {
             await this.initializeResources(HistoriasVisualizadasViewModel, HistoriasVisualizadasService);
-            //await this.apresentarHistorias();
+            this.viewModel.onBuscar = async () => await this.apresentarHistorias();
+            await this.apresentarHistorias();
             // this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
             //     this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
         }
