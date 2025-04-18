@@ -1,3 +1,4 @@
+import StorageService from "./storage.service";
 import TokenService from "./token.service";
 
 export default class ApiService {
@@ -74,7 +75,7 @@ export default class ApiService {
 
         let token: string | null = null;
         if (TokenService.possuiToken())
-            token = localStorage.getItem("token");
+            token = StorageService.token;
 
         if (token !== null)
             headers["authorization"] = `Bearer ${token}`;

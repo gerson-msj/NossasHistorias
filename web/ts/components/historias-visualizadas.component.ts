@@ -48,7 +48,7 @@ class HistoriasVisualizadasViewModel extends ViewModel {
 
     public onApresentarHistoria = (historia: HistoriaResponseModel) => { }
     public onBuscar = async () => { }
-
+    
     constructor() {
         super();
 
@@ -62,6 +62,40 @@ class HistoriasVisualizadasViewModel extends ViewModel {
         this.proxima = this.getElement("proxima");
         this.ultima = this.getElement("ultima");
 
+        this.definirFiltro();
+        this.definirPaginacao();
+        
+    }
+
+    private definirPaginacao() {
+        this.primeira.addEventListener("click", () => {
+            if(this.pagina > 1) {
+                this.pagina = 1;
+                this.onBuscar();
+            }
+        });
+
+        this.anterior.addEventListener("click", () => {
+            if(this.pagina > 1){                
+                this.pagina--;
+                this.onBuscar();
+            }
+        });
+
+        this.proxima.addEventListener("click", () => {
+            if(this.paginas && this.pagina < this.paginas)
+                this.pagina++;
+                this.onBuscar();
+        });
+
+        this.ultima.addEventListener("click", () => {
+            if(this.paginas && this.pagina < this.paginas)
+                this.pagina = this.paginas;
+                this.onBuscar();
+        });
+    }
+
+    private definirFiltro() {
         this.filtroTitulo.value = this.titulo;
         this.filtroCurtida.checked = this.curtida === 1;
         this.filtroTitulo.focus();
@@ -162,8 +196,8 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
 
         await this.apresentarHistorias();
 
-        // this.viewModel.onApresentarHistoria = (historia: HistoriaModel) =>
-        //     this.dispatchEvent(new CustomEvent("apresentarHistoriaVisualizada", { detail: historia }));
+        this.viewModel.onApresentarHistoria = (historia: HistoriaResponseModel) =>
+            this.dispatchEvent(new CustomEvent("apresentarHistoria", { detail: historia }));
 
     }
 
@@ -177,8 +211,11 @@ class HistoriasVisualizadasComponent extends Component<HistoriasVisualizadasView
         this.viewModel.apresentarHistorias(historias);
     }
 
-
-
+    public static RemoveStorage() {
+        localStorage.removeItem(localStorageKey_historiasVisualizadas_titulo);
+        localStorage.removeItem(localStorageKey_historiasVisualizadas_curtida);
+        localStorage.removeItem(localStorageKey_historiasVisualizadas_pagina);
+    }
 }
 
 export default HistoriasVisualizadasComponent;

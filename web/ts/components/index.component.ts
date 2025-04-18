@@ -2,6 +2,7 @@ import { headerMenuClick } from "../models/const.model";
 import { CurtirRequestModel } from "../models/request.model";
 import { ProximaHistoriaResponseModel, UsuarioResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
+import StorageService from "../services/storage.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -88,13 +89,13 @@ class IndexViewModel extends ViewModel {
             const p = document.createElement("p");
             p.innerText = `Não deixe as histórias acabarem, compartilhe suas histórias!`;
             this.conteudoHistoria.appendChild(p);
-            localStorage.removeItem("idHistoria");
+            StorageService.index_idHistoria = undefined;
             this.curtir.classList.add("oculto");
             this.proxima.classList.add("oculto");
             return;
         }
 
-        localStorage.setItem("idHistoria", (historia.id.toString()));
+        StorageService.index_idHistoria = historia.id;
         this.tituloHistoria.innerText = historia.titulo;
         this.conteudoHistoria.innerHTML = "";
         const values = historia.conteudo.split(/\r?\n/);
@@ -138,10 +139,10 @@ class IndexService extends Service {
         return this.apiUsuario.doGet<UsuarioResponseModel>();
     }
 
-    public obterProximaHistoria(idHistoria: string | null): Promise<ProximaHistoriaResponseModel | undefined> {
+    public obterProximaHistoria(idHistoria: number | undefined): Promise<ProximaHistoriaResponseModel | undefined> {
         const searchParams = new URLSearchParams();
         if (idHistoria)
-            searchParams.append("idHistoria", (idHistoria));
+            searchParams.append("idHistoria", (idHistoria.toString()));
 
         return this.apiHistoria.doGet<ProximaHistoriaResponseModel | undefined>(searchParams);
     }
@@ -178,7 +179,7 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
             this.viewModel.exibirPendentesAprovacao();
 
         //História
-        const idHistoria = localStorage.getItem("idHistoria");
+        const idHistoria = StorageService.index_idHistoria;
         const historia = await this.service.obterProximaHistoria(idHistoria);
         this.viewModel.apresentar(historia);
 
@@ -187,8 +188,8 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
     }
 
     private async obterProximaHistoria() {
-        localStorage.removeItem("idHistoria");
-        const historia = await this.service.obterProximaHistoria(null);
+        StorageService.index_idHistoria = undefined;
+        const historia = await this.service.obterProximaHistoria(undefined);
         this.viewModel.apresentar(historia);
     }
 

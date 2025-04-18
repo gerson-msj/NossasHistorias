@@ -112,6 +112,7 @@ class MinhaHistoriaComponent extends Component<MinhaHistoriaViewModel, MinhaHist
     }
 
     private voltar() {
+        localStorage.removeItem(localStorageKey_minhaHistoria_historia);
         this.dispatchEvent(new Event("voltar"));
     }
 

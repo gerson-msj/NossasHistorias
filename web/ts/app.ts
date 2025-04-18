@@ -7,19 +7,20 @@ import MinhasHistoriasComponent from "./components/minhas-historias.component";
 import MinhaHistoriaComponent from "./components/minha-historia.component";
 import VisualizarNovaHistoriaComponent from "./components/visualizar-nova-historia.component";
 import HistoriasVisualizadasComponent from "./components/historias-visualizadas.component";
-import { HistoriaModel } from "./models/model";
 import HistoriaVisualizadaComponent from "./components/historia-visualizada.component";
 import PendentesAprovacaoComponent from "./components/pendentes-aprovacao.component";
 import AcessoComponent from "./components/acesso.component";
 import TokenService from "./services/token.service";
 import { HistoriaResponseModel } from "./models/response.model";
+import StorageService from "./services/storage.service";
 
 class App {
     private mainElement: HTMLElement;
     private headerComponent: HTMLElement;
     private currentComponent: HTMLElement | null = null;
-
+    
     constructor() {
+
         this.mainElement = document.querySelector("main") as HTMLElement;
         document.addEventListener("unauthorized", () => {
             localStorage.clear();
@@ -55,8 +56,8 @@ class App {
     }
 
     private load() {
-        const currentComponentName = localStorage.getItem("currentComponentName");
-        switch (currentComponentName) {
+
+        switch (StorageService.currentComponent) {
             case "nova-historia-component":
                 this.novaHistoria();
                 break;
@@ -70,8 +71,10 @@ class App {
                 this.minhaHistoria();
                 break;
             case "historias-visualizadas-component":
-            case "historia-visualizada-component":
                 this.historiasVisualizadas();
+                break;
+            case "historia-visualizada-component":
+                this.historiaVisualizada();
                 break;
             case "pendentes-aprovacao-component":
                 this.pendentesAprovacao();
@@ -92,7 +95,7 @@ class App {
         exibirVoltar: boolean = false,
         exibirMenu: boolean = false): HTMLElement {
 
-        localStorage.setItem("currentComponentName", name);
+        StorageService.currentComponent = name;
         const headerConfig: HeaderConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
         this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
 
@@ -170,11 +173,15 @@ class App {
 
     private minhaHistoria(historia?: HistoriaResponseModel) {
         const component = this.loadComponent("minha-historia-component", MinhaHistoriaComponent, "Minha História", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.minhasHistorias.bind(this), () => localStorage.removeItem(localStorageKey_minhaHistoria_historia)));
-        component.addEventListener("voltar", () => {
-            this.minhasHistorias();
-            localStorage.removeItem(localStorageKey_minhaHistoria_historia);
+
+        this.headerComponent.addEventListener(headerVoltarClick, () => {
+            this.loadIfCurrent(component, this.minhasHistorias.bind(this), () => {
+                localStorage.removeItem(localStorageKey_minhaHistoria_historia)
+            })
         });
+        
+        component.addEventListener("voltar", () => this.minhasHistorias());
+
         if (historia) {
             component.addEventListener("initialized", () =>
                 component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
@@ -184,20 +191,35 @@ class App {
 
     private historiasVisualizadas() {
         const component = this.loadComponent("historias-visualizadas-component", HistoriasVisualizadasComponent, "Histórias Visualizadas", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.index.bind(this)));
-        component.addEventListener("apresentarHistoriaVisualizada", (ev) => {
-            const historia = (ev as CustomEvent).detail as HistoriaModel;
+
+        this.headerComponent.addEventListener(headerVoltarClick, () => {
+            this.loadIfCurrent(component, this.index.bind(this), () => {
+                HistoriasVisualizadasComponent.RemoveStorage();
+            })
+        });
+
+        component.addEventListener("apresentarHistoria", (ev) => {
+            const historia = (ev as CustomEvent).detail as HistoriaResponseModel;
             this.historiaVisualizada(historia);
         });
     }
 
-    private historiaVisualizada(historia: HistoriaModel) {
+    private historiaVisualizada(historia?: HistoriaResponseModel) {
         const component = this.loadComponent("historia-visualizada-component", HistoriaVisualizadaComponent, "História Visualizada", true);
-        this.headerComponent.addEventListener(headerVoltarClick, () => this.loadIfCurrent(component, this.historiasVisualizadas.bind(this)));
+        
+        this.headerComponent.addEventListener(headerVoltarClick, () => {
+            this.loadIfCurrent(component, this.historiasVisualizadas.bind(this), () => {
+                HistoriaVisualizadaComponent.RemoveStorage();
+            })
+        });
+
         component.addEventListener("curtir", () => this.historiasVisualizadas());
-        component.addEventListener("initialized", () =>
-            component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
-        );
+
+        if (historia) {
+            component.addEventListener("initialized", () =>
+                component.dispatchEvent(new CustomEvent("initializeData", { detail: historia }))
+            );
+        }
     }
 
     private pendentesAprovacao() {

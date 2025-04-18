@@ -20,3 +20,5 @@ export const localStorageKey_minhaHistoria_historia = "minhaHistoria_historia";
 export const localStorageKey_historiasVisualizadas_pagina = "historiasVisualizadas_pagina";
 export const localStorageKey_historiasVisualizadas_titulo = "historiasVisualizadas_titulo";
 export const localStorageKey_historiasVisualizadas_curtida = "historiasVisualizadas_curtida";
+
+export const localStorageKey_historiaVisualizada_historia = "historiaVisualizada_historia";

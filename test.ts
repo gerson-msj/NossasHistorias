@@ -119,7 +119,7 @@ Deno.test.ignore("Minhas Histórias", async () => {
     assert(() => result !== undefined);
 });
 
-Deno.test("FB", () => {
+Deno.test.ignore("FB", () => {
     let v1: number;
     let v2: number;
     let v3: number;
@@ -134,3 +134,10 @@ Deno.test("FB", () => {
         v2 = v3;
     }
 });
+
+Deno.test("atob", () => {
+    let v: string | null = btoa("index_idHistoria");
+    const r = atob(v ?? "");
+    console.log("v: ", v);
+    console.log("resultado: ", r);
+})

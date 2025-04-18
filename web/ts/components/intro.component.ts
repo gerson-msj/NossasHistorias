@@ -1,4 +1,5 @@
 import ApiService from "../services/api.service";
+import StorageService from "../services/storage.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -44,7 +45,7 @@ class IntroComponent extends Component<IntroViewModel, IntroService> {
 
         if (!this.validarTokenSubject()) {
             const token = await this.service.obterToken();
-            localStorage.setItem("token", token);
+            StorageService.token = token;
         }
     }
 

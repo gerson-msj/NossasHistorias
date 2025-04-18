@@ -26,7 +26,8 @@ export interface HistoriaResponseModel {
     conteudo: string,
     situacao: string,
     visualizacoes: number,
-    curtidas: number
+    curtidas: number,
+    curtida?: boolean
 }
 
 export interface HistoriasResponseModel {

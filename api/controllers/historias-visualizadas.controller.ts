@@ -71,7 +71,8 @@ class HistoriasVisualizadasService extends Service {
                 h.Conteudo as conteudo,
                 s.Descricao as situacao,
                 coalesce(c.Visualizacoes, 0) as visualizacoes,
-                coalesce(c.Curtidas, 0) as curtidas
+                coalesce(c.Curtidas, 0) as curtidas,
+                v.Curtida as curtida
             From 
                 Historias as h
                 Inner Join HistoriaSituacao as s

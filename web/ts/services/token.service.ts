@@ -1,3 +1,4 @@
+import StorageService from "./storage.service";
 
 export default class TokenService {
 
@@ -18,7 +19,7 @@ export default class TokenService {
 
     static obterTokenSubject(): number | null {
         try {
-            const token = localStorage.getItem("token");
+            const token = StorageService.token;
             const payload: { sub: number } = JSON.parse(atob(token!.split(".")[1]));
             return payload.sub;
         } catch (error) {
