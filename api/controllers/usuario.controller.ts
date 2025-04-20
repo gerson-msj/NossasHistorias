@@ -65,11 +65,12 @@ export default class UsuarioController extends Controller<UsuarioService> {
 
         switch (context.request.method) {
             case "GET": {
-                if (context.tokenSub === null)
+                const id = context.tokenSub;
+                if (id === null)
                     return context.unauthorized();
 
                 const token = context.getSearchParam("token");
-                const response = await this.service.obterUsuario(token ?? context.tokenSub);
+                const response = await this.service.obterUsuario(token ?? id);
 
                 return Promise.resolve(context.ok(response));
             }
