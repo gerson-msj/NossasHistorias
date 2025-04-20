@@ -1380,15 +1380,23 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "model
     }
     exports.default = PendentesAprovacaoComponent;
 });
-define("components/acesso.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_12, service_12, viewmodel_12) {
+define("components/acesso.component", ["require", "exports", "services/storage.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, storage_service_5, component_12, service_12, viewmodel_12) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    storage_service_5 = __importDefault(storage_service_5);
     component_12 = __importDefault(component_12);
     service_12 = __importDefault(service_12);
     viewmodel_12 = __importDefault(viewmodel_12);
     class AcessoViewModel extends viewmodel_12.default {
+        idAtual = this.getElement("idAtual");
+        tokenAtual = this.getElement("tokenAtual");
+        copiar = this.getElement("copiar");
+        tokenExistente = this.getElement("tokenExistente");
+        validar = this.getElement("validar");
+        utilizar = this.getElement("utilizar");
         constructor() {
             super();
+            this.tokenAtual.innerText = storage_service_5.default.token ?? "";
         }
     }
     class AcessoService extends service_12.default {
@@ -1403,7 +1411,7 @@ define("components/acesso.component", ["require", "exports", "components/base/co
     }
     exports.default = AcessoComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service", "services/storage.service"], function (require, exports, header_component_1, index_component_1, const_model_7, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2, storage_service_5) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "models/const.model", "components/intro.component", "components/nova-historia.component", "components/minhas-historias.component", "components/minha-historia.component", "components/visualizar-nova-historia.component", "components/historias-visualizadas.component", "components/historia-visualizada.component", "components/pendentes-aprovacao.component", "components/acesso.component", "services/token.service", "services/storage.service"], function (require, exports, header_component_1, index_component_1, const_model_7, intro_component_1, nova_historia_component_1, minhas_historias_component_1, minha_historia_component_1, visualizar_nova_historia_component_1, historias_visualizadas_component_1, historia_visualizada_component_1, pendentes_aprovacao_component_1, acesso_component_1, token_service_2, storage_service_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -1418,7 +1426,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     pendentes_aprovacao_component_1 = __importDefault(pendentes_aprovacao_component_1);
     acesso_component_1 = __importDefault(acesso_component_1);
     token_service_2 = __importDefault(token_service_2);
-    storage_service_5 = __importDefault(storage_service_5);
+    storage_service_6 = __importDefault(storage_service_6);
     class App {
         mainElement;
         headerComponent;
@@ -1449,7 +1457,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             return headerComponent;
         }
         load() {
-            switch (storage_service_5.default.currentComponent) {
+            switch (storage_service_6.default.currentComponent) {
                 case "nova-historia-component":
                     this.novaHistoria();
                     break;
@@ -1480,7 +1488,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             }
         }
         loadComponent(name, constructor, titulo = null, exibirVoltar = false, exibirMenu = false) {
-            storage_service_5.default.currentComponent = name;
+            storage_service_6.default.currentComponent = name;
             const headerConfig = { titulo: titulo ?? "Nossas Histórias", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
             this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
             if (!customElements.get(name))

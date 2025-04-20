@@ -27,13 +27,21 @@ class UsuarioService {
         return this.crypt.criarToken(id);
     }
 
-    public obterUsuario(id: number): Usuario | undefined {
-        const sql = "Select * From Usuarios Where Id = ?";
-        const query = this.db.prepare(sql);
-        return query.get(id) as Usuario;
-    }
+    public async obterUsuario(tokenOrId: string | number): Promise<UsuarioResponseModel> {
 
-    public obterUsuarioResponseModel(usuario: Usuario | undefined): UsuarioResponseModel {
+        let id: number | undefined;
+        if(typeof tokenOrId === "number")
+            id = tokenOrId;
+        else if (await this.crypt.tokenValido(tokenOrId))
+            id = this.crypt.tokenSub<number>(tokenOrId);
+
+        let usuario: Usuario | undefined = undefined;
+        if(id) {
+            const sql = "Select * From Usuarios Where Id = ?";
+            const query = this.db.prepare(sql);
+            usuario = query.get(id) as Usuario;
+        }
+
         return {
             usuarioExistente: usuario !== undefined,
             id: usuario?.Id,
@@ -60,8 +68,8 @@ export default class UsuarioController extends Controller<UsuarioService> {
                 if (context.tokenSub === null)
                     return context.unauthorized();
 
-                const usuario = this.service.obterUsuario(context.tokenSub);
-                const response = this.service.obterUsuarioResponseModel(usuario);
+                const token = context.getSearchParam("token");
+                const response = await this.service.obterUsuario(token ?? context.tokenSub);
 
                 return Promise.resolve(context.ok(response));
             }

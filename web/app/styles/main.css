@@ -200,10 +200,39 @@ h1 {
     margin-top: 5px;
 }
 
-
-
 .dialog-buttons {
     height: 40px;
     justify-content: space-evenly;
     padding-top: 10px;
+}
+
+/* Acesso */
+
+fieldset {
+    border-radius: 5px;
+    padding: 10px;
+    display: grid;
+    grid-template-rows: auto;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+fieldset legend {
+    padding: 0 8px;
+}
+
+fieldset div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+fieldset input[type=text],
+fieldset p {
+    width: 100%;
+    text-align: center;
+}
+
+fieldset p {
+        word-break: break-all;
 }

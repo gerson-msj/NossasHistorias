@@ -5,20 +5,23 @@
                 
                 <section>
                     <fieldset>
-                        <legend>Identificador do Usuário <span>1</span></legend>
-                        <p>
+                        <legend>Identificador atual: Usuário #<span id="idAtual">1</span></legend>
+                        <p id="tokenAtual">
                             ...
                         </p>
-                        <button type="button">Copiar</button>
+                        <div>
+                            <button type="button" id="copiar">Copiar</button>
+                        </div>
                     </fieldset>
                 </section>
                 <section>
                     <fieldset>
-                        <legend>utilizar um Identificador existente</legend>
-                        <p>
-                            ...
-                        </p>
-                        <button type="button">Validar</button>
+                        <legend>Utilizar um Identificador existente</legend>
+                        <input type="text" id="tokenExistente">
+                        <div>
+                            <button type="button" id="validar">Validar</button>
+                            <button type="button" id="utilizar">Utilizar</button>    
+                        </div>
                     </fieldset>
                 </section>
                 <section>
