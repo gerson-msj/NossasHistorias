@@ -1380,26 +1380,62 @@ define("components/pendentes-aprovacao.component", ["require", "exports", "model
     }
     exports.default = PendentesAprovacaoComponent;
 });
-define("components/acesso.component", ["require", "exports", "services/storage.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, storage_service_5, component_12, service_12, viewmodel_12) {
+define("components/acesso.component", ["require", "exports", "services/api.service", "services/storage.service", "components/base/component", "components/base/service", "components/base/viewmodel", "components/dialog.component"], function (require, exports, api_service_9, storage_service_5, component_12, service_12, viewmodel_12, dialog_component_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_9 = __importDefault(api_service_9);
     storage_service_5 = __importDefault(storage_service_5);
     component_12 = __importDefault(component_12);
     service_12 = __importDefault(service_12);
     viewmodel_12 = __importDefault(viewmodel_12);
+    dialog_component_5 = __importDefault(dialog_component_5);
     class AcessoViewModel extends viewmodel_12.default {
         idAtual = this.getElement("idAtual");
         tokenAtual = this.getElement("tokenAtual");
         copiar = this.getElement("copiar");
         tokenExistente = this.getElement("tokenExistente");
-        validar = this.getElement("validar");
-        utilizar = this.getElement("utilizar");
+        trocarUsuario = this.getElement("trocarUsuario");
+        dialog;
+        onTrocarUsuario = (token) => { };
         constructor() {
             super();
+            this.copiar.addEventListener("click", async () => {
+                await navigator.clipboard.writeText(this.tokenAtual.innerText);
+                this.dialog.openMsgBox({
+                    titulo: `Usuário #${this.idAtual.innerText}`,
+                    mensagem: "O identificador atual foi copiado para a área de transferência",
+                    icone: "inventory",
+                    ok: "Ok"
+                });
+            });
+            this.trocarUsuario.disabled = true;
+            this.tokenExistente.addEventListener("keyup", (ev) => {
+                if (ev.key === "Escape")
+                    this.tokenExistente.value = "";
+                this.trocarUsuario.disabled = this.tokenExistente.value === "";
+            });
+            this.trocarUsuario.addEventListener("click", () => {
+                this.onTrocarUsuario(this.tokenExistente.value);
+            });
+        }
+        apresentarToken(id) {
+            this.tokenExistente.value = "";
+            this.idAtual.innerText = id?.toString() ?? "";
             this.tokenAtual.innerText = storage_service_5.default.token ?? "";
         }
     }
     class AcessoService extends service_12.default {
+        apiUsuario;
+        constructor() {
+            super();
+            this.apiUsuario = new api_service_9.default("usuario");
+        }
+        obterUsuario(token) {
+            const p = new URLSearchParams();
+            if (token)
+                p.append("token", token);
+            return this.apiUsuario.doGet(p);
+        }
     }
     class AcessoComponent extends component_12.default {
         constructor() {
@@ -1407,6 +1443,50 @@ define("components/acesso.component", ["require", "exports", "services/storage.s
         }
         async initialize() {
             await this.initializeResources(AcessoViewModel, AcessoService);
+            this.viewModel.dialog = await dialog_component_5.default.load(this);
+            await this.apresentarAtual();
+            this.viewModel.onTrocarUsuario = this.trocarUsuario.bind(this);
+        }
+        async trocarUsuario(token) {
+            if (token === storage_service_5.default.token) {
+                this.viewModel.dialog.openMsgBox({
+                    titulo: "Trocar Usuário",
+                    mensagem: "O identificador informado é o identificador atual<br />Informe outro identificador.",
+                    icone: "manage_accounts",
+                    ok: "Ok"
+                });
+                return;
+            }
+            const novoUsuario = await this.service.obterUsuario(token);
+            if (novoUsuario.usuarioExistente) {
+                this.viewModel.dialog.openMsgBox({
+                    titulo: "Trocar Usuário",
+                    mensagem: "O identificador informado é válido<br />Deseja substituir o identificador atual?",
+                    icone: "manage_accounts",
+                    cancel: "Não",
+                    ok: "Sim"
+                }, () => {
+                    storage_service_5.default.token = token;
+                    this.viewModel.dialog.openMsgBox({
+                        titulo: "Trocar Usuário",
+                        mensagem: "O identificador atual foi substituído com sucesso.",
+                        icone: "person_check",
+                        ok: "Ok"
+                    }, this.apresentarAtual.bind(this), this.apresentarAtual.bind(this));
+                });
+            }
+            else {
+                this.viewModel.dialog.openMsgBox({
+                    titulo: "Trocar Usuário",
+                    mensagem: "O identificador informado é inválido!",
+                    icone: "manage_accounts",
+                    ok: "Ok"
+                });
+            }
+        }
+        async apresentarAtual() {
+            const usuario = await this.service.obterUsuario();
+            this.viewModel.apresentarToken(usuario.id);
         }
     }
     exports.default = AcessoComponent;

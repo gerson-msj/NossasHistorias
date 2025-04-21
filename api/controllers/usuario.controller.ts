@@ -30,11 +30,16 @@ class UsuarioService {
     public async obterUsuario(tokenOrId: string | number): Promise<UsuarioResponseModel> {
 
         let id: number | undefined;
-        if(typeof tokenOrId === "number")
-            id = tokenOrId;
-        else if (await this.crypt.tokenValido(tokenOrId))
-            id = this.crypt.tokenSub<number>(tokenOrId);
-
+        
+        try {
+            if(typeof tokenOrId === "number")
+                id = tokenOrId;
+            else if (await this.crypt.tokenValido(tokenOrId))
+                id = this.crypt.tokenSub<number>(tokenOrId);    
+        } catch {
+            id = undefined;
+        }
+        
         let usuario: Usuario | undefined = undefined;
         if(id) {
             const sql = "Select * From Usuarios Where Id = ?";
