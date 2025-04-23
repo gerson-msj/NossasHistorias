@@ -18,8 +18,8 @@ class HeaderViewModel extends ViewModel {
     private cssPointer = "pointer";
     private cssOculto = "oculto";
 
-    public onMenuClick = () => { };
-    public onVoltarClick = () => { };
+    public onMenuClick = () => { }
+    public onVoltarClick = () => { }
 
     constructor() {
         super();

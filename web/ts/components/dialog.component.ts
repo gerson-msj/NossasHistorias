@@ -5,34 +5,23 @@ import ViewModel from "./base/viewmodel";
 
 class DialogViewModel extends ViewModel {
 
-    private dialogContainer: HTMLDivElement;
-    private dialogBackdrop: HTMLDialogElement;
-    private dialogHeader: HTMLDivElement;
-    private dialogIcon: HTMLSpanElement;
-    private dialogMsg: HTMLSpanElement;
-    private dialogInput: HTMLSpanElement;
-    private dialogInputLabel: HTMLLabelElement;
-    private dialogInputBox: HTMLInputElement;
-    private dialogCancel: HTMLButtonElement;
-    private dialogOk: HTMLButtonElement;
+    private dialogContainer = this.getElement<HTMLDivElement>("dialogContainer");
+    private dialogBackdrop = this.getElement<HTMLDialogElement>("dialogBackdrop")
+    private dialogHeader = this.getElement<HTMLDivElement>("dialogHeader");
+    private dialogIcon = this.getElement<HTMLSpanElement>("dialogIcon");
+    private dialogMsg = this.getElement<HTMLSpanElement>("dialogMsg");
+    private dialogInput = this.getElement<HTMLSpanElement>("dialogInput");
+    private dialogInputLabel = this.getElement<HTMLLabelElement>("dialogInputLabel");
+    private dialogInputBox = this.getElement<HTMLInputElement>("dialogInputBox");
+    private dialogCancel = this.getElement<HTMLButtonElement>("dialogCancel");
+    private dialogOk = this.getElement<HTMLButtonElement>("dialogOk");
 
     public onCancel = () => { };
     public onOk = (inputText: string) => { };
 
     constructor() {
         super();
-
-        this.dialogContainer = this.getElement("dialogContainer");
-        this.dialogBackdrop = this.getElement("dialogBackdrop")
-        this.dialogHeader = this.getElement("dialogHeader");
-        this.dialogIcon = this.getElement("dialogIcon");
-        this.dialogMsg = this.getElement("dialogMsg");
-        this.dialogInput = this.getElement("dialogInput");
-        this.dialogInputLabel = this.getElement("dialogInputLabel");
-        this.dialogInputBox = this.getElement("dialogInputBox");
-        this.dialogCancel = this.getElement("dialogCancel");
-        this.dialogOk = this.getElement("dialogOk");
-
+        
         this.dialogCancel.addEventListener("click", () => this.onCancel());
         this.dialogBackdrop.addEventListener("click", () => this.onCancel());
         this.dialogOk.addEventListener("click", () => this.onOk(this.dialogInputBox.value));
